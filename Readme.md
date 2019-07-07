@@ -1,24 +1,11 @@
 # Screeps Tools
 
-[![CircleCI](https://circleci.com/gh/Arcath/screeps-tools.svg?style=svg)](https://circleci.com/gh/Arcath/screeps-tools)
-
-[Slack](https://screeps.slack.com/messages/C8LFD7KEX/)
-
-A collection of tools for players of the Programmers MMO Screeps.
+Personalized tools for Screeps.
 
 ## Building Planner
 
-A clone of the building planner by Dissi built using React.
-
-It has a few features that the old planner didn't have:
-
- - Road and Ramparts are on thier own layers so you can plan structures inside ramparts.
- - Screeps API calls are now run though the Express App removing the depedency on the screeps web APIs
+Forked and minimally customized building planner by (Arcath)[https://github.com/Arcath/screeps-tools] using React, a clone of the original building planner by Dissi.
 
 ## Creep Designer
 
 Allows you to build creeps and see the stats & avialable creep functions for that creep.
-
-## Memory Viewer
-
-View your memory from any shard and query it using jq.

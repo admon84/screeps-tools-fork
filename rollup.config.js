@@ -17,8 +17,9 @@ export default {
   },
   plugins: [
     replace({
-      'process.env.NODE_ENV': JSON.stringify( 'production' )
+      'process.env.NODE_ENV': JSON.stringify('production')
     }),
+    typescript({tsconfig: './tsconfig.json'}),
     resolve(),
     commonjs({
       namedExports: {
@@ -64,7 +65,6 @@ export default {
         ]
       }
     }),
-    typescript({tsconfig: './tsconfig.json'}),
     less({
       output: './public/css/style.css'
     })

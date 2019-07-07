@@ -309,33 +309,7 @@ export class BuildingPlanner extends React.Component{
 
   shareableLink(){
     let string = LZString.compressToEncodedURIComponent(this.json())
-
-    return "https://screeps.arcath.net/building-planner/?share=" + string
-  }
-
-  translate(direction: 'up' | 'right' | 'down' | 'left'){
-    let structures = this.state.structures
-
-    Object.keys(structures).forEach((structureName) => {
-      structures[structureName].forEach((pos) => {
-        switch(direction){
-          case 'up':
-            pos.y --
-          break
-          case 'down':
-            pos.y ++
-          break
-          case 'right':
-            pos.x ++
-          break
-          case 'left':
-            pos.x --
-          break
-        }
-      })
-    })
-
-    this.setState({structures: structures})
+    return "https://admon.tk/#/building-planner/?share=" + string
   }
 
   render(){
@@ -358,51 +332,25 @@ export class BuildingPlanner extends React.Component{
           </div>
         })}
       </div>
-      <div className="controls">
-        <p>
-          <Form onSubmit={(values, e, formApi) => this.handleControlForm(values)}>
-            {
-              formApi =>
-                <form onSubmit={formApi.submitForm}>
-                  <Text field='room' id='room' />
-                  <Select field='shard' id='shard' options={this.state.shards} />
-                  <button type='submit'>Load Terrain</button>
-                </form>
-            }
-          </Form>
-        </p>
-        <p>
-          X: {this.state.x} Y: {this.state.y}
-        </p>
-        <p>
-          RCL: <select value={this.state.rcl} onChange={(e) => this.setRCL(e)}>
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-            <option value={4}>4</option>
-            <option value={5}>5</option>
-            <option value={6}>6</option>
-            <option value={7}>7</option>
-            <option value={8}>8</option>
-          </select>
-        </p>
-        <table>
-          <tr>
-            <td></td>
-            <td><button onClick={(e) => {this.translate('up')}}>up</button></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td><button onClick={(e) => {this.translate('left')}}>left</button></td>
-            <td>Translate</td>
-            <td><button onClick={(e) => {this.translate('right')}}>right</button></td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><button onClick={(e) => {this.translate('down')}}>down</button></td>
-            <td></td>
-          </tr>
-        </table>
+      <div className="controls structures">
+        <h4>Building Tools:</h4>
+        <div>
+          <div className="half-col">
+            X= {this.state.x} , Y= {this.state.y}
+          </div>
+          <div className="half-col">
+            RCL: <select value={this.state.rcl} onChange={(e) => this.setRCL(e)}>
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+              <option value={5}>5</option>
+              <option value={6}>6</option>
+              <option value={7}>7</option>
+              <option value={8}>8</option>
+            </select>
+          </div>
+        </div>
         <ul className="brushes">
           {Object.keys(STRUCTURES).map((key) => {
             return <li onClick={() => this.setState({brush: key})} className={this.state.brush === key ? 'active' : ''} key={key}>
@@ -410,8 +358,34 @@ export class BuildingPlanner extends React.Component{
             </li>
           })}
         </ul>
+      </div>
+      <div className="controls room">
+        <Form onSubmit={(values, e, formApi) => this.handleControlForm(values)}>
+          {
+            formApi =>
+              <form onSubmit={formApi.submitForm}>
+                <h4>Import Room:</h4>
+                <table>
+                  <tr>
+                    <td><label>Shard:</label></td>
+                    <td><Select field='shard' id='shard' options={this.state.shards} /></td>
+                  </tr>
+                  <tr>
+                    <td><label>Room:</label></td>
+                    <td><Text field='room' id='room' /></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td><button type='submit' id='load-terrain'>Load Terrain</button></td>
+                  </tr>
+                </table>
+              </form>
+          }
+        </Form>
+        <br/>
+        <h4>JSON:</h4>
         <textarea value={this.json()} id="json-data" onChange={(e) => this.import(e)}></textarea>
-        <a href={this.shareableLink()}>Shareable Link</a>
+        <a href={this.shareableLink()} id="share-link">Shareable Link</a>
       </div>
     </div>
   }

@@ -2,6 +2,31 @@ html{
   height:100%;
 }
 
+h1{
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+h2{
+  font-size: 1.5em;
+  margin: 0.83em 0;
+}
+h3{
+  font-size: 1.17em;
+  margin: 1em 0;
+}
+h4{
+  font-size: 1em;
+  margin: 1.33em 0;
+}
+h5{
+  font-size: 0.83em;
+  margin: 1.67em 0;
+}
+h6{
+  font-size: 0.75em;
+  margin: 2.33em 0;
+}
+
 a{
   color: rgb(121,134,203);
   text-decoration: none;
@@ -19,6 +44,11 @@ body{
   background-attachment: fixed;
   height: 100%;
   font-family: 'Arial', sans-serif;
+}
+
+img#screeps-header{
+  float: right;
+  width: 36%;
 }
 
 .header{
@@ -52,19 +82,33 @@ body{
 
 .creep-designer, .memory-viewer{
   .panel{
-    width:40%;
-    margin:5%;
+    width:575px;
+    margin:10px 0 10px 15px;
     float:left;
     background-color:#222;
     color:#ccc;
     box-sizing: border-box;
     padding:10px;
 
+    #creep-body {
+      width: 550px;
+      min-width: 550px;
+      max-width: 550px;
+      height: 85px;
+      min-height: 85px;
+      max-height: 425px;
+      margin-top: 20px;
+    }
+
+    table.stats {
+      width: 100%;
+    }
+
     button{
-      background-color:rgb(63,81,181);
-      color:#fff;
-      border-radius:2px;
-      border:0;
+      background-color: rgb(63,81,181);
+      color: #fff;
+      border: 0;
+      padding: 3px 5px;
     }
 
     svg{
@@ -81,19 +125,22 @@ body{
 
       tbody{
         tr{
-          td:nth-of-type(3){
+          td:nth-of-type(2){
             text-align:center;
+
+            input{
+              color: #010101;
+              text-align:center;
+              width:45px;
+              background-color: #fff;
+              border:1px solid #ccc;
+              font-family: 'Arial', sans-serif;
+              padding: 2px;
+            }
           }
 
-          td:nth-of-type(4){
-            input{
-              color: #ffe56d;
-              text-align:center;
-              width:30px;
-              background-color:rgba(0,0,0,0);
-              border:0px solid #000;
-              font-family: 'Arial', sans-serif;
-            }
+          td:nth-of-type(3){
+            text-align: right;
           }
         }
       }
@@ -174,18 +221,18 @@ body{
   }
 
   .controls{
-    width:20%;
-    margin:5%;
-    margin-top:0px;
+    width: 300px;
+    margin: 0 15px 0 0;
     float:left;
     background-color:#222;
     color:#ccc;
     box-sizing: border-box;
     padding:10px;
 
-    table{
-      margin:auto;
-      text-align: center;
+    .half-col{
+      display: inline-block;
+      width: 50%;
+      margin-bottom: 10px;
     }
 
     .brushes{
@@ -207,20 +254,45 @@ body{
       }
     }
 
+    button{
+      padding: 3px 7px;
+    }
+    input,
+    select,
     textarea{
-      width:100%;
-      height:100px;
+      border: 1px solid #ccc;
+      padding: 3px;
+    }
+    #room{
+      width: 105px;
+    }
+    #shard, 
+    #load-terrain{
+      width: 113px;
+    }
+    textarea{
+      width: 270px;
+      min-width: 270px;
+      max-width: 270px;
+      height: 48px;
+      min-height: 48px;
+      max-height: 380px;
     }
   }
 
   .map{
-    overflow:auto;
+    margin: 10px;
+    overflow: hidden;
     float: left;
+    width: 800px !important;
+    height: 800px !important;
+    background: #111;
+    padding: 1px;
 
     .row{
-      width:100%;
-      height:2%;
-      overflow:auto;
+      width: 100%;
+      height: 2%;
+      overflow: hidden;
 
       .cell{
         width:2%;

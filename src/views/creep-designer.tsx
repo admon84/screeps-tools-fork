@@ -191,45 +191,43 @@ export class CreepDesigner extends React.Component{
           <thead>
             <tr>
               <th>Body Part</th>
+              <th>Count</th>
               <th>Cost</th>
-              <th colSpan={3}>Count</th>
             </tr>
           </thead>
           <tbody>
             {Object.keys(BODYPARTS).map((part) => {
               return <tr key={part}>
-                <td>{BODYPARTS[part]}</td>
-                <td>{BODYPART_COST[part]}</td>
+                <td>{BODYPARTS[part]} </td>
                 <td>
-                  <button onClick={() => this.remove(part)}>-</button>
-                </td>
-                <td><input type="number" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} /></td>
-                <td>
+                  <button onClick={() => this.remove(part)}>&ndash;</button>
+                  <input type="number" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
                   <button onClick={() => this.add(part)}>+</button>
                 </td>
+                <td>{BODYPART_COST[part]}</td>
               </tr>
             })}
             <tr>
-              <td>Totals</td>
+              <td><b>Total:</b></td>
+              <td><b>{this.count()}</b></td>
               <td>{this.totalCost()} (RCL {this.requiredRCL()})</td>
-              <td colSpan={3}>{this.count()}</td>
             </tr>
           </tbody>
         </table>
         <Creep body={this.state.body} />
-        <textarea value={this.body()} onChange={(e) => this.import(e)}></textarea>
-        <a href={this.shareLink()}>Shareable Link</a> Paste a body array above to import it.
+        <textarea id='creep-body' value={this.body()} onChange={(e) => this.import(e)}></textarea>
+        <a href={this.shareLink()}>Shareable Link</a>
       </div>
       <div className="panel">
         <table className="stats">
           <thead>
             <tr>
               <th>Action</th>
-              <th>Standard</th>
-              <th>t1 Boost</th>
-              <th>t2 Boost</th>
-              <th>t3 Boost</th>
-              <th>Lifetime</th>
+              <th>Unboosted</th>
+              <th>T1</th>
+              <th>T2</th>
+              <th>T3</th>
+              <th>Lifespan</th>
             </tr>
           </thead>
           <tbody>
@@ -290,7 +288,10 @@ export class CreepDesigner extends React.Component{
               <td>{((this.state.body.heal * 12) * this.creepLifespan()).toLocaleString()}</td>
             </tr>
             <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
-              <td rowSpan={3}>Ranged Attack & Ranged Mass Attack</td>
+              <td rowSpan={3}>
+                Ranged Attack &amp;<br/>
+                Ranged Mass Attack
+              </td>
               <td>{(this.state.body.ranged_attack * 1).toLocaleString()}/T</td>
               <td>{((this.state.body.ranged_attack * 1) * 2).toLocaleString()}/T</td>
               <td>{((this.state.body.ranged_attack * 1) * 3).toLocaleString()}/T</td>
@@ -373,7 +374,8 @@ export class CreepDesigner extends React.Component{
             </tr>
           </tbody>
         </table>
-        <b>Creep Functions</b>
+        <br/>
+        <h4>Creep Functions</h4>
         <ul className="creepFunctions">
           <li className={this.state.body.attack > 0 ? 'yes' : 'no'}>attack</li>
           <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>

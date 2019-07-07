@@ -6,7 +6,7 @@ import * as SocketIO from 'socket.io'
 import * as http from 'http'
 import * as bodyParser from 'body-parser'
 import {ScreepsAPI} from 'screeps-api'
-import {CreepDesigner} from './views/creep-designer'
+// import {CreepDesigner} from './views/creep-designer'
 
 let app = express()
 
@@ -52,7 +52,7 @@ app.get('/api/memory/:shard', (req, res) => {
   })
 })
 
-app.post('/slack/creep', (req, res) => {
+/*app.post('/slack/creep', (req, res) => {
   let creepDesigner = new CreepDesigner({api: true})
 
   creepDesigner.import({
@@ -71,7 +71,7 @@ app.post('/slack/creep', (req, res) => {
       }
     ]
   })
-})
+})*/
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))

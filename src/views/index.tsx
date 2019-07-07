@@ -3,23 +3,16 @@ import {Link} from 'react-router-dom'
 
 export const Index = () => (
   <div className="index">
+    <img src="/img/screeps/header.jpg" id="screeps-header" />
+    <br/>
     <h2><Link to='/building-planner'>Building Planner</Link></h2>
     <p>
       The Building planner is a port of Dissi's Building planner into React.
-      
-      All of its api calls are passed through an express instance on the screeps-tolls server to avoid CORS issues.
     </p>
+    <br/>
     <h2><Link to='/creep-designer'>Creep Designer</Link></h2>
     <p>
       The Creep Designer gives a UI to build creeps and see all their stats.
-    </p>
-    <h2><Link to='/console-viewer'>Console Viewer</Link></h2>
-    <p>
-      The console viewer gives a live view of your screeps console that can be filtered per shard and will parse JSON into react-json-view
-    </p>
-    <h2><Link to='/memory-viewer'>Memory Viewer</Link></h2>
-    <p>
-      The Memory viewer pulls a copy of your Memory from any of the shards. This can then be viewed in React-JSON-View and queiried using JQ.
     </p>
   </div>
 )

@@ -24,14 +24,14 @@ const BODYPART_COST: {[part: string]: number} = {
 }
 
 const BODYPARTS: {[part: string]: string} = {
+  tough: "TOUGH",
   move: "MOVE",
   work: "WORK",
+  carry: "CARRY",
   attack: "ATTACK",
   ranged_attack: "RANGED_ATTACK",
-  tough: "TOUGH",
   heal: "HEAL",
-  claim: "CLAIM",
-  carry: "CARRY"
+  claim: "CLAIM"
 }
 
 export class CreepDesigner extends React.Component{
@@ -97,6 +97,39 @@ export class CreepDesigner extends React.Component{
     this.setState({body: body})
   }
 
+  walkTimeFull(move: number, multiplier: number, incrementer: number){
+    let time = 0;
+
+    if (move > 0) {
+      time = Math.ceil((Math.ceil(1 / ((move * incrementer) / this.count())) - 1) * multiplier);
+      time = time > 0 ? time : 1;
+    }
+
+    return time
+  }
+
+  walkTimeEmpty(move: number, carry: number, multiplier: number, incrementer: number){
+    let time = 0;
+
+    if (move > 0) {
+      time = Math.ceil((Math.ceil(1 / ((move * incrementer) / (this.count() - carry))) - 1) * multiplier);
+      time = time > 0 ? time : 1;
+    }
+
+    return time
+  }
+
+  partCost(part: string){
+    let cost = 0
+    let component = this
+
+    if (part && BODYPART_COST[part]) {
+      cost = (component.state.body[part] * BODYPART_COST[part])
+    }
+
+    return cost
+  }
+
   totalCost(){
     let cost = 0
     let component = this
@@ -139,7 +172,7 @@ export class CreepDesigner extends React.Component{
       counts.push(this.state.body[part])
     })
 
-    return "https://screeps.arcath.net/creep-designer/?share=" + counts.join('#')
+    return "http://admon.tk/#/creep-designer/?share=" + counts.join('#')
   }
 
   creepLifespan(){
@@ -191,26 +224,29 @@ export class CreepDesigner extends React.Component{
           <thead>
             <tr>
               <th>Body Part</th>
+              <th>Price</th>
               <th>Count</th>
-              <th>Cost</th>
+              <th>Sum</th>
             </tr>
           </thead>
           <tbody>
             {Object.keys(BODYPARTS).map((part) => {
-              return <tr key={part}>
-                <td>{BODYPARTS[part]} </td>
-                <td>
-                  <button onClick={() => this.remove(part)}>&ndash;</button>
+              return <tr key={part} className={this.state.body[part] > 0 ? 'active-parts' : ''}>
+                <td className="part">{BODYPARTS[part]} </td>
+                <td className="price">{BODYPART_COST[part]}</td>
+                <td className="count">
+                  <button onClick={() => this.remove(part)}>&minus;</button>
                   <input type="text" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
                   <button onClick={() => this.add(part)}>+</button>
                 </td>
-                <td>{BODYPART_COST[part]}</td>
+                <td className="sum">{this.partCost(part) ? '-' + this.partCost(part) : '0'}</td>
               </tr>
             })}
             <tr>
-              <td><b>Total:</b></td>
-              <td><b>{this.count()}</b></td>
-              <td>{this.totalCost()} (RCL {this.requiredRCL()})</td>
+              <td className="part"><b>Total</b> (RCL {this.requiredRCL()})</td>
+              <td className="price"></td>
+              <td className="count"><b>{this.count()}</b></td>
+              <td className="sum total">{this.totalCost() ? '-' + this.totalCost() : '0'}</td>
             </tr>
           </tbody>
         </table>
@@ -222,7 +258,7 @@ export class CreepDesigner extends React.Component{
         <table className="stats">
           <thead>
             <tr>
-              <th>Action</th>
+              <th></th>
               <th>Unboosted</th>
               <th>T1</th>
               <th>T2</th>
@@ -231,173 +267,197 @@ export class CreepDesigner extends React.Component{
             </tr>
           </thead>
           <tbody>
-            <tr style={{backgroundColor: '#f93842', color: '#fff'}}>
-              <td>Attack</td>
-              <td>{(this.state.body.attack * 30).toLocaleString()}/T</td>
-              <td>{((this.state.body.attack * 30) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.attack * 30) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.attack * 30) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.attack * 30) * this.creepLifespan()).toLocaleString()}</td>
-            </tr>
-            <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-              <td>Build</td>
-              <td>{(this.state.body.work * 5).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 5) * 1.5).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 5) * 1.8).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 5) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 5) * this.creepLifespan()).toLocaleString()}</td>
-            </tr>
-            <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-              <td>Dismantle</td>
-              <td>{(this.state.body.work * 50).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 50) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 50) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 50) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 50) * this.creepLifespan()).toLocaleString()}</td>
+            <tr style={{backgroundColor: '#efefef', color: '#444'}}>
+              <td>Health</td>
+              <td colSpan={5} className="text-center">{(this.count() * 100).toLocaleString()} (from TOUGH: {(this.state.body.tough * 100).toLocaleString()})</td>
             </tr>
             <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
               <td>Harvest (Energy)</td>
-              <td>{(this.state.body.work * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 2) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 2) * 5).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 2) * 7).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 2) * this.creepLifespan()).toLocaleString()}</td> 
+              <td className="text-center">{(this.state.body.work * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 2) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 2) * 5).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 2) * 7).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 2) * this.creepLifespan()).toLocaleString()}</td> 
             </tr>
             <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-              <td>Ticks to drain source</td>
-              <td>{(3000 / (this.state.body.work * 2)).toLocaleString()}</td>
-              <td>{(3000 / ((this.state.body.work * 2) * 3)).toLocaleString()}</td>
-              <td>{(3000 / ((this.state.body.work * 2) * 5)).toLocaleString()}</td>
-              <td>{(3000 / ((this.state.body.work * 2) * 7)).toLocaleString()}</td>
-              <td></td> 
+              <td>Ticks to Empty Source</td>
+              <td className="text-center">{(3000 / (this.state.body.work * 2)).toLocaleString()}</td>
+              <td className="text-center">{(3000 / ((this.state.body.work * 2) * 3)).toLocaleString()}</td>
+              <td className="text-center">{(3000 / ((this.state.body.work * 2) * 5)).toLocaleString()}</td>
+              <td className="text-center">{(3000 / ((this.state.body.work * 2) * 7)).toLocaleString()}</td>
+              <td className="text-center"></td> 
             </tr>
             <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
               <td>Harvest (Mineral)</td>
-              <td>{(this.state.body.work * 1).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * 5).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * 7).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * this.creepLifespan()).toLocaleString()}</td>
-            </tr>
-            <tr style={{backgroundColor: '#65fd62', color: '#444'}}>
-              <td>Heal</td>
-              <td>{(this.state.body.heal * 12).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 12) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 12) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 12) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 12) * this.creepLifespan()).toLocaleString()}</td>
-            </tr>
-            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
-              <td rowSpan={3}>
-                Ranged Attack &amp;<br/>
-                Ranged Mass Attack
-              </td>
-              <td>{(this.state.body.ranged_attack * 1).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 1) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 1) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 1) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 1) * this.creepLifespan()).toLocaleString()}</td>              
-            </tr>
-            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
-              <td>{(this.state.body.ranged_attack * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 4) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 4) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 4) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 4) * this.creepLifespan()).toLocaleString()}</td>              
-            </tr>
-            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
-              <td>{(this.state.body.ranged_attack * 10).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 10) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 10) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 10) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.ranged_attack * 10) * this.creepLifespan()).toLocaleString()}</td>               
-            </tr>
-            <tr style={{backgroundColor: '#65fd62', color: '#444'}}>
-              <td>Ranged Heal</td>
-              <td>{(this.state.body.heal * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 4) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 4) * 3).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 4) * 4).toLocaleString()}/T</td>
-              <td>{((this.state.body.heal * 4) * this.creepLifespan()).toLocaleString()}</td>              
-            </tr>
-            <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-              <td>Repair</td>
-              <td>{(this.state.body.work * 100).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 100) * 1.5).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 100) * 1.8).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 100) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 100) * this.creepLifespan()).toLocaleString()}</td>
+              <td className="text-center">{(this.state.body.work * 1).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * 5).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * 7).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * this.creepLifespan()).toLocaleString()}</td>
             </tr>
             <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
               <td>Upgrade Controller</td>
-              <td>{(this.state.body.work * 1).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * 1.5).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * 1.8).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * 2).toLocaleString()}/T</td>
-              <td>{((this.state.body.work * 1) * this.creepLifespan()).toLocaleString()}</td>
+              <td className="text-center">{(this.state.body.work * 1).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * 1.5).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * 1.8).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 1) * this.creepLifespan()).toLocaleString()}</td>
             </tr>
-            <tr>
+            <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
+              <td>Build</td>
+              <td className="text-center">{(this.state.body.work * 5).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 5) * 1.5).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 5) * 1.8).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 5) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 5) * this.creepLifespan()).toLocaleString()}</td>
+            </tr>
+            <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
+              <td>Dismantle</td>
+              <td className="text-center">{(this.state.body.work * 50).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 50) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 50) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 50) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.work * 50) * this.creepLifespan()).toLocaleString()}</td>
+            </tr>
+            <tr style={{backgroundColor: '#f93842', color: '#fff'}}>
+              <td>Attack</td>
+              <td className="text-center">{(this.state.body.attack * 30).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.attack * 30) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.attack * 30) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.attack * 30) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.attack * 30) * this.creepLifespan()).toLocaleString()}</td>
+            </tr>
+            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+              <td>Ranged Attack</td>
+              <td className="text-center">{(this.state.body.ranged_attack * 10).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * this.creepLifespan()).toLocaleString()}</td>               
+            </tr>
+            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+              <td>Ranged Mass Attack (1)</td>
+              <td className="text-center">{(this.state.body.ranged_attack * 10).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 10) * this.creepLifespan()).toLocaleString()}</td>               
+            </tr>
+            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+              <td>Ranged Mass Attack (2)</td>
+              <td className="text-center">{(this.state.body.ranged_attack * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 4) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 4) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 4) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 4) * this.creepLifespan()).toLocaleString()}</td>              
+            </tr>
+            <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+              <td>Ranged Mass Attack (3)</td>
+              <td className="text-center">{(this.state.body.ranged_attack * 1).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 1) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 1) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 1) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.ranged_attack * 1) * this.creepLifespan()).toLocaleString()}</td>              
+            </tr>
+            <tr style={{backgroundColor: '#65fd62', color: '#444'}}>
+              <td>Heal</td>
+              <td className="text-center">{(this.state.body.heal * 12).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 12) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 12) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 12) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 12) * this.creepLifespan()).toLocaleString()}</td>
+            </tr>
+            <tr style={{backgroundColor: '#65fd62', color: '#444'}}>
+              <td>Ranged Heal</td>
+              <td className="text-center">{(this.state.body.heal * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 4) * 2).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 4) * 3).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 4) * 4).toLocaleString()}/T</td>
+              <td className="text-center">{((this.state.body.heal * 4) * this.creepLifespan()).toLocaleString()}</td>              
+            </tr>
+            <tr style={{backgroundColor: '#efefef', color: '#444'}}>
               <td>Carry</td>
-              <td>{(this.state.body.carry * 50).toLocaleString()}</td>
-              <td>{((this.state.body.carry * 50) * 2).toLocaleString()}</td>
-              <td>{((this.state.body.carry * 50) * 3).toLocaleString()}</td>
-              <td>{((this.state.body.carry * 50) * 4).toLocaleString()}</td>
-              <td></td>
+              <td className="text-center">{(this.state.body.carry * 50).toLocaleString()}</td>
+              <td className="text-center">{((this.state.body.carry * 50) * 2).toLocaleString()}</td>
+              <td className="text-center">{((this.state.body.carry * 50) * 3).toLocaleString()}</td>
+              <td className="text-center">{((this.state.body.carry * 50) * 4).toLocaleString()}</td>
+              <td className="text-center"></td>
             </tr>
             <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
-              <td>Move</td>
-              <td>{this.state.body.move * 2}</td>
-              <td>{(this.state.body.move * 2) * 2}</td>
-              <td>{(this.state.body.move * 2) * 3}</td>
-              <td>{(this.state.body.move * 2) * 4}</td>
-              <td></td>
+              <td>Move on Plain (empty)</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 1, 1)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 1, 2)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 1, 3)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 1, 4)}</td>
+              <td className="text-center"></td>
             </tr>
             <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
-              <td>Ticks to Move (Laden)</td>
-              <td>{(this.count() / (this.state.body.move * 2)).toLocaleString()}</td>
-              <td>{(this.count() / ((this.state.body.move * 2) * 2)).toLocaleString()}</td>
-              <td>{(this.count() / ((this.state.body.move * 2) * 3)).toLocaleString()}</td>
-              <td>{(this.count() / ((this.state.body.move * 2) * 4)).toLocaleString()}</td>
-              <td></td>
+              <td>Move on Road (empty)</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 0.5, 1)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 0.5, 2)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 0.5, 3)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 0.5, 4)}</td>
+              <td className="text-center"></td>
             </tr>
             <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
-              <td>Ticks to Move (Empty)</td>
-              <td>{((this.count() - this.state.body.carry) / (this.state.body.move * 2)).toLocaleString()}</td>
-              <td>{((this.count() - this.state.body.carry) / ((this.state.body.move * 2) * 2)).toLocaleString()}</td>
-              <td>{((this.count() - this.state.body.carry) / ((this.state.body.move * 2) * 3)).toLocaleString()}</td>
-              <td>{((this.count() - this.state.body.carry) / ((this.state.body.move * 2) * 4)).toLocaleString()}</td>
-              <td></td>
+              <td>Move on Swamp (empty)</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 5, 1)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 5, 2)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 5, 3)}</td>
+              <td className="text-center">{this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 5, 4)}</td>
+              <td className="text-center"></td>
             </tr>
-            <tr>
-              <td>Health</td>
-              <td colSpan={5} style={{textAlign: 'center'}}>{(this.count() * 100).toLocaleString()} ({(this.state.body.tough * 100).toLocaleString()} from TOUGH)</td>
+            <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
+              <td>Move on Plain (full)</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 1)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 2)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 3)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 4)}</td>
+              <td className="text-center"></td>
+            </tr>
+            <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
+              <td>Move on Road (full)</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 1)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 2)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 3)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 4)}</td>
+              <td className="text-center"></td>
+            </tr>
+            <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
+              <td>Move on Swamp (full)</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 1)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 2)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 3)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 4)}</td>
+              <td className="text-center"></td>
             </tr>
           </tbody>
         </table>
         <br/>
         <h4>Creep Functions</h4>
         <ul className="creepFunctions">
-          <li className={this.state.body.attack > 0 ? 'yes' : 'no'}>attack</li>
-          <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>
-          <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>build</li>
-          <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>claimController</li>
-          <li className={this.state.body.work > 0 ? 'yes' : 'no'}>dismantle</li>
-          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>drop</li>
-          <li className={this.state.body.carry >= 20 ? 'yes' : 'no'}>generateSafeMode</li>
-          <li className={this.state.body.work > 0 ? 'yes' : 'no'}>harvest</li>
-          <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>heal</li>
           <li className={this.state.body.move > 0 ? 'yes' : 'no'}>move</li>
+          <li className={this.state.body.move > 0 ? 'yes' : 'no'}>pull</li>
+          <li className={this.state.body.work > 0 ? 'yes' : 'no'}>harvest</li>
+          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>drop</li>
+          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>pickup</li>
+          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>transfer</li>
+          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>withdraw</li>
+          <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>build</li>
+          <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>repair</li>
+          <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>upgradeController</li>
         </ul>
         <ul className="creepFunctions">
-          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>pickup</li>
-          <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedAttack</li>
+          <li className={this.state.body.work > 0 ? 'yes' : 'no'}>dismantle</li>
+          <li className={this.state.body.attack > 0 ? 'yes' : 'no'}>attack</li>
+          <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>heal</li>
           <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>rangedHeal</li>
+          <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedAttack</li>
           <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedMassAttack</li>
-          <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>repair</li>
           <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>reserveController</li>
-          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>transfer</li>
-          <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>upgradeController</li>
-          <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>withdraw</li>
+          <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>claimController</li>
+          <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>
+          <li className={this.state.body.carry >= 20 ? 'yes' : 'no'}>generateSafeMode</li>
         </ul>
       </div>
     </div>

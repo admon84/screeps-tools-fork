@@ -59,6 +59,10 @@ a{
   }
 }
 
+.text-center {
+  text-align: center;
+}
+
 .header{
   background-image: linear-gradient(to bottom, #1f1f1f 0%, #1a1a1a 100%);
   border-bottom: 1px solid #111 !important;
@@ -99,24 +103,22 @@ a{
     padding:10px;
 
     #creep-body {
-      width: 550px;
-      min-width: 550px;
-      max-width: 550px;
+      position: relative;
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
       height: 45px;
       min-height: 45px;
-      max-height: 425px;
+      max-height: 205px;
       margin-top: 20px;
     }
 
     table.stats {
       width: 100%;
-    }
 
-    button{
-      background-color: rgb(63,81,181);
-      color: #fff;
-      border: 0;
-      padding: 3px 5px;
+      td{
+        padding: 2px 4px;
+      }
     }
 
     svg{
@@ -128,26 +130,59 @@ a{
       height:50px;
     }
 
-    .body{
+    table.body{
       float:left;
 
       tbody{
         tr{
-          td:nth-of-type(2){
-            text-align:center;
+          &.active-parts{
+            background-color: #fff18d;
+            color: #444;
 
-            input{
-              color: #010101;
-              text-align: center;
-              width: 38px;
-              background-color: #fff;
-              border:1px solid #ccc;
-              padding: 2px;
+            td.count {
+              background-color: #222;
             }
           }
 
-          td:nth-of-type(3){
-            text-align: right;
+          td {
+            padding: 2px 4px;
+
+            &.sum{
+              padding-left: 6px;
+
+              &.total {
+                font-weight: bold;
+                background-color: #f88;
+                color: #222;
+              }
+            }
+
+            &.count{
+              text-align:center;
+
+              button{
+                background-color:#404040;
+                color: #eee;
+                border: 0;
+                padding: 4px 4px 3px;
+                outline: none;
+
+                &:hover {
+                  cursor: pointer;
+                  background-color: #3f51b5;
+                }
+              }
+
+              input{
+                color: #010101;
+                font-size: 14px;
+                text-align: center;
+                width: 36px;
+                background-color: #fff;
+                border:1px solid #ccc;
+                padding: 2px;
+              }
+            }
           }
         }
       }
@@ -244,6 +279,10 @@ a{
       display: inline-block;
       width: 50%;
       margin-bottom: 10px;
+
+      &:last-child{
+        text-align: end;
+      }
     }
 
     .brushes{
@@ -293,14 +332,16 @@ a{
     #shard, 
     #load-terrain{
       width: 113px;
+      cursor:pointer;
     }
     textarea{
+      position: relative;
       width: 270px;
       min-width: 270px;
       max-width: 270px;
       height: 45px;
       min-height: 45px;
-      max-height: 205px;
+      max-height: 397px;
     }
   }
 

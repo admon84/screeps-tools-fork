@@ -4,7 +4,7 @@ Personalized tools for Screeps.
 
 ## Building Planner
 
-Forked and minimally customized building planner by (Arcath)[https://github.com/Arcath/screeps-tools] using React, a clone of the original building planner by Dissi.
+Forked and minimally customized [building planner by Arcath](https://github.com/Arcath/screeps-tools) using React, a clone of the original [building planner by Dissi](http://screeps.dissi.me/).
 
 ## Creep Designer
 

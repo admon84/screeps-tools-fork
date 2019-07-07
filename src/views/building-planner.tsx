@@ -3,7 +3,6 @@ import * as React from 'react'
 import {Form, Text, Select} from 'react-form'
 import * as _ from 'lodash'
 import * as LZString from 'lz-string'
-import * as ReactGA from 'react-ga'
 //import {Link} from 'react-router-dom'
 
 interface TerrainMap{
@@ -132,11 +131,6 @@ export class BuildingPlanner extends React.Component{
   handleControlForm(values: {[field: string]: any}){
     let component = this
 
-    ReactGA.event({
-      category: 'Building Planner',
-      action: 'Loaded Terrain Data'
-    })
-
     jQuery.ajax({
       url: '/api/terrain/' + values.shard + '/' + values.room,
       dataType: 'json',
@@ -217,11 +211,6 @@ export class BuildingPlanner extends React.Component{
 
   import(e: any){
     let json = JSON.parse(e.target.value)
-
-    ReactGA.event({
-      category: 'Building Planner',
-      action: 'Imported JSON'
-    })
     
     this.loadJSON(json)
   }
@@ -354,7 +343,7 @@ export class BuildingPlanner extends React.Component{
         <ul className="brushes">
           {Object.keys(STRUCTURES).map((key) => {
             return <li onClick={() => this.setState({brush: key})} className={this.state.brush === key ? 'active' : ''} key={key}>
-              <img src={'/img/screeps/' + key + '.png'} /> {STRUCTURES[key]} {this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}
+              <img src={'/img/screeps/' + key + '.png'} /> {STRUCTURES[key]} <span>{this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}</span>
             </li>
           })}
         </ul>

@@ -201,7 +201,7 @@ export class CreepDesigner extends React.Component{
                 <td>{BODYPARTS[part]} </td>
                 <td>
                   <button onClick={() => this.remove(part)}>&ndash;</button>
-                  <input type="number" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
+                  <input type="text" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
                   <button onClick={() => this.add(part)}>+</button>
                 </td>
                 <td>{BODYPART_COST[part]}</td>
@@ -387,6 +387,8 @@ export class CreepDesigner extends React.Component{
           <li className={this.state.body.work > 0 ? 'yes' : 'no'}>harvest</li>
           <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>heal</li>
           <li className={this.state.body.move > 0 ? 'yes' : 'no'}>move</li>
+        </ul>
+        <ul className="creepFunctions">
           <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>pickup</li>
           <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedAttack</li>
           <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>rangedHeal</li>

@@ -6,23 +6,13 @@ import {
   Switch,
   NavLink
 } from 'react-router-dom'
-// import * as ReactGA from 'react-ga'
 import {RouteComponentProps} from 'react-router'
 
 import {BuildingPlanner} from './building-planner'
 import {CreepDesigner} from './creep-designer'
 import {Index} from './index'
 
-// ReactGA.initialize('UA-75492019-2')
-
 class AppRouter extends React.Component<RouteComponentProps<{}>>{
-  // componentDidMount(){
-  //   this.props.history.listen((location, action) => {
-  //     ReactGA.set({page: location.pathname})
-  //     ReactGA.pageview(location.pathname)
-  //   })
-  // }
-
   render(){
     return <div className="screeps-tools">
       <div className="header">
@@ -30,7 +20,7 @@ class AppRouter extends React.Component<RouteComponentProps<{}>>{
         <NavLink to='/' exact>Tools</NavLink>
         <NavLink to='/building-planner'>Building Planner</NavLink>
         <NavLink to='/creep-designer'>Creep Designer</NavLink>
-        <a href="https://github.com/Arcath/screeps-tools" className="gh-link">GitHub</a>
+        <a href="https://github.com/admon84/screeps-tools" className="gh-link" target="_blank">GitHub</a>
       </div>
       <Switch>
         <Route path='/building-planner' component={BuildingPlanner} />

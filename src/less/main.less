@@ -1,30 +1,52 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
 html{
   height:100%;
 }
 
+body{
+  font-family: 'Open Sans', sans-serif;
+  margin:0px;
+  padding:0px;
+  background-image:linear-gradient(to bottom, #222 0%, #111 100%) !important;
+  background-attachment: fixed;
+  height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 0.8em;
+}
+
 h1{
   font-size: 2em;
-  margin: 0.67em 0;
+  margin-top: 0.67em;
 }
 h2{
   font-size: 1.5em;
-  margin: 0.83em 0;
+  margin-top: 0.83em;
 }
 h3{
   font-size: 1.17em;
-  margin: 1em 0;
+  margin-top: 1em;
 }
 h4{
   font-size: 1em;
-  margin: 1.33em 0;
+  margin-top: 1.33em;
 }
 h5{
   font-size: 0.83em;
-  margin: 1.67em 0;
+  margin-top: 1.67em;
 }
 h6{
   font-size: 0.75em;
-  margin: 2.33em 0;
+  margin-top: 2.33em;
 }
 
 a{
@@ -35,20 +57,6 @@ a{
   &:hover{
     color:#FF9800;
   }
-}
-
-body{
-  margin:0px;
-  padding:0px;
-  background-image:linear-gradient(to bottom, #222 0%, #111 100%) !important;
-  background-attachment: fixed;
-  height: 100%;
-  font-family: 'Arial', sans-serif;
-}
-
-img#screeps-header{
-  float: right;
-  width: 36%;
 }
 
 .header{
@@ -94,8 +102,8 @@ img#screeps-header{
       width: 550px;
       min-width: 550px;
       max-width: 550px;
-      height: 85px;
-      min-height: 85px;
+      height: 45px;
+      min-height: 45px;
       max-height: 425px;
       margin-top: 20px;
     }
@@ -130,11 +138,10 @@ img#screeps-header{
 
             input{
               color: #010101;
-              text-align:center;
-              width:45px;
+              text-align: center;
+              width: 38px;
               background-color: #fff;
               border:1px solid #ccc;
-              font-family: 'Arial', sans-serif;
               padding: 2px;
             }
           }
@@ -148,10 +155,14 @@ img#screeps-header{
   }
 
   .creepFunctions{
+    display: inline-block;
+    float: left;
+    width: 220px;
+    margin-left: 5px;
+
     .yes{
       color:#27ae60;
     }
-
     .no{
       color:#c0392b;
     }
@@ -236,20 +247,33 @@ img#screeps-header{
     }
 
     .brushes{
+      cursor: pointer;
       list-style:none;
       margin:0px;
       padding:0px;
 
       li{
+        position: relative;
         border:1px solid #ccc;
         padding:5px;
+        line-height: 25px;
+
+        span{
+          float: right;
+        }
 
         img{
-          width:20px;
+          width:24px;
+          vertical-align: top;
+        }
+
+        &:hover{
+          background-color:#333;
         }
 
         &.active{
           border-color:#ffe56d;
+          background-color: #282828;
         }
       }
     }
@@ -274,9 +298,9 @@ img#screeps-header{
       width: 270px;
       min-width: 270px;
       max-width: 270px;
-      height: 48px;
-      min-height: 48px;
-      max-height: 380px;
+      height: 45px;
+      min-height: 45px;
+      max-height: 205px;
     }
   }
 

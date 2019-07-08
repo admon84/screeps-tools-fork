@@ -92,10 +92,11 @@ a{
   }
 }
 
-.creep-designer, .memory-viewer{
+.creep-designer{
   .panel{
-    width:575px;
-    margin:10px 0 10px 15px;
+    width:585px;
+    margin: 0;
+    margin-left: 15px;
     float:left;
     background-color:#222;
     color:#ccc;
@@ -145,11 +146,9 @@ a{
           }
 
           td {
-            padding: 2px 4px;
+            padding: 3px 8px;
 
             &.sum{
-              padding-left: 6px;
-
               &.total {
                 font-weight: bold;
                 background-color: #f88;
@@ -193,6 +192,7 @@ a{
     display: inline-block;
     float: left;
     width: 220px;
+    margin-top: 0;
     margin-left: 5px;
 
     .yes{
@@ -293,7 +293,7 @@ a{
 
       li{
         position: relative;
-        border:1px solid #ccc;
+        background-color: #333;
         padding:5px;
         line-height: 25px;
 
@@ -306,13 +306,13 @@ a{
           vertical-align: top;
         }
 
-        &:hover{
-          background-color:#333;
+        &.active{
+          background-color: #404040;
         }
 
-        &.active{
-          border-color:#ffe56d;
-          background-color: #282828;
+        &:hover,
+        &.active:hover{
+          background-color:#555;
         }
       }
     }
@@ -347,12 +347,12 @@ a{
 
   .map{
     margin: 10px;
+    margin-right: 15px;
     overflow: hidden;
     float: left;
-    width: 800px !important;
-    height: 800px !important;
-    background: #111;
-    padding: 1px;
+    width: 720px !important;
+    height: 720px !important;
+    border:1px solid #020202;
 
     .row{
       width: 100%;
@@ -364,7 +364,7 @@ a{
         height:100%;
         float:left;
         
-        border:1px solid #000000;
+        border:1px solid #020202;
         cursor: pointer;
         user-select: none;
         -moz-user-select: none;
@@ -385,41 +385,6 @@ a{
         &.hover{
           border-color:#f1c40f;
         }
-      }
-    }
-  }
-}
-
-.console-viewer{
-  .console{
-    float: left;
-    width: 70%;
-    margin-left: 20px;
-    background-color:#222;
-    color:#ccc;
-    box-sizing: border-box;
-    padding:10px;
-
-    .message{
-      border-bottom:#000 solid 1px;
-      padding: 20px;
-    }
-  }
-
-  .options{
-    margin-left: 20px;
-    float:left;
-    width: 20%;
-    background-color:#222;
-    color:#ccc;
-    box-sizing: border-box;
-    padding:10px;
-    position: fixed;
-    left:75%;
-
-    ul{
-      .active{
-        color: #27ae60;
       }
     }
   }

@@ -97,23 +97,37 @@ export class CreepDesigner extends React.Component{
     this.setState({body: body})
   }
 
-  walkTimeFull(move: number, multiplier: number, incrementer: number){
-    let time = 0;
+  walkTimeFull(move: number, carry: number, multiplier: number, incrementer: number){
+    let time = 0
+
+    if (carry === 0) {
+      return 0;
+    }
 
     if (move > 0) {
-      time = Math.ceil((Math.ceil(1 / ((move * incrementer) / this.count())) - 1) * multiplier);
-      time = time > 0 ? time : 1;
+      let movePercent = (move / this.count())
+      let moveIncrementer = (1 / ((move * incrementer) / (this.count() - carry)))
+      let subtract = (movePercent * moveIncrementer)
+      let moveQuality = Math.ceil(moveIncrementer - subtract)
+
+      time = Math.ceil(moveQuality * multiplier)
+      time = time > 1 ? time : 1
     }
 
     return time
   }
 
   walkTimeEmpty(move: number, carry: number, multiplier: number, incrementer: number){
-    let time = 0;
+    let time = 0
 
     if (move > 0) {
-      time = Math.ceil((Math.ceil(1 / ((move * incrementer) / (this.count() - carry))) - 1) * multiplier);
-      time = time > 0 ? time : 1;
+      let movePercent = (move / (this.count() - carry))
+      let moveIncrementer = (1 / ((move * incrementer) / (this.count() - carry)))
+      let subtract = (movePercent * moveIncrementer)
+      let moveQuality = Math.ceil(moveIncrementer - subtract)
+
+      time = Math.ceil(moveQuality * multiplier)
+      time = time > 1 ? time : 1
     }
 
     return time
@@ -409,26 +423,26 @@ export class CreepDesigner extends React.Component{
             </tr>
             <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
               <td>Move on Plain (full)</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 1)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 2)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 3)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 1, 4)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 1, 1)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 1, 2)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 1, 3)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 1, 4)}</td>
               <td className="text-center"></td>
             </tr>
             <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
               <td>Move on Road (full)</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 1)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 2)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 3)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 0.5, 4)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 0.5, 1)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 0.5, 2)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 0.5, 3)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 0.5, 4)}</td>
               <td className="text-center"></td>
             </tr>
             <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
               <td>Move on Swamp (full)</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 1)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 2)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 3)}</td>
-              <td className="text-center">{this.walkTimeFull(this.state.body.move, 5, 4)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 5, 1)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 5, 2)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 5, 3)}</td>
+              <td className="text-center">{this.walkTimeFull(this.state.body.move, this.state.body.carry, 5, 4)}</td>
               <td className="text-center"></td>
             </tr>
           </tbody>

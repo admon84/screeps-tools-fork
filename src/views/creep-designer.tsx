@@ -186,7 +186,7 @@ export class CreepDesigner extends React.Component{
       counts.push(this.state.body[part])
     })
 
-    return "http://admon.tk/#/creep-designer/?share=" + counts.join('#')
+    return "https://screeps.arcath.net/creep-designer/?share=" + counts.join('#')
   }
 
   creepLifespan(){

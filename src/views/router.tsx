@@ -16,7 +16,7 @@ class AppRouter extends React.Component<RouteComponentProps<{}>>{
   render(){
     return <div className="screeps-tools">
       <div className="header">
-        <img src="/img/screeps/logo.gif" />
+        <img src="/img/screeps/logo.svg" />
         <NavLink to='/' exact>Tools</NavLink>
         <NavLink to='/building-planner'>Building Planner</NavLink>
         <NavLink to='/creep-designer'>Creep Designer</NavLink>

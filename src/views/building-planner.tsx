@@ -37,25 +37,27 @@ const CONTROLLER_STRUCTURES: StructureList = {
     "terminal": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1, 7: 1, 8: 1 },
     "lab": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 3, 7: 6, 8: 10 },
     "container": { 0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5 },
-    "nuker": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 }
+    "nuker": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
+    "factory": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 }
 };
 
 const STRUCTURES: {[structure: string]: string} = {
   spawn: "Spawn",
   extension: "Extension",
+  tower: "Tower",
+  storage: "Storage",
   link: "Link",
   road: "Road",
-  constructedWall: "Wall",
   rampart: "Rampart",
-  tower: "Tower",
-  observer: "Observer",
-  powerSpawn: "Power Spawn",
-  extractor: "Extractor",
+  constructedWall: "Wall",
   terminal: "Terminal",
+  extractor: "Extractor",
   lab: "Lab",
   container: "Container",
   nuker: "Nuker",
-  storage: "Storage"
+  powerSpawn: "Power Spawn",
+  observer: "Observer",
+  factory: "Factory"
 }
 
 export class BuildingPlanner extends React.Component{
@@ -166,7 +168,6 @@ export class BuildingPlanner extends React.Component{
 
       added = true
     }
-
 
     this.setState({structures: structures})
     return added
@@ -298,7 +299,7 @@ export class BuildingPlanner extends React.Component{
 
   shareableLink(){
     let string = LZString.compressToEncodedURIComponent(this.json())
-    return "http://admon.tk/#/building-planner/?share=" + string
+    return "https://screeps.arcath.net/building-planner/?share=" + string
   }
 
   render(){

@@ -77,7 +77,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
 })
 
-let server = http.createServer(app)
+let server = http.createServer(app) // default port: 3000
 
 let io = SocketIO(server)
 

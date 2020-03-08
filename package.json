@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "rollup -c",
+    "start": "node lib/app.js",
     "launch": "rollup -c && tsc && node lib/app.js",
     "test": "jest"
   },

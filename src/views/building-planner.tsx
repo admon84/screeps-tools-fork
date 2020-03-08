@@ -47,17 +47,17 @@ const STRUCTURES: {[structure: string]: string} = {
   tower: "Tower",
   storage: "Storage",
   link: "Link",
-  road: "Road",
-  rampart: "Rampart",
-  constructedWall: "Wall",
   terminal: "Terminal",
   extractor: "Extractor",
   lab: "Lab",
-  container: "Container",
-  nuker: "Nuker",
-  powerSpawn: "Power Spawn",
+  factory: "Factory",
   observer: "Observer",
-  factory: "Factory"
+  powerSpawn: "Power Spawn",
+  nuker: "Nuker",
+  container: "Container",
+  road: "Road",
+  rampart: "Rampart",
+  constructedWall: "Wall",
 }
 
 export class BuildingPlanner extends React.Component{
@@ -343,7 +343,14 @@ export class BuildingPlanner extends React.Component{
         </div>
         <ul className="brushes">
           {Object.keys(STRUCTURES).map((key) => {
-            return <li onClick={() => this.setState({brush: key})} className={this.state.brush === key ? 'active' : ''} key={key}>
+            let classes = '';
+            if (this.state.brush === key) {
+              classes += 'active ';
+            }
+            if (CONTROLLER_STRUCTURES[key][this.state.rcl] === 0) {
+              classes += 'disabled';
+            }
+            return <li onClick={() => this.setState({brush: key})} className={classes} key={key}>
               <img src={'/img/screeps/' + key + '.png'} /> {STRUCTURES[key]} <span>{this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}</span>
             </li>
           })}

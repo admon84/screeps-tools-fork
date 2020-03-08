@@ -43,6 +43,7 @@ const CONTROLLER_STRUCTURES: StructureList = {
 
 const STRUCTURES: {[structure: string]: string} = {
   spawn: "Spawn",
+  container: "Container",
   extension: "Extension",
   tower: "Tower",
   storage: "Storage",
@@ -54,10 +55,9 @@ const STRUCTURES: {[structure: string]: string} = {
   observer: "Observer",
   powerSpawn: "Power Spawn",
   nuker: "Nuker",
-  container: "Container",
-  road: "Road",
   rampart: "Rampart",
   constructedWall: "Wall",
+  road: "Road",
 }
 
 export class BuildingPlanner extends React.Component{
@@ -156,17 +156,19 @@ export class BuildingPlanner extends React.Component{
     let structures = this.state.structures
     let added = false
 
-    if(!structures[this.state.brush]){
-      structures[this.state.brush] = []
-    }
+    if (CONTROLLER_STRUCTURES[this.state.brush][this.state.rcl] && x > 0 && x < 49 && y > 0 && y < 49) {
+      if(!structures[this.state.brush]){
+        structures[this.state.brush] = []
+      }
 
-    if(structures[this.state.brush].length < CONTROLLER_STRUCTURES[this.state.brush][this.state.rcl]){
-      structures[this.state.brush].push({
-        x: x,
-        y: y
-      })
+      if(structures[this.state.brush].length < CONTROLLER_STRUCTURES[this.state.brush][this.state.rcl]){
+        structures[this.state.brush].push({
+          x: x,
+          y: y
+        })
 
-      added = true
+        added = true
+      }
     }
 
     this.setState({structures: structures})

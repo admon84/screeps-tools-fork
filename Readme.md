@@ -2,10 +2,14 @@
 
 Personalized tools for Screeps.
 
+Forked from [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
+
 ## Building Planner
 
-Forked and minimally customized [building planner by Arcath](https://github.com/Arcath/screeps-tools) using React, a clone of the original [building planner by Dissi](http://screeps.dissi.me/).
+Create room building plans (updated for Factories)
+
+Based on the original [building planner by Dissi](http://screeps.dissi.me/)
 
 ## Creep Designer
 
-Allows you to build creeps and see the stats & avialable creep functions for that creep.
+Design creep bodies to calculate stats

@@ -8,7 +8,8 @@ Forked from [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 Create room plans for building structures (includes Factory).<br>
 Based on the original [building planner by Dissi](http://screeps.dissi.me/)
 
-![View the building planner](https://user-images.githubusercontent.com/10291543/76656990-7263bd80-6536-11ea-81f3-d53999bafd72.png)
+![View the building planner](https://user-images.githubusercontent.com/10291543/76657203-e900bb00-6536-11ea-8a90-ce4b0de3713f.png)
+
 
 #### Creep Designer
 

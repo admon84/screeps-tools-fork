@@ -55,12 +55,23 @@ a {
     transition: color 0.2s;
     
     &:hover {
-        color:#FF9800;
+        color:#ff9800;
     }
 }
 
 .text-center {
     text-align: center;
+}
+
+.index {
+    h2 {
+        margin:20px;
+    }
+    
+    p {
+        margin:20px;
+        color:#ccc;
+    }
 }
 
 .header {
@@ -79,11 +90,11 @@ a {
         color: rgb(121,134,203);
         text-decoration: none;
         display:block;
-        padding:10px;
+        padding:10px 6px;
         float: left;
         
         &.active {
-            color:#FF9800;
+            color:#ff9800;
         }
         
         &.gh-link {
@@ -205,74 +216,17 @@ a {
 }
 
 .buildingPlanner {
-    .spawn {
-        background-image: url(/img/screeps/spawn.png);
-    }
-    
-    .extension {
-        background-image: url(/img/screeps/extensions.png);
-    }
-    
-    .link {
-        background-image: url(/img/screeps/link.png);
-    }
-    
-    .road {
-        background: radial-gradient(ellipse at center, #4e4e4e 0%,#4e4e4e 20%,#222 21%,#222 100%) !important;
-    }
-    
-    .constructedWall {
-        background-image: url(/img/screeps/constructedWall.png);
-    }
+
+    // roads are connected with SVGs in building-planner.getCellContent()
     
     .rampart {
         background-color:#314b31 !important;
         border-color: #2d632d !important;
     }
     
-    .tower {
-        background-image: url(/img/screeps/tower.png);
-    }
-    
-    .observer {
-        background-image: url(/img/screeps/observer.png);
-    }
-    
-    .powerSpawn {
-        background-image: url(/img/screeps/powerSpawn.png);
-    }
-    
-    .extractor {
-        background-image: url(/img/screeps/extractor.png);
-    }
-    
-    .terminal {
-        background-image: url(/img/screeps/terminal.png);
-    }
-    
-    .lab {
-        background-image: url(/img/screeps/lab.png);
-    }
-    
-    .container {
-        background-image: url(/img/screeps/container.png);
-    }
-    
-    .nuker {
-        background-image: url(/img/screeps/nuker.png);
-    }
-    
-    .storage {
-        background-image: url(/img/screeps/storage.png);
-    }
-    
-    .factory {
-        background-image: url(/img/screeps/factory.png);
-    }
-    
     .controls {
-        width: 300px;
-        margin: 0 15px 0 0;
+        width: 47vw;
+        margin: 0 1vw 0 0;
         float:left;
         background-color:#222;
         color:#ccc;
@@ -353,9 +307,7 @@ a {
         }
         textarea {
             position: relative;
-            width: 270px;
-            min-width: 270px;
-            max-width: 270px;
+            width: 95%;
             height: 45px;
             min-height: 45px;
             max-height: 397px;
@@ -363,13 +315,12 @@ a {
     }
     
     .map {
-        margin: 10px;
-        margin-right: 15px;
+        margin: 1vw;
         overflow: hidden;
         float: left;
-        width: 750px !important;
-        height: 750px !important;
-        border:1px solid #020202;
+        width: 94vw;
+        height: 94vw;
+        // border:1px solid #020202;
         
         .row {
             width: 100%;
@@ -377,10 +328,10 @@ a {
             overflow: hidden;
             
             .cell {
-                width:2%;
-                height:100%;
-                float:left;
-                
+                position: relative;
+                width: 2%;
+                height: 100%;
+                float: left;
                 border:1px solid #020202;
                 cursor: pointer;
                 user-select: none;
@@ -390,6 +341,23 @@ a {
                 background-size:contain;
                 background-color: #222;
                 box-sizing: border-box;
+
+                img,
+                svg {
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    height: 100%;
+                    width: 100%;
+                }
+
+                img {
+                    z-index: 50;
+                }
+                
+                svg {
+                    z-index: 40;
+                }
                 
                 &.wall {
                     background-color: #000;
@@ -400,20 +368,40 @@ a {
                 }
                 
                 &.hover {
-                    border-color:#f1c40f;
+                    border-color:#ff9800;
                 }
             }
         }
     }
 }
 
-.index {
-    h2 {
-        margin:20px;
+@media only screen and (min-width: 768px) {
+    .header a {
+        padding-left: 10px;
+        padding-right: 10px;
     }
-    
-    p {
-        margin:20px;
-        color:#ccc;
+    .buildingPlanner {
+        .map {
+            width: 70vw;
+            height: 70vw;
+        }
+        .controls {
+            width: 25vw;
+        }
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .buildingPlanner {
+        .map {
+            width: 50vw;
+            height: 50vw;
+            max-width: 90vh;
+            max-height: 90vh;
+        }
+        .controls {
+            width: 22vw;
+            max-width: 300px;
+        }
     }
 }

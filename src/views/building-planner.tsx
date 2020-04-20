@@ -256,7 +256,6 @@ export class BuildingPlanner extends React.Component {
 
     getStructure(x: number, y: number) {
         let structure = '';
-
         Object.keys(this.state.structures).forEach((structureName) => {
             if (structureName != 'road' && structureName != 'rampart') {
                 this.state.structures[structureName].forEach((pos) => {
@@ -266,36 +265,31 @@ export class BuildingPlanner extends React.Component {
                 });
             }
         });
-
         return structure;
     }
 
     isRoad(x: number, y: number) {
         let road = false;
-
         if (this.state.structures.road) {
             this.state.structures.road.forEach((pos) => {
                 if (pos.x === x && pos.y === y) {
                     road = true;
                 }
-            })
+            });
         }
-
         return road;
     }
 
     isRampart(x: number, y: number) {
-        let road = false;
-
+        let rampart = false;
         if (this.state.structures.rampart) {
             this.state.structures.rampart.forEach((pos) => {
                 if (pos.x === x && pos.y === y) {
-                    road = true;
+                    rampart = true;
                 }
-            })
+            });
         }
-
-        return road;
+        return rampart;
     }
 
     shareableLink() {
@@ -306,17 +300,56 @@ export class BuildingPlanner extends React.Component {
     render() {
         return (
             <div className="buildingPlanner">
-                <div className="map" style={{width: (window.innerHeight - 50) + 'px', height: (window.innerHeight - 50) + 'px'}}>
+                <div className="map">
                     {[...Array(50)].map((x: number, j) => {
                         return <div className="row" key={j}>
                             {[...Array(50)].map((y: number, i) => {
+                                let roadProps = {
+                                    middle: false,
+                                    top: false,
+                                    top_right: false,
+                                    right: false,
+                                    bottom_right: false,
+                                    bottom: false,
+                                    bottom_left: false,
+                                    left: false,
+                                    top_left: false
+                                };
+                                const hasRoad = this.isRoad(i,j);
+                                if (hasRoad) {
+                                    roadProps.middle = true;
+                                    for (let rx of [-1, 0, 1]) {
+                                        for (let ry of [-1, 0, 1]) {
+                                            if (rx === 0 && ry === 0) continue;
+                                            if (this.isRoad(i+rx,j+ry)) {
+                                                if (rx === -1 && ry === -1) {
+                                                    roadProps.top_left = true;
+                                                } else if (rx === 0 && ry === -1) {
+                                                    roadProps.top = true;
+                                                } else if (rx === 1 && ry === -1) {
+                                                    roadProps.top_right = true;
+                                                } else if (rx === 1 && ry === 0) {
+                                                    roadProps.right = true;
+                                                } else if (rx === 1 && ry === 1) {
+                                                    roadProps.bottom_right = true;
+                                                } else if (rx === 0 && ry === 1) {
+                                                    roadProps.bottom = true;
+                                                } else if (rx === -1 && ry === 1) {
+                                                    roadProps.bottom_left = true;
+                                                } else if (rx === -1 && ry === 0) {
+                                                    roadProps.left = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 return <MapCell
                                     x={i}
                                     y={j}
                                     terrain={this.state.terrain[j][i]}
                                     parent={this}
                                     structure={this.getStructure(i, j)}
-                                    road={this.isRoad(i,j)}
+                                    road={roadProps}
                                     rampart={this.isRampart(i,j)}
                                     key={'mc-'+ i + '-' + j}
                                 />
@@ -396,7 +429,17 @@ interface MapCellProps {
     terrain: number;
     parent: BuildingPlanner;
     structure: string;
-    road: boolean;
+    road: {
+        middle: boolean;
+        top: boolean;
+        top_right: boolean;
+        right: boolean;
+        bottom_right: boolean;
+        bottom: boolean;
+        bottom_left: boolean;
+        left: boolean;
+        top_left: boolean;
+    };
     rampart: boolean;
 };
 
@@ -404,7 +447,17 @@ class MapCell extends React.Component<MapCellProps> {
     state: Readonly<{
         hover: boolean;
         structure: string;
-        road: boolean;
+        road: {
+            middle: boolean;
+            top: boolean;
+            top_right: boolean;
+            right: boolean;
+            bottom_right: boolean;
+            bottom: boolean;
+            bottom_left: boolean;
+            left: boolean;
+            top_left: boolean;
+        };
         rampart: boolean;
     }>;
 
@@ -414,7 +467,17 @@ class MapCell extends React.Component<MapCellProps> {
         this.state = {
             hover: false,
             structure: this.props.structure,
-            road: this.props.road,
+            road: {
+                middle: this.props.road.middle,
+                top: this.props.road.top,
+                top_right: this.props.road.top_right,
+                right: this.props.road.right,
+                bottom_right: this.props.road.bottom_right,
+                bottom: this.props.road.bottom,
+                bottom_left: this.props.road.bottom_left,
+                left: this.props.road.left,
+                top_left: this.props.road.top_left,
+            },
             rampart: this.props.rampart
         };
     }
@@ -432,6 +495,116 @@ class MapCell extends React.Component<MapCellProps> {
         this.props.parent.setState({x: parseInt(e.target.dataset.x), y: parseInt(e.target.dataset.y)});
     }
 
+    getCellContent() {
+        let content = [];
+
+        switch (this.state.structure) {
+            case 'spawn':
+                content.push(<img src="/img/screeps/spawn.png" />);
+                break;
+            
+            case 'extension':
+                content.push(<img src="/img/screeps/extensions.png" />);
+                break;
+            
+            case 'link':
+                content.push(<img src="/img/screeps/link.png" />);
+                break;
+            
+            case 'constructedWall':
+                content.push(<img src="/img/screeps/constructedWall.png" />);
+                break;
+            
+            case 'tower':
+                content.push(<img src="/img/screeps/tower.png" />);
+                break;
+            
+            case 'observer':
+                content.push(<img src="/img/screeps/observer.png" />);
+                break;
+            
+            case 'powerSpawn':
+                content.push(<img src="/img/screeps/powerSpawn.png" />);
+                break;
+            
+            case 'extractor':
+                content.push(<img src="/img/screeps/extractor.png" />);
+                break;
+            
+            case 'terminal':
+                content.push(<img src="/img/screeps/terminal.png" />);
+                break;
+            
+            case 'lab':
+                content.push(<img src="/img/screeps/lab.png" />);
+                break;
+            
+            case 'container':
+                content.push(<img src="/img/screeps/container.png" />);
+                break;
+            
+            case 'nuker':
+                content.push(<img src="/img/screeps/nuker.png" />);
+                break;
+            
+            case 'storage':
+                content.push(<img src="/img/screeps/storage.png" />);
+                break;
+            
+            case 'factory':
+                content.push(<img src="/img/screeps/factory.png" />);
+                break;
+        }
+
+        if (this.state.road.middle) {
+            content.push(<svg height="2%" width="100%">
+                <circle cx="50%" cy="50%" r="1" fill="#4e4e4e" />
+            </svg>);
+        }
+        if (this.state.road.top_left) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="0" y1="0" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.top) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="50%" y1="0" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.top_right) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="100%" y1="0" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.right) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="100%" y1="50%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.bottom_right) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="100%" y1="100%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.bottom) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="50%" y1="100%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.bottom_left) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="0" y1="100%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+        if (this.state.road.left) {
+            content.push(<svg height="2%" width="100%">
+                <line x1="0" y1="50%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+            </svg>);
+        }
+
+        return (content.length ? content : <div>&nbsp;</div>);
+    }
+
     className() {
         let className = '';
 
@@ -443,7 +616,7 @@ class MapCell extends React.Component<MapCellProps> {
             className += this.state.structure + ' ';
         }
 
-        if (this.state.road) {
+        if (this.state.road.middle) {
             className += 'road ';
         }
 
@@ -505,7 +678,7 @@ class MapCell extends React.Component<MapCellProps> {
                 onContextMenu={this.onContextMenu.bind(this)}
                 data-x={this.props.x}
                 data-y={this.props.y}>
-                &nbsp;
+                {this.getCellContent()}
             </div>
         );
     }

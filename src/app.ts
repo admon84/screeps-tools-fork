@@ -9,6 +9,8 @@ import {ScreepsAPI} from 'screeps-api';
 
 let app = express();
 
+const port = 3000;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/js', express.static('public/js'));
@@ -51,32 +53,11 @@ app.get('/api/memory/:shard', (req, res) => {
     });
 });
 
-/*app.post('/slack/creep', (req, res) => {
-    let creepDesigner = new CreepDesigner({api: true});
-    
-    creepDesigner.import({
-        noState: true,
-        target: {
-            value: req.body.text
-        }
-    });
-    
-    res.json({
-        response_type: 'in_channel',
-        text: 'Your creep is done',
-        attachments: [
-            {
-                text: creepDesigner.shareLink()
-            }
-        ]
-    });
-});*/
-
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-let server = http.createServer(app); // default port: 3000
+let server = http.createServer(app);
 
 let io = SocketIO(server);
 
@@ -118,4 +99,4 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000);
+server.listen(port);

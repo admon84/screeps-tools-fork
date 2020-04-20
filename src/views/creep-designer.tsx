@@ -62,7 +62,7 @@ export class CreepDesigner extends React.Component{
                 let body = searchParams.get('share')!;
                 let creepBody = this.state.body;
                 let i = 0;
-                body.split("#").forEach((count) => {
+                body.split(":").forEach((count) => {
                     creepBody[Object.keys(BODYPARTS)[i]] = parseInt(count);
                     i += 1;
                 });
@@ -185,7 +185,7 @@ export class CreepDesigner extends React.Component{
             counts.push(this.state.body[part]);
         })
         
-        return "/#/creep-designer/?share=" + counts.join('#');
+        return "/#/creep-designer/?share=" + counts.join(':');
     }
     
     creepLifespan() {
@@ -265,7 +265,34 @@ export class CreepDesigner extends React.Component{
                         </tbody>
                     </table>
                     <Creep body={this.state.body} />
+                    <h4>Creep Body</h4>
                     <textarea id='creep-body' value={this.body()} onChange={(e) => this.import(e)}></textarea>
+                    <br/>
+                    <h4>Creep Functions</h4>
+                    <ul className="creepFunctions">
+                        <li className={this.state.body.move > 0 ? 'yes' : 'no'}>move</li>
+                        <li className={this.state.body.move > 0 ? 'yes' : 'no'}>pull</li>
+                        <li className={this.state.body.work > 0 ? 'yes' : 'no'}>harvest</li>
+                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>drop</li>
+                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>pickup</li>
+                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>transfer</li>
+                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>withdraw</li>
+                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>build</li>
+                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>repair</li>
+                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>upgradeController</li>
+                    </ul>
+                    <ul className="creepFunctions">
+                        <li className={this.state.body.work > 0 ? 'yes' : 'no'}>dismantle</li>
+                        <li className={this.state.body.attack > 0 ? 'yes' : 'no'}>attack</li>
+                        <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>heal</li>
+                        <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>rangedHeal</li>
+                        <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedAttack</li>
+                        <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedMassAttack</li>
+                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>reserveController</li>
+                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>claimController</li>
+                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>
+                        <li className={this.state.body.carry >= 20 ? 'yes' : 'no'}>generateSafeMode</li>
+                    </ul>
                     <a href={this.shareLink()}>Shareable Link</a>
                 </div>
                 <div className="panel">
@@ -447,32 +474,6 @@ export class CreepDesigner extends React.Component{
                         </tr>
                         </tbody>
                     </table>
-                    <br/>
-                    <h4>Creep Functions</h4>
-                    <ul className="creepFunctions">
-                        <li className={this.state.body.move > 0 ? 'yes' : 'no'}>move</li>
-                        <li className={this.state.body.move > 0 ? 'yes' : 'no'}>pull</li>
-                        <li className={this.state.body.work > 0 ? 'yes' : 'no'}>harvest</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>drop</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>pickup</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>transfer</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>withdraw</li>
-                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>build</li>
-                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>repair</li>
-                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>upgradeController</li>
-                    </ul>
-                    <ul className="creepFunctions">
-                        <li className={this.state.body.work > 0 ? 'yes' : 'no'}>dismantle</li>
-                        <li className={this.state.body.attack > 0 ? 'yes' : 'no'}>attack</li>
-                        <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>heal</li>
-                        <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>rangedHeal</li>
-                        <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedAttack</li>
-                        <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedMassAttack</li>
-                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>reserveController</li>
-                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>claimController</li>
-                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>
-                        <li className={this.state.body.carry >= 20 ? 'yes' : 'no'}>generateSafeMode</li>
-                    </ul>
                 </div>
             </div>
         );

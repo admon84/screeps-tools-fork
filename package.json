@@ -1,13 +1,16 @@
 {
     "name": "screeps-tools",
     "version": "1.0.0",
+    "homepage": "http://admon84.github.io/screeps-tools",
     "description": "Tools to help with the game Screeps",
     "main": "index.js",
     "scripts": {
-        "compile": "rollup -c",
+        "build": "rollup -c",
         "start": "node lib/app.js",
         "launch": "rollup -c && tsc && node lib/app.js",
-        "test": "jest"
+        "test": "jest",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d lib"
     },
     "keywords": [
         "Screeps"
@@ -47,6 +50,7 @@
     "dependencies": {
         "body-parser": "^1.18.2",
         "express": "^4.16.2",
+        "gh-pages": "^2.2.0",
         "jq-web": "^0.1.3",
         "jquery": "^3.3.1",
         "lodash": "^4.17.4",

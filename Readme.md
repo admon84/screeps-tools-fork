@@ -1,21 +1,29 @@
 # Screeps Tools
 
 Personalized tools for Screeps.<br>
+* Requires Node.js v8
+
 Forked from [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 
 #### Building Planner
 
-Create room plans for building structures (includes Factory).<br>
+Plan out Room structures.<br>
 Based on the original [building planner by Dissi](http://screeps.dissi.me/)
 
-![View the building planner](https://user-images.githubusercontent.com/10291543/76657305-29f8cf80-6537-11ea-8b7a-a85e37aae50a.png)
+New features:
+* Factory structure
+* Easily place containers on roads
+* Easily place ramparts on structures (order doesnt matter)
+* Connected roads for pizzazz
+
+![View the building planner](https://user-images.githubusercontent.com/10291543/79899528-2aa04380-83ca-11ea-9a41-476e18212bc2.png)
 
 
 #### Creep Designer
 
-Design creep bodies to calculate stats
+Design creep bodies to calculate stats.
 
-![View the creep designer](https://user-images.githubusercontent.com/10291543/76656998-74c61780-6536-11ea-997f-3983b17fbe4d.png)
+![View the creep designer](https://user-images.githubusercontent.com/10291543/79900218-245e9700-83cb-11ea-916f-b93e93770d64.png)
 
 ## Available Scripts
 

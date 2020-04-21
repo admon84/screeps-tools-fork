@@ -645,10 +645,6 @@ class MapCell extends React.Component<MapCellProps> {
     }
 
     onClick() {
-        if (this.state.structure !== '') {
-            this.props.parent.removeStructure(this.props.x, this.props.y, this.state.structure);
-        }
-
         if (this.props.parent.addStructure(this.props.x, this.props.y)) {
             switch (this.props.parent.state.brush) {
                 case('road'):

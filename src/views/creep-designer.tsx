@@ -237,10 +237,10 @@ export class CreepDesigner extends React.Component{
                     <table className="body">
                         <thead>
                             <tr>
-                                <th>Body Part</th>
-                                <th>Price</th>
-                                <th>Count</th>
-                                <th>Sum</th>
+                                <th style={{width: '38%'}}>Body Part</th>
+                                <th style={{width: '20%'}}>Price</th>
+                                <th style={{width: '22%'}}>Count</th>
+                                <th style={{width: '20%'}}>Sum</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -265,9 +265,6 @@ export class CreepDesigner extends React.Component{
                         </tbody>
                     </table>
                     <Creep body={this.state.body} />
-                    <h4>Creep Body</h4>
-                    <textarea id='creep-body' value={this.body()} onChange={(e) => this.import(e)}></textarea>
-                    <br/>
                     <h4>Creep Functions</h4>
                     <ul className="creepFunctions">
                         <li className={this.state.body.move > 0 ? 'yes' : 'no'}>move</li>
@@ -293,6 +290,7 @@ export class CreepDesigner extends React.Component{
                         <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>
                         <li className={this.state.body.carry >= 20 ? 'yes' : 'no'}>generateSafeMode</li>
                     </ul>
+                    <textarea id='creep-body' value={this.body()} onChange={(e) => this.import(e)}></textarea>
                     <a href={this.shareLink()}>Shareable Link</a>
                 </div>
                 <div className="panel">

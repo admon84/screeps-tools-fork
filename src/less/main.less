@@ -104,8 +104,10 @@ a {
 }
 
 .creep-designer {
+    margin: 0 auto;
+
     .panel {
-        width:585px;
+        width: 94vw;
         margin: 0;
         margin-left: 15px;
         float:left;
@@ -134,7 +136,8 @@ a {
         }
         
         svg {
-            float: right;
+            display: block;
+            margin: 0 auto;
         }
         
         textarea {
@@ -143,7 +146,7 @@ a {
         }
         
         table.body {
-            float:left;
+            width: 100%;
             
             tbody {
                 tr {
@@ -200,9 +203,9 @@ a {
     }
     
     .creepFunctions {
-        display: inline-block;
+        display: block;
         float: left;
-        width: 220px;
+        width: 40%;
         margin-top: 0;
         margin-left: 5px;
         
@@ -216,6 +219,8 @@ a {
 }
 
 .buildingPlanner {
+    width: 94vw;
+    margin: 0 auto;
 
     // roads are connected with SVGs in building-planner.getCellContent()
     
@@ -395,10 +400,6 @@ a {
         padding-left: 10px;
         padding-right: 10px;
     }
-    .buildingPlanner {
-        width: 98vw;
-        margin: 0 auto;
-    }
 }
 
 @media only screen and (min-width: 900px) {
@@ -418,6 +419,13 @@ a {
 }
 
 @media only screen and (min-width: 1120px) {
+    .creep-designer {
+        width: 1105px;
+
+        .panel {
+            width: 48%;
+        }
+    }
     .buildingPlanner {
         width: 1100px;
 
@@ -433,6 +441,9 @@ a {
 }
 
 @media only screen and (min-width: 1440px) {
+    .creep-designer {
+        width: 1420px;
+    }
     .buildingPlanner {
         width: 1420px;
 

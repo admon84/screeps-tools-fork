@@ -254,6 +254,48 @@ export class BuildingPlanner extends React.Component {
         component.setState({room: json.name, shard: json.shard, rcl: json.rcl, structures: structures});   
     }
 
+    getRoadProps(x: number, y: number) {
+        let roadProps = {
+            middle: false,
+            top: false,
+            top_right: false,
+            right: false,
+            bottom_right: false,
+            bottom: false,
+            bottom_left: false,
+            left: false,
+            top_left: false
+        };
+        if (this.isRoad(x,y)) {
+            roadProps.middle = true;
+            for (let rx of [-1, 0, 1]) {
+                for (let ry of [-1, 0, 1]) {
+                    if (rx === 0 && ry === 0) continue;
+                    if (this.isRoad(x + rx, y + ry)) {
+                        if (rx === -1 && ry === -1) {
+                            roadProps.top_left = true;
+                        } else if (rx === 0 && ry === -1) {
+                            roadProps.top = true;
+                        } else if (rx === 1 && ry === -1) {
+                            roadProps.top_right = true;
+                        } else if (rx === 1 && ry === 0) {
+                            roadProps.right = true;
+                        } else if (rx === 1 && ry === 1) {
+                            roadProps.bottom_right = true;
+                        } else if (rx === 0 && ry === 1) {
+                            roadProps.bottom = true;
+                        } else if (rx === -1 && ry === 1) {
+                            roadProps.bottom_left = true;
+                        } else if (rx === -1 && ry === 0) {
+                            roadProps.left = true;
+                        }
+                    }
+                }
+            }
+        }
+        return roadProps;
+    }
+
     getStructure(x: number, y: number) {
         let structure = '';
         Object.keys(this.state.structures).forEach((structureName) => {
@@ -304,52 +346,13 @@ export class BuildingPlanner extends React.Component {
                     {[...Array(50)].map((x: number, j) => {
                         return <div className="row" key={j}>
                             {[...Array(50)].map((y: number, i) => {
-                                let roadProps = {
-                                    middle: false,
-                                    top: false,
-                                    top_right: false,
-                                    right: false,
-                                    bottom_right: false,
-                                    bottom: false,
-                                    bottom_left: false,
-                                    left: false,
-                                    top_left: false
-                                };
-                                const hasRoad = this.isRoad(i,j);
-                                if (hasRoad) {
-                                    roadProps.middle = true;
-                                    for (let rx of [-1, 0, 1]) {
-                                        for (let ry of [-1, 0, 1]) {
-                                            if (rx === 0 && ry === 0) continue;
-                                            if (this.isRoad(i+rx,j+ry)) {
-                                                if (rx === -1 && ry === -1) {
-                                                    roadProps.top_left = true;
-                                                } else if (rx === 0 && ry === -1) {
-                                                    roadProps.top = true;
-                                                } else if (rx === 1 && ry === -1) {
-                                                    roadProps.top_right = true;
-                                                } else if (rx === 1 && ry === 0) {
-                                                    roadProps.right = true;
-                                                } else if (rx === 1 && ry === 1) {
-                                                    roadProps.bottom_right = true;
-                                                } else if (rx === 0 && ry === 1) {
-                                                    roadProps.bottom = true;
-                                                } else if (rx === -1 && ry === 1) {
-                                                    roadProps.bottom_left = true;
-                                                } else if (rx === -1 && ry === 0) {
-                                                    roadProps.left = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
                                 return <MapCell
                                     x={i}
                                     y={j}
                                     terrain={this.state.terrain[j][i]}
                                     parent={this}
                                     structure={this.getStructure(i, j)}
-                                    road={roadProps}
+                                    road={this.getRoadProps(i, j)}
                                     rampart={this.isRampart(i,j)}
                                     key={'mc-'+ i + '-' + j}
                                 />
@@ -491,8 +494,12 @@ class MapCell extends React.Component<MapCellProps> {
     }
 
     mouseEnter(e: any) {
+        // update this.state.x and this.state.y
         this.setState({hover: true});
-        this.props.parent.setState({x: parseInt(e.target.dataset.x), y: parseInt(e.target.dataset.y)});
+        this.props.parent.setState({
+            x: parseInt(e.currentTarget.dataset.x),
+            y: parseInt(e.currentTarget.dataset.y)
+        });
     }
 
     getCellContent() {
@@ -602,7 +609,7 @@ class MapCell extends React.Component<MapCellProps> {
             </svg>);
         }
 
-        return (content.length ? content : <div>&nbsp;</div>);
+        return (content.length ? content : ' ');
     }
 
     className() {

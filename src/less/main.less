@@ -221,12 +221,12 @@ a {
     
     .rampart {
         background-color:#314b31 !important;
-        border-color: #2d632d !important;
+        border-color: #438643 !important;
     }
     
     .controls {
         width: 47vw;
-        margin: 0 1vw 0 0;
+        margin: 0;
         float:left;
         background-color:#222;
         color:#ccc;
@@ -396,27 +396,52 @@ a {
         padding-right: 10px;
     }
     .buildingPlanner {
+        width: 98vw;
+        margin: 0 auto;
+    }
+}
+
+@media only screen and (min-width: 900px) {
+    .header a {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .buildingPlanner {
         .map {
             width: 70vw;
             height: 70vw;
         }
         .controls {
-            width: 25vw;
+            width: 23vw;
         }
     }
 }
 
-@media only screen and (min-width: 1200px) {
+@media only screen and (min-width: 1120px) {
     .buildingPlanner {
+        width: 1100px;
+
         .map {
-            width: 50vw;
-            height: 50vw;
-            max-width: 90vh;
-            max-height: 90vh;
+            width: 750px;
+            height: 750px;
         }
         .controls {
-            width: 22vw;
-            max-width: 300px;
+            width: 290px;
+            margin-right: 10px;
+        }
+    }
+}
+
+@media only screen and (min-width: 1440px) {
+    .buildingPlanner {
+        width: 1420px;
+
+        .map {
+            width: 750px;
+            height: 750px;
+        }
+        .controls {
+            width: 290px;
         }
     }
 }

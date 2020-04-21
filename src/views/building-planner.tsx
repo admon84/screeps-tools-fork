@@ -565,47 +565,47 @@ class MapCell extends React.Component<MapCellProps> {
 
         if (this.state.road.middle) {
             content.push(<svg height="2%" width="100%">
-                <circle cx="50%" cy="50%" r="1" fill="#4e4e4e" />
+                <circle cx="50%" cy="50%" r="1" fill="#6b6b6b" />
             </svg>);
         }
         if (this.state.road.top_left) {
             content.push(<svg height="2%" width="100%">
-                <line x1="0" y1="0" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="0" y1="0" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.top) {
             content.push(<svg height="2%" width="100%">
-                <line x1="50%" y1="0" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="50%" y1="0" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.top_right) {
             content.push(<svg height="2%" width="100%">
-                <line x1="100%" y1="0" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="100%" y1="0" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.right) {
             content.push(<svg height="2%" width="100%">
-                <line x1="100%" y1="50%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="100%" y1="50%" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.bottom_right) {
             content.push(<svg height="2%" width="100%">
-                <line x1="100%" y1="100%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="100%" y1="100%" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.bottom) {
             content.push(<svg height="2%" width="100%">
-                <line x1="50%" y1="100%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="50%" y1="100%" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.bottom_left) {
             content.push(<svg height="2%" width="100%">
-                <line x1="0" y1="100%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="0" y1="100%" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
         if (this.state.road.left) {
             content.push(<svg height="2%" width="100%">
-                <line x1="0" y1="50%" x2="50%" y2="50%" stroke="#4e4e4e" strokeWidth={2} />
+                <line x1="0" y1="50%" x2="50%" y2="50%" stroke="#6b6b6b" strokeWidth={2} />
             </svg>);
         }
 

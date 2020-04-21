@@ -322,7 +322,7 @@ a {
         float: left;
         width: 94vw;
         height: 94vw;
-        // border:1px solid #020202;
+        border:1px solid rgba(15, 15, 15, 0.65);
         
         .row {
             width: 100%;
@@ -334,7 +334,7 @@ a {
                 width: 2%;
                 height: 100%;
                 float: left;
-                border:1px solid #020202;
+                border:1px solid rgba(15, 15, 15, 0.65);
                 cursor: pointer;
                 user-select: none;
                 -moz-user-select: none;
@@ -363,6 +363,7 @@ a {
                 
                 &.wall {
                     background-color: #000;
+                    border:1px solid #000;
                 }
                 
                 &.swamp {
@@ -370,7 +371,19 @@ a {
                 }
                 
                 &.hover {
-                    border-color:#ff9800;
+                    background-color: #555;
+                    border-color: #555;
+                    // border-color:#ff9800; // orange outline
+
+                    &.wall {
+                        background-color: #383838;
+                        border-color: #383838;
+                    }
+    
+                    &.swamp {
+                        background-color: #444638;
+                        border-color: #444638;
+                    }
                 }
             }
         }

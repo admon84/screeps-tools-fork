@@ -16,7 +16,7 @@ New features:
 * Easily place ramparts on structures (order doesnt matter)
 * Connected roads for pizzazz
 
-![View the building planner](https://user-images.githubusercontent.com/10291543/79899528-2aa04380-83ca-11ea-9a41-476e18212bc2.png)
+![View the building planner](https://user-images.githubusercontent.com/10291543/79900756-f6c61d80-83cb-11ea-934e-ba9e1aab270c.png)
 
 
 #### Creep Designer

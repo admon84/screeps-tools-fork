@@ -32,8 +32,12 @@ export default {
                     'createElement',
                     'Children'
                 ],
-                'node_modules/jquery/dist/jquery.js': [
-                    'ajax'
+                'node_modules/react-form/dist/index.js': [
+                    'Form',
+                    'Text',
+                    'Select',
+                    'StyledSelect',
+                    'StyledText'
                 ],
                 'node_modules/react-if/lib/ReactIf.js': [
                     'If',
@@ -43,13 +47,6 @@ export default {
                 'node_modules/prop-types/index.js': [
                     'object'
                 ],
-                'node_modules/react-form/dist/index.js': [
-                    'Form',
-                    'Text',
-                    'Select',
-                    'StyledSelect',
-                    'StyledText'
-                ],
                 'node_modules/lodash/lodash.js': [
                     'filter'
                 ],
@@ -57,11 +54,8 @@ export default {
                     'compressToEncodedURIComponent',
                     'decompressFromEncodedURIComponent'
                 ],
-                'node_modules/react-ga/dist/react-ga.js': [
-                    'initialize',
-                    'event',
-                    'set',
-                    'pageview'
+                'node_modules/react-is/index.js': [
+                    'isValidElementType'
                 ]
             }
         }),

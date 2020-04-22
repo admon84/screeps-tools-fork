@@ -1,4 +1,3 @@
-import * as jQuery from 'jquery';
 import * as React from 'react';
 import {Form, Text, Select} from 'react-form';
 import * as _ from 'lodash';
@@ -106,17 +105,15 @@ export class BuildingPlanner extends React.Component {
     componentDidMount() {
         let component = this;
 
-        jQuery.ajax({
-            url: '/api/shards',
-            dataType: 'json',
-            success: (data: any) => {
+        fetch('/api/shards').then((response) => {
+            response.json().then((data: any) => {
                 let shards: SelectOptions = [];
                 data.shards.forEach((shard: {name: string}) => {
                     shards.push({label: shard.name, value: shard.name});
                 })
 
                 component.setState({shards: shards});
-            }
+            });
         });
 
         let params = location.href.split('?')[1];
@@ -124,18 +121,17 @@ export class BuildingPlanner extends React.Component {
 
         if (searchParams.get('share')) {
             let json = LZString.decompressFromEncodedURIComponent(searchParams.get('share')!);
-
-            this.loadJSON(JSON.parse(json));
+            if (json) {
+                this.loadJSON(JSON.parse(json));
+            }
         }
     }
 
     handleControlForm(values: {[field: string]: any}) {
         let component = this;
 
-        jQuery.ajax({
-            url: '/api/terrain/' + values.shard + '/' + values.room,
-            dataType: 'json',
-            success: (data: any) => {
+        fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
+            response.json().then((data: any) => {
                 let terrain = data.terrain[0].terrain;
                 let terrainMap: TerrainMap = {};
                 for (var y = 0; y < 50; y++) {
@@ -147,7 +143,7 @@ export class BuildingPlanner extends React.Component {
                 }
 
                 component.setState({terrain: terrainMap, room: values.room, shard: values.shard});
-            }
+            });
         });
     }
 
@@ -221,10 +217,8 @@ export class BuildingPlanner extends React.Component {
         let component = this;
 
         if (json.shard && json.name) {
-            jQuery.ajax({
-                url: '/api/terrain/' + json.shard + '/' + json.name,
-                dataType: 'json',
-                success: (data: any) => {
+            fetch(`/api/terrain/${json.shard}/${json.room}`).then((response) => {
+                response.json().then((data: any) => {
                     let terrain = data.terrain[0].terrain;
                     let terrainMap: TerrainMap = {};
                     for (var y = 0; y < 50; y++) {
@@ -236,7 +230,7 @@ export class BuildingPlanner extends React.Component {
                     }
 
                     component.setState({terrain: terrainMap});
-                }
+                });
             });
         }
 

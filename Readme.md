@@ -19,14 +19,14 @@ New features:
 * Road tiles are connected
 * UI style changes
 
-![View the building planner](https://user-images.githubusercontent.com/10291543/79900756-f6c61d80-83cb-11ea-934e-ba9e1aab270c.png)
+![View the building planner](https://user-images.githubusercontent.com/10291543/80027140-7fae8900-84a0-11ea-8fc4-7fa9438f63e4.png)
 
 
 ## Creep Designer
 
 Build Creeps and see the stats.
 
-![View the creep designer](https://user-images.githubusercontent.com/10291543/79900218-245e9700-83cb-11ea-916f-b93e93770d64.png)
+![View the creep designer](https://user-images.githubusercontent.com/10291543/80027168-8d640e80-84a0-11ea-8c43-2032e6e58c38.png)
 
 
 ## Available Scripts

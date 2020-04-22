@@ -17,9 +17,9 @@ class AppRouter extends React.Component<RouteComponentProps<{}>> {
                     <NavLink to='/creep-designer'>Creep Designer</NavLink>
                 </div>
                 <Switch>
+                    <Route path='/' exact component={Index} />
                     <Route path='/building-planner' component={BuildingPlanner} />
                     <Route path='/creep-designer' component={CreepDesigner} />
-                    <Route path='/' exact component={Index} />
                 </Switch>
             </div>
         );
@@ -29,7 +29,7 @@ class AppRouter extends React.Component<RouteComponentProps<{}>> {
 const WrappedApp = withRouter(AppRouter);
 
 export const App = () => (
-    <BrowserRouter>
+    <BrowserRouter forceRefresh={true}>
         <WrappedApp />
     </BrowserRouter>
 );

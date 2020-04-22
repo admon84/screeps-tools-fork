@@ -1,5 +1,5 @@
 import * as React  from 'react';
-import {HashRouter, Route, withRouter, Switch, NavLink} from 'react-router-dom';
+import {BrowserRouter, Route, withRouter, Switch, NavLink} from 'react-router-dom';
 import {RouteComponentProps} from 'react-router';
 
 import {BuildingPlanner} from './building-planner';
@@ -29,7 +29,7 @@ class AppRouter extends React.Component<RouteComponentProps<{}>> {
 const WrappedApp = withRouter(AppRouter);
 
 export const App = () => (
-    <HashRouter>
+    <BrowserRouter>
         <WrappedApp />
-    </HashRouter>
+    </BrowserRouter>
 );

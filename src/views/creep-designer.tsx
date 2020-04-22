@@ -183,9 +183,9 @@ export class CreepDesigner extends React.Component{
         
         Object.keys(BODYPARTS).forEach((part) => {
             counts.push(this.state.body[part]);
-        })
+        });
         
-        return "/#/creep-designer/?share=" + counts.join(':');
+        return "/creep-designer/?share=" + counts.join(':');
     }
     
     creepLifespan() {

@@ -330,7 +330,7 @@ export class BuildingPlanner extends React.Component {
 
     shareableLink() {
         let string = LZString.compressToEncodedURIComponent(this.json());
-        return "/#/building-planner/?share=" + string;
+        return "/building-planner/?share=" + string;
     }
 
     render() {

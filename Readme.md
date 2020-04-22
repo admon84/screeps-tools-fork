@@ -13,10 +13,11 @@ Requirements:
 Based on the original [building planner by Dissi](http://screeps.dissi.me/)
 
 New features:
-* All structures including Factory
+* Factory structure
 * Containers can be placed on roads
 * Ramparts can be placed over structures
 * Road tiles are connected
+* UI style changes
 
 ![View the building planner](https://user-images.githubusercontent.com/10291543/79900756-f6c61d80-83cb-11ea-934e-ba9e1aab270c.png)
 

@@ -217,7 +217,7 @@ export class BuildingPlanner extends React.Component {
         let component = this;
 
         if (json.shard && json.name) {
-            fetch(`/api/terrain/${json.shard}/${json.room}`).then((response) => {
+            fetch(`/api/terrain/${json.shard}/${json.name}`).then((response) => {
                 response.json().then((data: any) => {
                     let terrain = data.terrain[0].terrain;
                     let terrainMap: TerrainMap = {};

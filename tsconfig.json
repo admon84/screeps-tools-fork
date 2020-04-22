@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "ES2015",
+        "module": "CommonJS",
         "target": "es6",
         "removeComments": true,
         "noEmitOnError": true,
@@ -10,16 +10,16 @@
         "noUnusedParameters": false,
         "noUnusedLocals": true,
         "sourceMap": true,
-        "baseUrl": "./src/",
-        "outDir": "./lib/",
+        "baseUrl": "src/",
+        "outDir": "lib/",
         "allowUnusedLabels": true,
         "allowJs": true,
         "jsx": "react"
     },
     "compileOnSave": false,
     "include": [
-        "src/**/*.ts",
-        "src/**/*.d.ts"
+        "src/**/*.tsx",
+        "src/**/*.d.ts",
     ],
     "exclude": [
         "lib",

@@ -2,12 +2,12 @@ import commonjs from "rollup-plugin-commonjs";
 import less from "rollup-plugin-less";
 import replace from "rollup-plugin-replace";
 import resolve from "rollup-plugin-node-resolve";
-import typescript from "rollup-plugin-typescript2";
+import typescript from "rollup-plugin-typescript3";
 
 export default {
-    input: './src/mount.ts',
+    input: 'src/mount.tsx',
     output: {
-        file: './public/js/app.js',
+        file: 'public/js/app.js',
         format: 'iife',
         globals: {
             fs: false,
@@ -19,7 +19,7 @@ export default {
         replace({
             'process.env.NODE_ENV': JSON.stringify('production')
         }),
-        typescript({tsconfig: './tsconfig.json'}),
+        typescript({tsconfig: 'tsconfig.json'}),
         resolve(),
         commonjs({
             namedExports: {
@@ -60,7 +60,7 @@ export default {
             }
         }),
         less({
-            output: './public/css/style.css'
+            output: 'public/css/style.css'
         })
     ]
 };

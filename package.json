@@ -4,7 +4,7 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "build": "rollup -c",
+        "build": "rollup -c && tsc",
         "start": "node lib/app.js",
         "launch": "rollup -c && tsc && node lib/app.js"
     },
@@ -35,7 +35,7 @@
         "rollup-plugin-less": "^1.1.2",
         "rollup-plugin-node-resolve": "^5.2.0",
         "rollup-plugin-replace": "^2.2.0",
-        "rollup-plugin-typescript2": "^0.27.0",
+        "rollup-plugin-typescript3": "^1.1.2",
         "screeps-api": "^1.11.0",
         "socket.io": "^2.3.0",
         "socket.io-client": "^2.3.0",

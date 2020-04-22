@@ -1,8 +1,8 @@
 # Screeps Tools
 
-Forked from [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
+Personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 
-<i>Requires Node.js v10</i>
+> Requires Node.js v10
 
 #### Building Planner
 

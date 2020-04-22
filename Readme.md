@@ -10,7 +10,7 @@ Requirements:
 
 ## Building Planner
 
-Based on the original [building planner by Dissi]
+Based on the original [building planner by Dissi](http://screeps.dissi.me/)
 
 New features:
 * All structures including Factory

@@ -98,7 +98,8 @@ a {
         }
         
         &.gh-link {
-            float:right;
+            display: none;
+            float: right;
         }
     }
 }
@@ -219,7 +220,7 @@ a {
 }
 
 .buildingPlanner {
-    width: 94vw;
+    width: 97vw;
     margin: 0 auto;
 
     // roads are connected with SVGs in building-planner.getCellContent()
@@ -399,6 +400,10 @@ a {
     .header a {
         padding-left: 10px;
         padding-right: 10px;
+
+        &.gh-link {
+            display: block;
+        }
     }
 }
 

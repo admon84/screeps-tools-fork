@@ -33,6 +33,10 @@ Build Creeps and see the stats.
 
 In the project directory, you can run:
 
+#### `npm install`
+
+Installs node modules listed in package.json
+
 #### `npm run build`
 
 Builds the app (including any changes you make)

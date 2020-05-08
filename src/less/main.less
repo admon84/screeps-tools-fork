@@ -148,6 +148,40 @@ a {
         
         table.body {
             width: 100%;
+            border-collapse: collapse;
+
+            button {
+                background-color:#404040;
+                color: #eee;
+                border: 1px solid #666;
+                padding: 4px 4px 3px;
+                outline: none;
+                margin: 0 1px;
+                
+                &:hover {
+                    cursor: pointer;
+                    background-color: #3f51b5;
+                }
+            }
+            
+            select,
+            input {
+                color: #010101;
+                font-size: 14px;
+                text-align: center;
+                background-color: #fff;
+                border:1px solid #666;
+                padding: 3px;
+                margin: 0 1px;
+            }
+
+            input {
+                width: 36px;
+            }
+            
+            select {
+                width: 80px;
+            }
             
             tbody {
                 tr {
@@ -164,37 +198,12 @@ a {
                         padding: 3px 8px;
                         
                         &.sum {
+                            text-align: right;
+
                             &.total {
                                 font-weight: bold;
                                 background-color: #f88;
                                 color: #222;
-                            }
-                        }
-                        
-                        &.count {
-                            text-align:center;
-                            
-                            button {
-                                background-color:#404040;
-                                color: #eee;
-                                border: 0;
-                                padding: 4px 4px 3px;
-                                outline: none;
-                                
-                                &:hover {
-                                    cursor: pointer;
-                                    background-color: #3f51b5;
-                                }
-                            }
-                            
-                            input {
-                                color: #010101;
-                                font-size: 14px;
-                                text-align: center;
-                                width: 36px;
-                                background-color: #fff;
-                                border:1px solid #ccc;
-                                padding: 2px;
                             }
                         }
                     }

@@ -5,7 +5,7 @@ Personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-t
 You can compile the app and run it locally.  See the scripts below.
 
 Requirements:
-* Node.js v10
+* Node.js v10 or higher
 
 
 ## Building Planner

@@ -33,6 +33,122 @@ const BODYPARTS: {[part: string]: string} = {
     claim: "CLAIM"
 };
 
+const BOOSTS: {[part: string]: {[resource: string]: {[method: string]: number}}} = {
+    work: {
+        UO: {
+            harvest: 3
+        },
+        UHO2: {
+            harvest: 5
+        },
+        XUHO2: {
+            harvest: 7
+        },
+        LH: {
+            build: 1.5,
+            repair: 1.5
+        },
+        LH2O: {
+            build: 1.8,
+            repair: 1.8
+        },
+        XLH2O: {
+            build: 2,
+            repair: 2
+        },
+        ZH: {
+            dismantle: 2
+        },
+        ZH2O: {
+            dismantle: 3
+        },
+        XZH2O: {
+            dismantle: 4
+        },
+        GH: {
+            upgradeController: 1.5
+        },
+        GH2O: {
+            upgradeController: 1.8
+        },
+        XGH2O: {
+            upgradeController: 2
+        }
+    },
+    attack: {
+        UH: {
+            attack: 2
+        },
+        UH2O: {
+            attack: 3
+        },
+        XUH2O: {
+            attack: 4
+        }
+    },
+    ranged_attack: {
+        KO: {
+            rangedAttack: 2,
+            rangedMassAttack: 2
+        },
+        KHO2: {
+            rangedAttack: 3,
+            rangedMassAttack: 3
+        },
+        XKHO2: {
+            rangedAttack: 4,
+            rangedMassAttack: 4
+        }
+    },
+    heal: {
+        LO: {
+            heal: 2,
+            rangedHeal: 2
+        },
+        LHO2: {
+            heal: 3,
+            rangedHeal: 3
+        },
+        XLHO2: {
+            heal: 4,
+            rangedHeal: 4
+        }
+    },
+    carry: {
+        KH: {
+            capacity: 2
+        },
+        KH2O: {
+            capacity: 3
+        },
+        XKH2O: {
+            capacity: 4
+        }
+    },
+    move: {
+        ZO: {
+            fatigue: 2
+        },
+        ZHO2: {
+            fatigue: 3
+        },
+        XZHO2: {
+            fatigue: 4
+        }
+    },
+    tough: {
+        GO: {
+            damage: .7
+        },
+        GHO2: {
+            damage: .5
+        },
+        XGHO2: {
+            damage: .3
+        }
+    }
+};
+
 export class CreepDesigner extends React.Component{
     state: Readonly <{
         body: {[part: string]: number};
@@ -71,6 +187,16 @@ export class CreepDesigner extends React.Component{
             }
         }
     }
+
+    removeAll(part: string) {
+        let body = this.state.body;
+        
+        if (body[part]) {
+            body[part] = 0;
+        }
+        
+        this.setState({body: body});
+    }
     
     remove(part: string) {
         let body = this.state.body;
@@ -82,14 +208,14 @@ export class CreepDesigner extends React.Component{
         this.setState({body: body});
     }
     
-    add(part: string) {
+    add(part: string, count: number) {
         let body = this.state.body;
         
         if (this.count() < 50 && (this.totalCost() + BODYPART_COST[part]) < RCL_ENERGY[8]) {
             if (body[part]) {
-                body[part] += 1;
+                body[part] += count;
             } else {
-                body[part] = 1;
+                body[part] = count;
             }
         }
         
@@ -157,7 +283,6 @@ export class CreepDesigner extends React.Component{
     count() {
         let count = 0;
         let component = this;
-        
         
         Object.keys(BODYPARTS).forEach((part) => {
             count += component.state.body[part];
@@ -229,6 +354,17 @@ export class CreepDesigner extends React.Component{
         
         this.setState({body: body});
     }
+
+    boostOptions(part: string) {
+        let options: React.ReactFragment[] = [];
+        if (BOOSTS[part] !== undefined) {
+            options.push(<option>&minus;</option>);
+            for (let resource of Object.keys(BOOSTS[part])) {
+                options.push(<option value={resource}>{resource}</option>);
+            }
+        }
+        return options;
+    }
     
     render() {
         return (
@@ -237,29 +373,48 @@ export class CreepDesigner extends React.Component{
                     <table className="body">
                         <thead>
                             <tr>
-                                <th style={{width: '38%'}}>Body Part</th>
-                                <th style={{width: '20%'}}>Price</th>
-                                <th style={{width: '22%'}}>Count</th>
-                                <th style={{width: '20%'}}>Sum</th>
+                                <th>Body Part</th>
+                                <th>Price</th>
+                                <th></th>
+                                <th>Count</th>
+                                <th></th>
+                                <th>Boost</th>
+                                <th>Sum</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.keys(BODYPARTS).map((part) => {
-                                return <tr key={part} className={this.state.body[part] > 0 ? 'active-parts' : ''}>
-                                <td className="part">{BODYPARTS[part]} </td>
-                                <td className="price">{BODYPART_COST[part]}</td>
-                                <td className="count">
-                                <button onClick={() => this.remove(part)}>&minus;</button>
-                                <input type="text" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
-                                <button onClick={() => this.add(part)}>+</button>
-                                </td>
-                                <td className="sum">{this.partCost(part) ? '-' + this.partCost(part) : '0'}</td>
-                                </tr>
+                            {Object.keys(BODYPARTS).map(part => {
+                                return (
+                                    <tr key={part} className={this.state.body[part] > 0 ? 'active-parts' : ''}>
+                                        <td className="part">{BODYPARTS[part]} </td>
+                                        <td className="price">{BODYPART_COST[part]}</td>
+                                        <td>
+                                            <button onClick={() => this.removeAll(part)}>min</button>
+                                            <button onClick={() => this.remove(part)}>&minus;</button>
+                                        </td>
+                                        <td className="count">
+                                            <input type="text" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
+                                        </td>
+                                        <td>
+                                            <button onClick={() => this.add(part, 1)}>+</button>
+                                            <button onClick={() => this.add(part, 10)}>+10</button>
+                                        </td>
+                                        <td>
+                                            {BOOSTS[part] !== undefined && <select>
+                                                {this.boostOptions(part)}
+                                            </select>}
+                                        </td>
+                                        <td className="sum">{this.partCost(part) ? '-' + this.partCost(part) : '0'}</td>
+                                    </tr>
+                                );
                             })}
                             <tr>
                                 <td className="part"><b>Total</b> (RCL {this.requiredRCL()})</td>
                                 <td className="price"></td>
+                                <td></td>
                                 <td className="count"><b>{this.count()}</b></td>
+                                <td></td>
+                                <td></td>
                                 <td className="sum total">{this.totalCost() ? '-' + this.totalCost() : '0'}</td>
                             </tr>
                         </tbody>

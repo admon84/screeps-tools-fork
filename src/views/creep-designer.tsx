@@ -61,14 +61,29 @@ export class CreepDesigner extends React.Component{
         }
     }
     
-    removeBodyPart(part: string, clearAll: boolean = false) {
+    setBodyPart(e: any, part: string) {
+        let old_value = parseInt(e.target.defaultValue) || 0;
+        let new_value = parseInt(e.target.value) || 0;
+
+        let dir = new_value > old_value;
+        let count = Math.abs(old_value - new_value);
+        
+        if (dir) {
+            this.addBodyPart(part, count);
+        } else {
+            this.removeBodyPart(part, count);
+        }
+
+        e.target.defaultValue = this.state.body[part];
+    }
+    
+    removeBodyPart(part: string, count: number) {
         let body = this.state.body;
         
         if (body[part]) {
-            if (clearAll) {
+            body[part] -= count;
+            if (body[part] < 0) {
                 body[part] = 0;
-            } else {
-                body[part] -= 1;
             }
         }
         
@@ -78,7 +93,7 @@ export class CreepDesigner extends React.Component{
     addBodyPart(part: string, count: number) {
         let body = this.state.body;
         
-        if (this.countParts() < 50 && (this.totalCost() + BODYPART_COST[part]) < RCL_ENERGY[8]) {
+        if (this.countParts() < 50) {
             let max = (50 - this.countParts());
             if (this.countParts() + count > 50) {
                 count = max;
@@ -214,15 +229,6 @@ export class CreepDesigner extends React.Component{
         if (!e.noState) {
             this.setState({body: body});
         }
-    }
-    
-    setBodyPart(e: any, part: string) {
-        let value = e.target.value;
-        let body = this.state.body;
-        
-        body[part] = parseInt(value);
-        
-        this.setState({body: body});
     }
 
     boostOptions(part: string) {
@@ -399,27 +405,29 @@ export class CreepDesigner extends React.Component{
     }
     
     setStructure(e: any, type: string) {
-        let value = e.target.value;
-        let structures = this.state.structures;
+        let old_value = parseInt(e.target.defaultValue) || 0;
+        let new_value = parseInt(e.target.value) || 0;
+
+        let dir = new_value > old_value;
+        let count = Math.abs(old_value - new_value);
         
-        structures[type] = parseInt(value);
-        
-        this.setState({structures: structures});
+        if (dir) {
+            this.addStructure(type, count);
+        } else {
+            this.removeStructure(type, count);
+        }
+
+        e.target.defaultValue = this.state.structures[type];
     }
     
-    removeStructure(type: string, clearAll: boolean = false) {
+    removeStructure(type: string, count: number) {
         let structures = this.state.structures;
         
         if (structures[type]) {
-            if (clearAll) {
+            structures[type] -= count;
+            if (structures[type] < 0) {
                 structures[type] = 0;
-            } else {
-                structures[type] -= 1;
             }
-        }
-
-        if (structures[type] < 0) {
-            structures[type] = 0;
         }
         
         this.setState({structures: structures});
@@ -491,7 +499,7 @@ export class CreepDesigner extends React.Component{
                             <tr>
                                 <th>Part/Struct</th>
                                 <th>Energy</th>
-                                <th style={{width: '162px'}}>Count</th>
+                                <th style={{width: '124px'}}>Count</th>
                                 <th>Boost</th>
                                 <th>Sum</th>
                             </tr>
@@ -503,10 +511,8 @@ export class CreepDesigner extends React.Component{
                                         <td className="part">{BODYPARTS[part]} </td>
                                         <td className="price">{BODYPART_COST[part]}</td>
                                         <td>
-                                            <button onClick={() => this.removeBodyPart(part, true)}>min</button>
-                                            <button onClick={() => this.removeBodyPart(part)}>-</button>
-                                            <input type="text" className="count" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.setBodyPart(e, part)} />
-                                            <button onClick={() => this.addBodyPart(part, 1)}>+</button>
+                                            <button onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
+                                            <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.setBodyPart(e, part)} />
                                             <button onClick={() => this.addBodyPart(part, 5)}>+5</button>
                                         </td>
                                         <td className="text-center">
@@ -521,7 +527,7 @@ export class CreepDesigner extends React.Component{
                             <tr>
                                 <td>Unit Count:</td>
                                 <td>
-                                    <input type="text" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
+                                    <input type="number" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
                                 </td>
                                 <td className="text-center"><b>{this.countParts()}</b></td>
                                 <td className="sum">Cost:</td>
@@ -536,10 +542,8 @@ export class CreepDesigner extends React.Component{
                                         <td className="part">{this.capitalize(type)}</td>
                                         <td className="price">{this.getEnergyCapacity(type)}</td>
                                         <td>
-                                            <button onClick={() => this.removeStructure(type, true)}>min</button>
-                                            <button onClick={() => this.removeStructure(type)}>-</button>
-                                            <input type="text" className="count" value={this.state.structures[type] ? this.state.structures[type] : 0} onChange={(e) => this.setStructure(e, type)} />
-                                            <button onClick={() => this.addStructure(type, 1)}>+</button>
+                                            <button onClick={() => this.removeStructure(type, 100)}>&empty;</button>
+                                            <input type="number" className="count" value={this.state.structures[type] ? this.state.structures[type] : 0} onChange={(e) => this.setStructure(e, type)} />
                                             {type !== 'spawn' && <button onClick={() => this.addStructure(type, 5)}>+5</button>}
                                         </td>
                                         <td></td>
@@ -567,7 +571,7 @@ export class CreepDesigner extends React.Component{
                             </tr>
                             <tr>
                                 <td>Tick Duration:</td>
-                                <td colSpan={4}><input type="text" className="tickTime" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
+                                <td colSpan={4}><input type="number" className="tickTime" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
                             </tr>
                         </tbody>
                     </table>

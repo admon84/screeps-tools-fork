@@ -39,7 +39,7 @@ export class CreepDesigner extends React.Component{
             controller: 8,
             structures: {
                 spawn: 3,
-                extensions: 60
+                extension: 60
             }
         };
         
@@ -51,7 +51,7 @@ export class CreepDesigner extends React.Component{
                 let body = searchParams.get('share')!;
                 let creepBody = this.state.body;
                 let i = 0;
-                body.split(":").forEach((count) => {
+                body.split(":").forEach(count => {
                     creepBody[Object.keys(BODYPARTS)[i]] = parseInt(count);
                     i += 1;
                 });
@@ -109,18 +109,42 @@ export class CreepDesigner extends React.Component{
         let cost = 0;
         let component = this;
         
-        Object.keys(BODYPARTS).forEach((part) => {
+        Object.keys(BODYPARTS).forEach(part => {
             cost += (component.state.body[part] * BODYPART_COST[part]);
         })
         
         return cost;
+    }
+
+    totalCostWithBoosting(timeMultiplier: number = 1) {
+        let cost = this.totalCost();
+
+        for (let part of Object.keys(BODYPARTS)) {
+            if (BOOSTS[part] !== undefined) {
+                let boostType = this.state.boost[part];
+                if (boostType !== null) {
+                    cost += (this.state.body[part] * LAB_BOOST_ENERGY);
+                }
+            }
+        }
+        return cost * timeMultiplier;
+    }
+
+    mineralCost(part: string, timeMultiplier: number = 1) {
+        if (BOOSTS[part] !== undefined) {
+            let boostType = this.state.boost[part];
+            if (boostType !== null) {
+                return (this.state.body[part] * LAB_BOOST_MINERAL) * timeMultiplier;
+            }
+        }
+        return 0;
     }
     
     countParts() {
         let count = 0;
         let component = this;
         
-        Object.keys(BODYPARTS).forEach((part) => {
+        Object.keys(BODYPARTS).forEach(part => {
             count += component.state.body[part];
         })
         
@@ -130,7 +154,7 @@ export class CreepDesigner extends React.Component{
     body() {
         let body = '[';
         
-        Object.keys(BODYPARTS).forEach((part) => {
+        Object.keys(BODYPARTS).forEach(part => {
             for (let i = 0; i < this.state.body[part]; i++) {
                 body += BODYPARTS[part] + ',';
             }
@@ -142,7 +166,7 @@ export class CreepDesigner extends React.Component{
     shareLink() {
         let counts: number[] = [];
         
-        Object.keys(BODYPARTS).forEach((part) => {
+        Object.keys(BODYPARTS).forEach(part => {
             counts.push(this.state.body[part]);
         });
         
@@ -151,9 +175,9 @@ export class CreepDesigner extends React.Component{
     
     creepLifespan() {
         if (this.state.body.claim > 0) {
-            return 500;
+            return CREEP_CLAIM_LIFE_TIME;
         } else {
-            return 1500;
+            return CREEP_LIFE_TIME;
         }
     }
 
@@ -168,22 +192,22 @@ export class CreepDesigner extends React.Component{
     }
     
     requiredRCL() {
-        let rcl = 8;
+        let rclRequired = 8;
         let cost = this.totalCost();
-        Object.keys(RCL_ENERGY).reverse().forEach((rclLevel) => {
-            if (cost <= RCL_ENERGY[parseInt(rclLevel)]) {
-                rcl = parseInt(rclLevel);
+        Object.keys(RCL_ENERGY).reverse().forEach(rcl => {
+            if (cost <= RCL_ENERGY[parseInt(rcl)]) {
+                rclRequired = parseInt(rcl);
             }
         });
         
-        return rcl;
+        return rclRequired;
     }
     
     import(e: any) {
         let data = e.target.value;
         let body = this.state.body;
         
-        Object.keys(BODYPARTS).forEach((part) => {
+        Object.keys(BODYPARTS).forEach(part => {
             body[part] = (data.match(new RegExp(BODYPARTS[part], 'g')) || []).length
         });
         
@@ -220,13 +244,45 @@ export class CreepDesigner extends React.Component{
         this.setState({boost: boost});
     }
 
-    getActionValueFormatted(part: string, action: string, partMultiplier: number, timeMultiplier: number = 1) {
-        return this.formatNumber(this.getActionValue(part, action, partMultiplier, timeMultiplier), 2);
+    getCreepActions() {
+        let actions: string[] = [];
+
+        if (this.state.body.move > 0) {
+            actions.push('move', 'pull');
+        }
+        if (this.state.body.carry > 0) {
+            actions.push('drop', 'pickup', 'transfer', 'withdraw');
+        }
+        if (this.state.body.work > 0) {
+            actions.push('harvest', 'dismantle');
+        }
+        if (this.state.body.work > 0 && this.state.body.carry > 0) {
+            actions.push('build', 'repair', 'upgradeController');
+        }
+        if (this.state.body.attack > 0) {
+            actions.push('attack');
+        }
+        if (this.state.body.heal > 0) {
+            actions.push('heal', 'rangedHeal');
+        }
+        if (this.state.body.ranged_attack > 0) {
+            actions.push('rangedAttack', 'rangedMassAttack');
+        }
+        if (this.state.body.claim > 0) {
+            actions.push('reserveController', 'claimController', 'attackController', 'generateSafeMode');
+        }
+        return actions;
     }
 
-    getActionValue(part: string, action: string, partMultiplier: number, timeMultiplier: number = 1) {
+    getActionValue(part: string, action: string, useUnitMultiplier: boolean, partMultiplier: number, timeMultiplier: number = 1) {
         let partCount = this.state.body[part];
-        let returnValue = ((partCount * partMultiplier) * timeMultiplier);
+        let returnValue = (partCount * partMultiplier);
+        if (timeMultiplier !== 1) {
+            returnValue *= timeMultiplier;
+        }
+        if (useUnitMultiplier) {
+            returnValue *= this.state.unitCount;
+        }
 
         if (BOOSTS[part] !== undefined) {
             let boostType = this.state.boost[part];
@@ -238,6 +294,10 @@ export class CreepDesigner extends React.Component{
         return returnValue;
     }
     
+    getActionValueFormatted(part: string, action: string, useUnitMultiplier: boolean, partMultiplier: number, timeMultiplier: number = 1) {
+        return this.formatNumber(this.getActionValue(part, action, useUnitMultiplier, partMultiplier, timeMultiplier), 2);
+    }
+
     walkTimeFull(move: number, carry: number, multiplier: number) {
         let time = 0;
         
@@ -288,13 +348,13 @@ export class CreepDesigner extends React.Component{
 
     formatNumber(num: number, digits: number) {
         const units = [
-            { value: 1, symbol: "" },
-            { value: 1E3, symbol: "k" },
-            { value: 1E6, symbol: "M" },
-            { value: 1E9, symbol: "G" },
-            { value: 1E12, symbol: "T" },
-            { value: 1E15, symbol: "P" },
-            { value: 1E18, symbol: "E" }
+            { value: 1, symbol: '' },
+            { value: 1E3, symbol: 'K' },
+            { value: 1E6, symbol: 'M' },
+            { value: 1E9, symbol: 'G' },
+            { value: 1E12, symbol: 'T' },
+            { value: 1E15, symbol: 'P' },
+            { value: 1E18, symbol: 'E' }
         ];
         let i;
         for (i = units.length - 1; i > 0; i--) {
@@ -312,6 +372,21 @@ export class CreepDesigner extends React.Component{
         if (!amount || amount.match(/^\d{1,}(\.\d{0,4})?$/)) {
             this.setState({tickTime: amount });
         }
+    }
+
+    changeControllerLevel(e: any) {
+        const rcl = e.target.value;
+        let structures = this.state.structures;
+        
+        for (let type of Object.keys(CONTROLLER_STRUCTURES)) {
+            structures[type] = CONTROLLER_STRUCTURES[type][rcl];
+        }
+
+        this.setState({controller: rcl, structures: structures});
+    }
+
+    capitalize(type: string) {
+        return type.charAt(0).toUpperCase() + type.slice(1);
     }
 
     getEnergyCapacity(type: string) {
@@ -368,26 +443,43 @@ export class CreepDesigner extends React.Component{
     }
     
     structureSum(type: string) {
-        let sum = 0;
-        let component = this;
-        let energyCapacity = this.getEnergyCapacity(type);
-        
-        if (type && BODYPART_COST[type]) {
-            sum = (component.state.structures[type] * energyCapacity);
+        return (this.state.structures[type] * this.getEnergyCapacity(type));
+    }
+
+    totalEnergyCapacity() {
+        let energySum = 0;
+        for (let type of Object.keys(CONTROLLER_STRUCTURES)) {
+            energySum += this.structureSum(type);
         }
-        
-        return sum;
+        return energySum;
     }
     
-    totalBalance() {
-        let component = this;
-        let totalCost = this.totalCost();
+    totalEnergyBalance() {
+        return (this.totalEnergyCapacity() - this.totalCost());
+    }
 
-        Object.keys(CONTROLLER_STRUCTURES).forEach(type => {
-            totalCost -= component.structureSum(type);
-        });
-        
-        return totalCost;
+    changeUnitCount(e: any) {
+        let unitCount = e.target.value.replace(/\D/,'');
+        if (unitCount < 1) {
+            unitCount = 1;
+        } else if (unitCount > 100) {
+            unitCount = 100;
+        }
+        this.setState({unitCount: unitCount});
+    }
+
+    getHits(toughOnly: boolean = false) {
+        let toughHits = (this.state.body.tough * 100);
+        const boost = this.state.boost.tough;
+        if (boost !== null) {
+            toughHits *= 100 / (100 * BOOSTS.tough[boost].damage);
+        }
+
+		if (toughOnly) {
+			return toughHits;
+		} else {
+			return (100 * (this.countParts() - this.state.body.tough)) + toughHits;
+		}
     }
     
     render() {
@@ -399,7 +491,7 @@ export class CreepDesigner extends React.Component{
                             <tr>
                                 <th>Part/Struct</th>
                                 <th>Energy</th>
-                                <th>Count</th>
+                                <th style={{width: '162px'}}>Count</th>
                                 <th>Boost</th>
                                 <th>Sum</th>
                             </tr>
@@ -407,7 +499,7 @@ export class CreepDesigner extends React.Component{
                         <tbody>
                             {Object.keys(BODYPARTS).map(part => {
                                 return (
-                                    <tr key={part} className={this.state.body[part] > 0 ? 'active-parts' : ''}>
+                                    <tr key={part} className={this.state.body[part] > 0 ? 'active' : ''}>
                                         <td className="part">{BODYPARTS[part]} </td>
                                         <td className="price">{BODYPART_COST[part]}</td>
                                         <td>
@@ -426,10 +518,22 @@ export class CreepDesigner extends React.Component{
                                     </tr>
                                 );
                             })}
+                            <tr>
+                                <td>Unit Count:</td>
+                                <td>
+                                    <input type="text" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
+                                </td>
+                                <td className="text-center"><b>{this.countParts()}</b></td>
+                                <td className="sum">Cost:</td>
+                                <td className={'sum total' + (this.totalCost() > this.totalEnergyCapacity() && ' alert')}>{this.totalCost()}</td>
+                            </tr>
+                            <tr>
+                                <td colSpan={5}><hr /></td>
+                            </tr>
                             {Object.keys(CONTROLLER_STRUCTURES).map(type => {
                                 return (
-                                    <tr key={type} className={this.state.structures[type] > 0 ? 'active-struct' : ''}>
-                                        <td className="part">{type}</td>
+                                    <tr key={type} className={this.state.structures[type] > 0 ? 'active' : ''}>
+                                        <td className="part">{this.capitalize(type)}</td>
                                         <td className="price">{this.getEnergyCapacity(type)}</td>
                                         <td>
                                             <button onClick={() => this.removeStructure(type, true)}>min</button>
@@ -444,20 +548,22 @@ export class CreepDesigner extends React.Component{
                                 );
                             })}
                             <tr>
-                                <td><b>Units:</b></td>
+                                <td>Controller Lavel:</td>
                                 <td>
-                                    <input type="text" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.setState({unitCount: e.target.value.replace(/\D/,'')})} />
+                                    <select className="controller" value={this.state.controller} onChange={(e) => this.changeControllerLevel(e)}>
+                                        {[...Array(9).keys()].map(level => {
+                                            return (
+                                                <option value={level}>{level}</option>
+                                            );
+                                        })}
+                                    </select>
                                 </td>
-                                <td className="text-center"><b>{this.countParts()}</b></td>
-                                <td className="sum">sum:</td>
-                                <td className="sum total">{this.totalCost() ? this.formatNumber(this.totalCost(), 2) : '0'}</td>
+                                <td></td>
+                                <td className="sum">Remaining:</td>
+                                <td className={'sum total' + (this.totalEnergyBalance() < 0 && ' alert')}>{this.totalEnergyBalance()}</td>
                             </tr>
                             <tr>
-                                <td>Controller:</td>
-                                <td><input type="text" /></td>
-                                <td></td>
-                                <td className="sum">balance:</td>
-                                <td className="sum total">{this.totalBalance() ? this.formatNumber(this.totalBalance(), 2) : '0'}</td>
+                                <td colSpan={5}><hr /></td>
                             </tr>
                             <tr>
                                 <td>Tick Duration:</td>
@@ -466,146 +572,146 @@ export class CreepDesigner extends React.Component{
                         </tbody>
                     </table>
                     <Creep body={this.state.body} />
-                    <h4>Creep Functions</h4>
-                    <ul className="creepFunctions">
-                        <li className={this.state.body.move > 0 ? 'yes' : 'no'}>move</li>
-                        <li className={this.state.body.move > 0 ? 'yes' : 'no'}>pull</li>
-                        <li className={this.state.body.work > 0 ? 'yes' : 'no'}>harvest</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>drop</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>pickup</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>transfer</li>
-                        <li className={this.state.body.carry > 0 ? 'yes' : 'no'}>withdraw</li>
-                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>build</li>
-                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>repair</li>
-                        <li className={(this.state.body.work > 0 && this.state.body.carry > 0) ? 'yes' : 'no'}>upgradeController</li>
-                    </ul>
-                    <ul className="creepFunctions">
-                        <li className={this.state.body.work > 0 ? 'yes' : 'no'}>dismantle</li>
-                        <li className={this.state.body.attack > 0 ? 'yes' : 'no'}>attack</li>
-                        <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>heal</li>
-                        <li className={this.state.body.heal > 0 ? 'yes' : 'no'}>rangedHeal</li>
-                        <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedAttack</li>
-                        <li className={this.state.body.ranged_attack > 0 ? 'yes' : 'no'}>rangedMassAttack</li>
-                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>reserveController</li>
-                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>claimController</li>
-                        <li className={this.state.body.claim > 0 ? 'yes' : 'no'}>attackController</li>
-                        <li className={this.state.body.carry >= 20 ? 'yes' : 'no'}>generateSafeMode</li>
-                    </ul>
-                    <textarea id='creep-body' value={this.body()} onChange={(e) => this.import(e)}></textarea>
-                    <a href={this.shareLink()}>Shareable Link</a>
                 </div>
                 {this.countParts() > 0 && <div className="panel">
                     <table className="stats">
                         <tbody>
-                        <tr style={{backgroundColor: '#efefef', color: '#444'}}>
+                        <tr className="light">
                             <td>Health</td>
-                            <td colSpan={4} className="text-center">{(this.countParts() * 100).toLocaleString()} {(this.state.body.tough > 0 ? '(from TOUGH: ' + (this.state.body.tough * 100).toLocaleString() + ')' : '')}</td>
+                            <td colSpan={4} className="text-center">{Math.floor(this.getHits()).toLocaleString()} {(this.state.body.tough > 0 ? '(from TOUGH: ' + Math.floor(this.getHits(true)).toLocaleString() + ')' : '')}</td>
                         </tr>
-                        {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-                            <td>Harvest (Energy)</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 2)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 2, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 2, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 2, this.ticksPerDay())}/day</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-                            <td>Ticks to Empty Source</td>
-                            <td colSpan={4} className="text-center">{Math.ceil(3000 / this.getActionValue('work', 'harvest', 2)).toLocaleString()}</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-                            <td>Harvest (Mineral)</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 1)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 1, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 1, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', 1, this.ticksPerDay())}/day</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-                            <td>Upgrade Controller</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', 1)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', 1, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', 1, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', 1, this.ticksPerDay())}/day</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
-                            <td>Build</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'build', 5)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'build', 5, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'build', 5, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'build', 5, this.ticksPerDay())}/day</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
+                        {this.state.body.work > 0 && <tr className="work">
                             <td>Dismantle</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', 50)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', 50, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', 50, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', 50, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', true, 50)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', true, 50, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', true, 50, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'dismantle', true, 50, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.attack > 0 && <tr style={{backgroundColor: '#f93842', color: '#fff'}}>
+                        {this.state.body.work > 0 && <tr className="work">
+                            <td>Harvest (Energy)</td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 2)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 2, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerDay())}<small>/D</small></td>
+                        </tr>}
+                        {this.state.body.work > 0 && <tr className="work">
+                            <td>Ticks to Empty Source</td>
+                            <td colSpan={4} className="text-center">{Math.ceil(3000 / this.getActionValue('work', 'harvest', false, 2)).toLocaleString()}</td>
+                        </tr>}
+                        {this.state.body.work > 0 && <tr className="work">
+                            <td>Harvest (Mineral)</td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 1)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 1, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 1, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'harvest', true, 1, this.ticksPerDay())}<small>/D</small></td>
+                        </tr>}
+                        {this.state.body.work > 0 && <tr className="work">
+                            <td>Upgrade Controller</td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', true, 1)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', true, 1, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', true, 1, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'upgradeController', true, 1, this.ticksPerDay())}<small>/D</small></td>
+                        </tr>}
+                        {this.state.body.work > 0 && <tr className="work">
+                            <td>Build</td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'build', true, 5)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'build', true, 5, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'build', true, 5, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('work', 'build', true, 5, this.ticksPerDay())}<small>/D</small></td>
+                        </tr>}
+                        {this.state.body.attack > 0 && <tr className="attack">
                             <td>Attack</td>
-                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', 30)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', 30, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', 30, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', 30, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', true, 30)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', true, 30, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', true, 30, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('attack', 'attack', true, 30, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
                             <td>Ranged Attack</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', 10)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', 10, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', 10, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', 10, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
                             <td>Mass Attack 1</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 10)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 10, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 10, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 10, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
                             <td>Mass Attack 2</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 4)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 4, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 4, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 4, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr style={{backgroundColor: '#5d7fb2', color: '#fff'}}>
+                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
                             <td>Mass Attack 3</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 1)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 1, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 1, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', 1, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.heal > 0 && <tr style={{backgroundColor: '#65fd62', color: '#444'}}>
+                        {this.state.body.heal > 0 && <tr className="heal">
                             <td>Heal</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', 10)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', 10, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', 10, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', 10, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', true, 12)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', true, 12, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', true, 12, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'heal', true, 12, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.heal > 0 && <tr style={{backgroundColor: '#65fd62', color: '#444'}}>
+                        {this.state.body.heal > 0 && <tr className="heal">
                             <td>Ranged Heal</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', 10)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', 10, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', 10, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', 10, this.ticksPerDay())}/day</td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', true, 4)}<small>/T</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.creepLifespan())}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerHour())}<small>/H</small></td>
+                            <td className="text-center">{this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerDay())}<small>/D</small></td>
                         </tr>}
-                        {this.state.body.carry > 0 && <tr style={{backgroundColor: '#efefef', color: '#444'}}>
+                        {this.state.body.carry > 0 && <tr className="light">
                             <td>Carry</td>
-                            <td className="text-center">{this.getActionValueFormatted('carry', 'capacity', 50)}/T</td>
-                            <td className="text-center">{this.getActionValueFormatted('carry', 'capacity', 50, this.creepLifespan())}/life</td>
-                            <td className="text-center">{this.getActionValueFormatted('carry', 'capacity', 50, this.ticksPerHour())}/hr</td>
-                            <td className="text-center">{this.getActionValueFormatted('carry', 'capacity', 50, this.ticksPerDay())}/day</td>
+                            <td colSpan={4} className="text-center">{this.getActionValueFormatted('carry', 'capacity', false, 50)}</td>
                         </tr>}
-                        {this.state.body.move > 0 && <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
-                            <td>Move on Plain{this.state.body.carry > 0 && ' (empty)'}</td>
+                        {this.state.body.move > 0 && <tr className="move">
+                            <td>Move Ticks{this.state.body.carry > 0 && ' (empty)'}</td>
                             <td colSpan={4} className="text-center">plain={this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 1)} &nbsp; road={this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 0.5)} &nbsp; swamp={this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 5)}</td>
                         </tr>}
-                        {this.state.body.move > 0 && this.state.body.carry > 0 && <tr style={{backgroundColor: '#a9b7c6', color: '#444'}}>
-                            <td>Move on Plain (full)</td>
+                        {this.state.body.move > 0 && this.state.body.carry > 0 && <tr className="move">
+                            <td>Move Ticks (full)</td>
                             <td colSpan={4} className="text-center">plain={this.walkTimeFull(this.state.body.move, this.state.body.carry, 1)} &nbsp; road={this.walkTimeFull(this.state.body.move, this.state.body.carry, 0.5)} &nbsp; swamp={this.walkTimeFull(this.state.body.move, this.state.body.carry, 5)}</td>
                         </tr>}
+                        <tr className="light">
+                            <td>Energy Cost</td>
+                            <td className="text-center">{this.formatNumber(this.totalCostWithBoosting(), 2)}<small>/1</small></td>
+                            <td className="text-center">{this.formatNumber(this.totalCostWithBoosting(this.state.unitCount), 2)}<small>/{this.state.unitCount}</small></td>
+                            <td className="text-center">{this.formatNumber(this.totalCostWithBoosting(this.ticksPerHour() / CREEP_LIFE_TIME), 2)}<small>/H</small></td>
+                            <td className="text-center">{this.formatNumber(this.totalCostWithBoosting(this.ticksPerDay() / CREEP_LIFE_TIME), 2)}<small>/D</small></td>
+                        </tr>
+                        {Object.keys(BODYPARTS).map(part => {
+                            if (BOOSTS[part] !== undefined && this.state.boost[part] !== null) {
+                                return (
+                                    <tr className="light">
+                                        <td>{this.state.boost[part]}</td>
+                                        <td className="text-center">{this.formatNumber(this.mineralCost(part), 2)}<small>/1</small></td>
+                                        <td className="text-center">{this.formatNumber(this.mineralCost(part, this.state.unitCount), 2)}<small>/{this.state.unitCount}</small></td>
+                                        <td className="text-center">{this.formatNumber(this.mineralCost(part, this.ticksPerHour() / CREEP_LIFE_TIME), 2)}<small>/H</small></td>
+                                        <td className="text-center">{this.formatNumber(this.mineralCost(part, this.ticksPerDay() / CREEP_LIFE_TIME), 2)}<small>/D</small></td>
+                                    </tr>
+                                );
+                            }
+                        })}
                         </tbody>
                     </table>
+                    <h4>Creep Actions</h4>
+                    {this.getCreepActions().map(action => {
+                        return (
+                            <ul className="creep-action">
+                                <li>{action}</li>
+                            </ul>
+                        );
+                    })}
+                    <textarea className="creep-body" value={this.body()} onChange={(e) => this.import(e)}></textarea>
+                    <a href={this.shareLink()}>Shareable Link</a>
                 </div>}
             </div>
         );
@@ -695,6 +801,10 @@ function bodyPartWedge(startX: number, startY: number, startAngle: number, endAn
 /**
  * Game Constants
  */
+const CREEP_LIFE_TIME: number = 1500;
+const CREEP_CLAIM_LIFE_TIME: number = 600;
+const LAB_BOOST_ENERGY: number = 20;
+const LAB_BOOST_MINERAL: number = 30;
 const SPAWN_ENERGY_CAPACITY: number = 300;
 
 const EXTENSION_ENERGY_CAPACITY: {[level: number]: number} = {

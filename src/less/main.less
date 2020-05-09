@@ -117,7 +117,7 @@ a {
         box-sizing: border-box;
         padding:10px;
         
-        #creep-body {
+        .creep-body {
             position: relative;
             width: 100%;
             min-width: 100%;
@@ -127,12 +127,57 @@ a {
             max-height: 205px;
             margin-top: 20px;
         }
+
+        hr {
+            border: none;
+            background: #444;
+            height: 2px;
+        }
         
         table.stats {
             width: 100%;
             
             td {
                 padding: 2px 4px;
+            }
+
+            tr {
+                &.light {
+                    background-color: #efefef;
+                }
+                &.work {
+                    background-color: #ffe56d;
+                }
+                &.attack {
+                    background-color: #f93842;
+                }
+                &.ranged_attack {
+                    background-color: #5d7fb2;
+                }
+                &.heal {
+                    background-color: #65fd62;
+                }
+                &.move {
+                    background-color: #a9b7c6;
+                }
+
+                &.light,
+                &.work,
+                &.heal,
+                &.move {
+                    color: #444;
+                    small {
+                        color: #5e5e5e;
+                    }
+                }
+
+                &.attack,
+                &.ranged_attack {
+                    color: #fff;
+                    small {
+                        color: #eee;
+                    }
+                }
             }
         }
         
@@ -174,24 +219,23 @@ a {
                 padding: 3px;
                 margin: 0 1px;
             }
+            
+            select {
+                width: 80px;
+
+                &.controller {
+                    width: 48px;
+                }
+            }
 
             input {
                 width: 40px;
             }
             
-            select {
-                width: 80px;
-            }
-            
             tbody {
                 tr {
-                    &.active-parts {
-                        background-color: #fff18d;
-                        color: #444;
-                        
-                        td.count {
-                            background-color: #222;
-                        }
+                    &.active {
+                        background-color: #2b2b2b;
                     }
                     
                     td {
@@ -202,8 +246,11 @@ a {
 
                             &.total {
                                 font-weight: bold;
-                                background-color: #f88;
-                                color: #222;
+
+                                &.alert {
+                                    background-color: #f88;
+                                    color: #222;
+                                }
                             }
                         }
                     }
@@ -212,23 +259,16 @@ a {
         }
     }
     
-    .creepFunctions {
+    .creep-action {
         display: block;
         float: left;
-        width: 40%;
-        margin-top: 0;
-        margin-left: 5px;
-        
-        .yes {
-            color:#27ae60;
-        }
-        .no {
-            color:#c0392b;
-        }
+        width: 30%;
+        padding-left: 3%;
+        margin: 0;
     }
 }
 
-.buildingPlanner {
+.building-planner {
     width: 97vw;
     margin: 0 auto;
 

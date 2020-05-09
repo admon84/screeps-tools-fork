@@ -335,7 +335,7 @@ export class BuildingPlanner extends React.Component {
 
     render() {
         return (
-            <div className="buildingPlanner">
+            <div className="building-planner">
                 <div className="map">
                     {[...Array(50)].map((x: number, j) => {
                         return <div className="row" key={j}>

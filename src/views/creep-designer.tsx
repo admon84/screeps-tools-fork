@@ -2,15 +2,19 @@ import * as React from 'react';
 
 export class CreepDesigner extends React.Component{
     state: Readonly <{
+        unitCount: number;
         tickTime: number;
         body: {[part: string]: number};
         boost: {[part: string]: string | null};
+        controller: number;
+        structures: {[structureType: string]: number};
     }>;
     
     constructor(props: any) {
         super(props);
         
         this.state = {
+            unitCount: 1,
             tickTime: 3,
             body: {
                 move: 1,
@@ -31,6 +35,11 @@ export class CreepDesigner extends React.Component{
                 heal: null,
                 claim: null,
                 carry: null
+            },
+            controller: 8,
+            structures: {
+                spawn: 3,
+                extensions: 60
             }
         };
         
@@ -69,9 +78,9 @@ export class CreepDesigner extends React.Component{
     addBodyPart(part: string, count: number) {
         let body = this.state.body;
         
-        if (this.count() < 50 && (this.totalCost() + BODYPART_COST[part]) < RCL_ENERGY[8]) {
-            let max = (50 - this.count());
-            if (this.count() + count > 50) {
+        if (this.countParts() < 50 && (this.totalCost() + BODYPART_COST[part]) < RCL_ENERGY[8]) {
+            let max = (50 - this.countParts());
+            if (this.countParts() + count > 50) {
                 count = max;
             }
 
@@ -107,7 +116,7 @@ export class CreepDesigner extends React.Component{
         return cost;
     }
     
-    count() {
+    countParts() {
         let count = 0;
         let component = this;
         
@@ -183,7 +192,7 @@ export class CreepDesigner extends React.Component{
         }
     }
     
-    set(e: any, part: string) {
+    setBodyPart(e: any, part: string) {
         let value = e.target.value;
         let body = this.state.body;
         
@@ -243,8 +252,8 @@ export class CreepDesigner extends React.Component{
                 incrementer = BOOSTS['move'][boostType]['fatigue'];
             }
 
-            let movePercent = (move / this.count());
-            let moveIncrementer = (1 / ((move * incrementer) / (this.count() - carry)));
+            let movePercent = (move / this.countParts());
+            let moveIncrementer = (1 / ((move * incrementer) / (this.countParts() - carry)));
             let subtract = (movePercent * moveIncrementer);
             let moveQuality = Math.ceil(moveIncrementer - subtract);
             
@@ -265,8 +274,8 @@ export class CreepDesigner extends React.Component{
                 incrementer = BOOSTS['move'][boostType]['fatigue'];
             }
 
-            let movePercent = (move / (this.count() - carry));
-            let moveIncrementer = (1 / ((move * incrementer) / (this.count() - carry)));
+            let movePercent = (move / (this.countParts() - carry));
+            let moveIncrementer = (1 / ((move * incrementer) / (this.countParts() - carry)));
             let subtract = (movePercent * moveIncrementer);
             let moveQuality = Math.ceil(moveIncrementer - subtract);
             
@@ -304,6 +313,82 @@ export class CreepDesigner extends React.Component{
             this.setState({tickTime: amount });
         }
     }
+
+    getEnergyCapacity(type: string) {
+        if (type == 'spawn') {
+            return SPAWN_ENERGY_CAPACITY;
+        } else if (type == 'extension') {
+            return EXTENSION_ENERGY_CAPACITY[this.state.controller];
+        }
+        return 0;
+    }
+    
+    setStructure(e: any, type: string) {
+        let value = e.target.value;
+        let structures = this.state.structures;
+        
+        structures[type] = parseInt(value);
+        
+        this.setState({structures: structures});
+    }
+    
+    removeStructure(type: string, clearAll: boolean = false) {
+        let structures = this.state.structures;
+        
+        if (structures[type]) {
+            if (clearAll) {
+                structures[type] = 0;
+            } else {
+                structures[type] -= 1;
+            }
+        }
+
+        if (structures[type] < 0) {
+            structures[type] = 0;
+        }
+        
+        this.setState({structures: structures});
+    }
+    
+    addStructure(type: string, count: number) {
+        let structures = this.state.structures;
+        
+        if (structures[type]) {
+            structures[type] += count;
+        } else {
+            structures[type] = count;
+        }
+
+        let max = CONTROLLER_STRUCTURES[type][this.state.controller];
+        if (max !== undefined && structures[type] > max) {
+            structures[type] = max;
+        }
+        
+        this.setState({structures: structures});
+    }
+    
+    structureSum(type: string) {
+        let sum = 0;
+        let component = this;
+        let energyCapacity = this.getEnergyCapacity(type);
+        
+        if (type && BODYPART_COST[type]) {
+            sum = (component.state.structures[type] * energyCapacity);
+        }
+        
+        return sum;
+    }
+    
+    totalBalance() {
+        let component = this;
+        let totalCost = this.totalCost();
+
+        Object.keys(CONTROLLER_STRUCTURES).forEach(type => {
+            totalCost -= component.structureSum(type);
+        });
+        
+        return totalCost;
+    }
     
     render() {
         return (
@@ -312,8 +397,8 @@ export class CreepDesigner extends React.Component{
                     <table className="body">
                         <thead>
                             <tr>
-                                <th>Body Part</th>
-                                <th>Price</th>
+                                <th>Part/Struct</th>
+                                <th>Energy</th>
                                 <th>Count</th>
                                 <th>Boost</th>
                                 <th>Sum</th>
@@ -325,10 +410,10 @@ export class CreepDesigner extends React.Component{
                                     <tr key={part} className={this.state.body[part] > 0 ? 'active-parts' : ''}>
                                         <td className="part">{BODYPARTS[part]} </td>
                                         <td className="price">{BODYPART_COST[part]}</td>
-                                        <td className="text-center">
+                                        <td>
                                             <button onClick={() => this.removeBodyPart(part, true)}>min</button>
                                             <button onClick={() => this.removeBodyPart(part)}>-</button>
-                                            <input type="text" className="count" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.set(e, part)} />
+                                            <input type="text" className="count" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.setBodyPart(e, part)} />
                                             <button onClick={() => this.addBodyPart(part, 1)}>+</button>
                                             <button onClick={() => this.addBodyPart(part, 5)}>+5</button>
                                         </td>
@@ -341,18 +426,42 @@ export class CreepDesigner extends React.Component{
                                     </tr>
                                 );
                             })}
+                            {Object.keys(CONTROLLER_STRUCTURES).map(type => {
+                                return (
+                                    <tr key={type} className={this.state.structures[type] > 0 ? 'active-struct' : ''}>
+                                        <td className="part">{type}</td>
+                                        <td className="price">{this.getEnergyCapacity(type)}</td>
+                                        <td>
+                                            <button onClick={() => this.removeStructure(type, true)}>min</button>
+                                            <button onClick={() => this.removeStructure(type)}>-</button>
+                                            <input type="text" className="count" value={this.state.structures[type] ? this.state.structures[type] : 0} onChange={(e) => this.setStructure(e, type)} />
+                                            <button onClick={() => this.addStructure(type, 1)}>+</button>
+                                            {type !== 'spawn' && <button onClick={() => this.addStructure(type, 5)}>+5</button>}
+                                        </td>
+                                        <td></td>
+                                        <td className="sum">{this.structureSum(type) ? this.structureSum(type) : '0'}</td>
+                                    </tr>
+                                );
+                            })}
                             <tr>
-                                <td className="part"><b>Totals</b></td>
-                                <td></td>
-                                <td className="text-center"><b>{this.count()}</b></td>
-                                <td></td>
-                                <td className="sum total">{this.totalCost() ? this.totalCost() : '0'}</td>
+                                <td><b>Units:</b></td>
+                                <td>
+                                    <input type="text" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.setState({unitCount: e.target.value.replace(/\D/,'')})} />
+                                </td>
+                                <td className="text-center"><b>{this.countParts()}</b></td>
+                                <td className="sum">sum:</td>
+                                <td className="sum total">{this.totalCost() ? this.formatNumber(this.totalCost(), 2) : '0'}</td>
                             </tr>
                             <tr>
-                                <td colSpan={5}>Controller Level: {this.requiredRCL()}</td>
+                                <td>Controller:</td>
+                                <td><input type="text" /></td>
+                                <td></td>
+                                <td className="sum">balance:</td>
+                                <td className="sum total">{this.totalBalance() ? this.formatNumber(this.totalBalance(), 2) : '0'}</td>
                             </tr>
                             <tr>
-                                <td colSpan={5}>Tick Duration: <input type="text" className="tickTime" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
+                                <td>Tick Duration:</td>
+                                <td colSpan={4}><input type="text" className="tickTime" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -385,12 +494,12 @@ export class CreepDesigner extends React.Component{
                     <textarea id='creep-body' value={this.body()} onChange={(e) => this.import(e)}></textarea>
                     <a href={this.shareLink()}>Shareable Link</a>
                 </div>
-                {this.count() > 0 && <div className="panel">
+                {this.countParts() > 0 && <div className="panel">
                     <table className="stats">
                         <tbody>
                         <tr style={{backgroundColor: '#efefef', color: '#444'}}>
                             <td>Health</td>
-                            <td colSpan={4} className="text-center">{(this.count() * 100).toLocaleString()} {(this.state.body.tough > 0 ? '(from TOUGH: ' + (this.state.body.tough * 100).toLocaleString() + ')' : '')}</td>
+                            <td colSpan={4} className="text-center">{(this.countParts() * 100).toLocaleString()} {(this.state.body.tough > 0 ? '(from TOUGH: ' + (this.state.body.tough * 100).toLocaleString() + ')' : '')}</td>
                         </tr>
                         {this.state.body.work > 0 && <tr style={{backgroundColor: '#ffe56d', color: '#444'}}>
                             <td>Harvest (Energy)</td>
@@ -584,8 +693,27 @@ function bodyPartWedge(startX: number, startY: number, startAngle: number, endAn
 }
 
 /**
- * Constants
+ * Game Constants
  */
+const SPAWN_ENERGY_CAPACITY: number = 300;
+
+const EXTENSION_ENERGY_CAPACITY: {[level: number]: number} = {
+    0: 50,
+    1: 50,
+    2: 50,
+    3: 50,
+    4: 50,
+    5: 50,
+    6: 50,
+    7: 100,
+    8: 200
+};
+
+const CONTROLLER_STRUCTURES: {[structureType: string]: {[level: number]: number}} = {
+    spawn: {0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3},
+    extension: {0: 0, 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60},
+};
+
 const RCL_ENERGY: {[level: number]: number} = {
     1: 300,
     2: 550,

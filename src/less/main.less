@@ -141,10 +141,13 @@ a {
             width: 100%;
             
             td {
-                padding: 2px 4px;
+                padding: 2px;
             }
 
             tr {
+                &.dark {
+                    background-color: #666;
+                }
                 &.light {
                     background-color: #efefef;
                 }
@@ -174,6 +177,7 @@ a {
                     }
                 }
 
+                &.dark,
                 &.attack,
                 &.ranged_attack {
                     color: #fff;
@@ -484,7 +488,7 @@ a {
         width: 1105px;
 
         .panel {
-            width: 48%;
+            width: 50%;
         }
     }
     .building-planner {

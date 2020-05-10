@@ -585,7 +585,7 @@ export class CreepDesigner extends React.Component{
                                 <td>
                                     <input type="number" id="input-units" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
                                 </td>
-                                <td className="text-center"><b>{this.countParts() + (this.state.unitCount > 0 ? ' (' + this.state.unitCount * this.countParts() + ')' : '')}</b></td>
+                                <td className="text-center"><b>{this.countParts() + (this.state.unitCount > 1 ? ' (' + this.state.unitCount * this.countParts() + ')' : '')}</b></td>
                                 <td className="sum">Cost:</td>
                                 <td className={'sum total' + (this.totalCost() > this.totalEnergyCapacity() && ' alert')}>{this.totalCost()}</td>
                             </tr>

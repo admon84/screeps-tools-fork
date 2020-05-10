@@ -600,9 +600,9 @@ export class CreepDesigner extends React.Component{
                                         <td className="part">{BODYPARTS[part]} </td>
                                         <td className="price">{BODYPART_COST[part]}</td>
                                         <td>
-                                            <button onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
+                                            <button tabIndex={-1} onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
                                             <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : ''} onChange={(e) => this.setBodyPart(e, part)} />
-                                            <button onClick={() => this.addBodyPart(part, 5)}>+5</button>
+                                            <button tabIndex={-1} onClick={() => this.addBodyPart(part, 5)}>+5</button>
                                         </td>
                                         <td className="text-center">
                                             {BOOSTS[part] !== undefined && <select className="boost" onChange={(e) => this.handleBoostChange(e, part)}>
@@ -614,9 +614,9 @@ export class CreepDesigner extends React.Component{
                                 );
                             })}
                             <tr>
-                                <td>Unit Count:</td>
+                                <td><label htmlFor="input-units">Unit Count:</label></td>
                                 <td>
-                                    <input type="number" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
+                                    <input type="number" id="input-units" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
                                 </td>
                                 <td className="text-center"><b>{this.countParts()}</b></td>
                                 <td className="sum">Cost:</td>
@@ -631,9 +631,9 @@ export class CreepDesigner extends React.Component{
                                         <td className="part">{this.capitalize(type)}</td>
                                         <td className="price">{this.getEnergyCapacity(type)}</td>
                                         <td>
-                                            <button onClick={() => this.removeStructure(type, 100)}>&empty;</button>
+                                            <button tabIndex={-1} onClick={() => this.removeStructure(type, 100)}>&empty;</button>
                                             <input type="number" className="count" value={this.state.structures[type] ? this.state.structures[type] : ''} onChange={(e) => this.setStructure(e, type)} />
-                                            {type !== 'spawn' && <button onClick={() => this.addStructure(type, 5)}>+5</button>}
+                                            {type !== 'spawn' && <button tabIndex={-1} onClick={() => this.addStructure(type, 5)}>+5</button>}
                                         </td>
                                         <td></td>
                                         <td className="sum">{this.structureSum(type) ? this.structureSum(type) : '0'}</td>
@@ -641,9 +641,9 @@ export class CreepDesigner extends React.Component{
                                 );
                             })}
                             <tr>
-                                <td>Controller Lavel:</td>
+                                <td><label htmlFor="select-rcl">Controller Level:</label></td>
                                 <td>
-                                    <select className="controller" value={this.state.controller} onChange={(e) => this.changeControllerLevel(e)}>
+                                    <select id="select-rcl" className="controller" value={this.state.controller} onChange={(e) => this.changeControllerLevel(e)}>
                                         {[...Array(9).keys()].map(level => {
                                             return (
                                                 <option value={level}>{level}</option>
@@ -659,8 +659,8 @@ export class CreepDesigner extends React.Component{
                                 <td colSpan={5}><hr /></td>
                             </tr>
                             <tr>
-                                <td>Tick Duration:</td>
-                                <td colSpan={4}><input type="number" className="tickTime" step="0.1" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
+                                <td><label htmlFor="input-ticks">Tick Duration:</label></td>
+                                <td colSpan={4}><input type="number" id="input-ticks" className="tickTime" step="0.1" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
                             </tr>
                         </tbody>
                     </table>

@@ -50,12 +50,11 @@ h6 {
 }
 
 a {
-    color: rgb(121,134,203);
+    color: #7986cb;
     text-decoration: none;
-    transition: color 0.2s;
     
     &:hover {
-        color:#ff9800;
+        text-decoration: underline;
     }
 }
 
@@ -81,17 +80,21 @@ a {
     overflow:auto;
     
     img {
-        height:22px;
+        height:23px;
         padding-top:12px;
         float:left;
     }
     
     a {
-        color: rgb(121,134,203);
+        display: block;
+        color: #7986cb;
         text-decoration: none;
-        display:block;
-        padding:10px 6px;
+        padding: 10px 6px;
         float: left;
+
+        &:hover {
+            text-decoration: underline;
+        }
         
         &.active {
             color:#ff9800;

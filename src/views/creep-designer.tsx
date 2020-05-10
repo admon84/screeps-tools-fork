@@ -373,9 +373,12 @@ export class CreepDesigner extends React.Component{
     }
 
     changeTickTime(e: any) {
-        const amount = e.target.value;
+        let amount = e.target.value;
 
         if (!amount || amount.match(/^\d{1,}(\.\d{0,4})?$/)) {
+            if (amount < 0.1) {
+                amount = 0.1;
+            }
             this.setState({tickTime: amount });
         }
     }
@@ -496,43 +499,46 @@ export class CreepDesigner extends React.Component{
     }
     
     labelPerTick(val: string) {
-        let append = ' per tick for 1 unit';
+        let append = ' per tick';
         if (this.state.unitCount > 1) {
-            append = ` per tick for ${this.state.unitCount} units`;
+            append = ` per tick for ${this.state.unitCount} creeps`;
         }
-        return <span title={val + append}>{val}<small>/T</small></span>;
+        return <span title={val + append}>{val}<small> /T</small></span>;
     }
 
-    labelCreepLife(val: string) {
-        let append = ' total for 1 unit';
-        if (this.state.unitCount > 1) {
-            append = ' total for each unit';
+    labelCreepLife(val: string, incLifespan: boolean = true) {
+        let append = ' total for 1 creep';
+        if (incLifespan) {
+            append += ' lifespan (1500 ticks)';
         }
-        return <span title={val + append}>{val}<small>/1</small></span>;
+        return <span title={val + append}>{val}<small> /1</small></span>;
     }
 
-    labelUnitsLife(val: string) {
-        let append = ' total for 1 unit';
+    labelUnitsLife(val: string, incLifespan: boolean = true) {
+        let append = ' total for 1 creep';
         if (this.state.unitCount > 1) {
-            append = ` total for ${this.state.unitCount} units`;
+            append = ` total for ${this.state.unitCount} creeps`;
         }
-        return <span title={val + append}>{val}<small>/{this.state.unitCount}</small></span>;
+        if (incLifespan) {
+            append += ' lifespan (1500 ticks)';
+        }
+        return <span title={val + append}>{val}<small> /{this.state.unitCount}</small></span>;
     }
 
     labelPerHour(val: string) {
-        let append = ` total per hour (1 unit, ${this.state.tickTime} sec/tick)`;
+        let append = ` total per hour for 1 creep (${this.state.tickTime} sec/tick)`;
         if (this.state.unitCount > 1) {
-            append = ` total per hour (${this.state.unitCount} units, ${this.state.tickTime} sec/tick)`;
+            append = ` total per hour for ${this.state.unitCount} creeps (${this.state.tickTime} sec/tick)`;
         }
-        return <span title={val + append}>{val}<small>/H</small></span>;
+        return <span title={val + append}>{val}<small> /H</small></span>;
     }
 
     labelPerDay(val: string) {
-        let append = ` total per dat (1 unit, ${this.state.tickTime} sec/tick)`;
+        let append = ` total per day for 1 creep (${this.state.tickTime} sec/tick)`;
         if (this.state.unitCount > 1) {
-            append = ` total per dat (${this.state.unitCount} units, ${this.state.tickTime} sec/tick)`;
+            append = ` total per day for ${this.state.unitCount} creeps (${this.state.tickTime} sec/tick)`;
         }
-        return <span title={val + append}>{val}<small>/D</small></span>;
+        return <span title={val + append}>{val}<small> /D</small></span>;
     }
 
     labelWalkTime(val: number, type: string) {
@@ -570,7 +576,7 @@ export class CreepDesigner extends React.Component{
         }
 
         
-        return <span title={totalHits.toLocaleString() + append}>{label}<small>/{units}</small></span>;
+        return <span title={totalHits.toLocaleString() + append}>{label}<small> /{units}</small></span>;
     }
     
     render() {
@@ -595,7 +601,7 @@ export class CreepDesigner extends React.Component{
                                         <td className="price">{BODYPART_COST[part]}</td>
                                         <td>
                                             <button onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
-                                            <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : 0} onChange={(e) => this.setBodyPart(e, part)} />
+                                            <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : ''} onChange={(e) => this.setBodyPart(e, part)} />
                                             <button onClick={() => this.addBodyPart(part, 5)}>+5</button>
                                         </td>
                                         <td className="text-center">
@@ -626,7 +632,7 @@ export class CreepDesigner extends React.Component{
                                         <td className="price">{this.getEnergyCapacity(type)}</td>
                                         <td>
                                             <button onClick={() => this.removeStructure(type, 100)}>&empty;</button>
-                                            <input type="number" className="count" value={this.state.structures[type] ? this.state.structures[type] : 0} onChange={(e) => this.setStructure(e, type)} />
+                                            <input type="number" className="count" value={this.state.structures[type] ? this.state.structures[type] : ''} onChange={(e) => this.setStructure(e, type)} />
                                             {type !== 'spawn' && <button onClick={() => this.addStructure(type, 5)}>+5</button>}
                                         </td>
                                         <td></td>
@@ -654,7 +660,7 @@ export class CreepDesigner extends React.Component{
                             </tr>
                             <tr>
                                 <td>Tick Duration:</td>
-                                <td colSpan={4}><input type="number" className="tickTime" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
+                                <td colSpan={4}><input type="number" className="tickTime" step="0.1" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -690,16 +696,8 @@ export class CreepDesigner extends React.Component{
                             <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerDay()))}</td>
                         </tr>}
                         {this.state.body.work > 0 && <tr className="work">
-                            <td>Ticks to Empty Source</td>
-                            {this.state.unitCount <= 1 &&
-                                <td colSpan={4} className="text-center">{this.labelCreepLife(Math.ceil(3000 / this.getActionValue('work', 'harvest', false, 2)).toLocaleString())}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepLife(Math.ceil(3000 / this.getActionValue('work', 'harvest', false, 2)).toLocaleString())}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelUnitsLife(Math.ceil(3000 / this.getActionValue('work', 'harvest', false, (2 * this.state.unitCount))).toLocaleString())}</td>
-                            }
+                            <td>Ticks to Drain Source</td>
+                            <td colSpan={4} className="text-center">{this.labelCreepLife(Math.ceil(3000 / this.getActionValue('work', 'harvest', false, 2)).toLocaleString(), false)}</td>
                         </tr>}
                         {this.state.body.work > 0 && <tr className="work">
                             <td>Harvest (Mineral)</td>
@@ -772,15 +770,15 @@ export class CreepDesigner extends React.Component{
                             <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerDay()))}</td>
                         </tr>}
                         {this.state.body.carry > 0 && <tr className="light">
-                            <td>Carry</td>
+                            <td>Carry Capacity</td>
                             {this.state.unitCount <= 1 &&
-                                <td colSpan={4} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50))}</td>
+                                <td colSpan={4} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50), false)}</td>
                             }
                             {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50))}</td>
+                                <td colSpan={2} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50), false)}</td>
                             }
                             {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('carry', 'capacity', false, (50 * this.state.unitCount)))}</td>
+                                <td colSpan={2} className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('carry', 'capacity', false, (50 * this.state.unitCount)), false)}</td>
                             }
                         </tr>}
                         {this.state.body.move > 0 && <tr className="move">
@@ -794,16 +792,16 @@ export class CreepDesigner extends React.Component{
                         <tr className="light">
                             <td>Energy Cost</td>
                             {this.state.unitCount <= 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2))}</td>
+                                <td colSpan={2} className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2), false)}</td>
                             }
                             {this.state.unitCount > 1 &&
-                                <td className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2))}</td>
+                                <td className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2), false)}</td>
                             }
                             {this.state.unitCount > 1 &&
-                                <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount), 2))}</td>
+                                <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount), 2), false)}</td>
                             }
-                            <td className="text-center">{this.labelPerHour(this.formatNumber(this.totalCostWithBoosting(this.ticksPerHour() / CREEP_LIFE_TIME), 2))}</td>
-                            <td className="text-center">{this.labelPerDay(this.formatNumber(this.totalCostWithBoosting(this.ticksPerDay() / CREEP_LIFE_TIME), 2))}</td>
+                            <td className="text-center">{this.labelPerHour(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount * (this.ticksPerHour() / CREEP_LIFE_TIME)), 2))}</td>
+                            <td className="text-center">{this.labelPerDay(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount * (this.ticksPerDay() / CREEP_LIFE_TIME)), 2))}</td>
                         </tr>
                         {Object.keys(BODYPARTS).map(part => {
                             if (BOOSTS[part] !== undefined && this.state.boost[part] !== null && this.state.body[part] > 0) {
@@ -812,8 +810,8 @@ export class CreepDesigner extends React.Component{
                                         <td>{this.state.boost[part]}</td>
                                         <td className="text-center">{this.labelCreepLife(this.formatNumber(this.mineralCost(part), 2))}</td>
                                         <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.mineralCost(part, this.state.unitCount), 2))}</td>
-                                        <td className="text-center">{this.labelPerHour(this.formatNumber(this.mineralCost(part, this.ticksPerHour() / CREEP_LIFE_TIME), 2))}</td>
-                                        <td className="text-center">{this.labelPerDay(this.formatNumber(this.mineralCost(part, this.ticksPerDay() / CREEP_LIFE_TIME), 2))}</td>
+                                        <td className="text-center">{this.labelPerHour(this.formatNumber(this.mineralCost(part, this.state.unitCount * (this.ticksPerHour() / CREEP_LIFE_TIME)), 2))}</td>
+                                        <td className="text-center">{this.labelPerDay(this.formatNumber(this.mineralCost(part, this.state.unitCount * (this.ticksPerDay() / CREEP_LIFE_TIME)), 2))}</td>
                                     </tr>
                                 );
                             }

@@ -26,7 +26,7 @@ New features:
 
 Build Creeps and see the stats.
 
-![View the creep designer](https://user-images.githubusercontent.com/10291543/80027168-8d640e80-84a0-11ea-8c43-2032e6e58c38.png)
+![View the creep designer](https://user-images.githubusercontent.com/10291543/81489954-f7b6d600-9238-11ea-9d5a-0adcedfc499b.png)
 
 
 ## Available Scripts
@@ -39,7 +39,7 @@ Installs node modules listed in package.json
 
 #### `npm run build`
 
-Builds the app (including any changes you make)
+Build lib/app.js (including any changes you make)
 
 #### `npm run start`
 

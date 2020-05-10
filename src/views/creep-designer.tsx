@@ -304,52 +304,20 @@ export class CreepDesigner extends React.Component{
         return this.formatNumber(this.getActionValue(part, action, useUnitMultiplier, partMultiplier, timeMultiplier), 2);
     }
 
-    walkTimeFull(move: number, carry: number, multiplier: number) {
-        let time = 0;
-        
-        if (carry === 0) {
-            return 0;
-        }
-        
+    walkTime(move: number, carry: number, terrainFactor: number, full: boolean = false) {
         if (move > 0) {
-            let incrementer = 1;
+            let moveBoost = 1;
             let boostType = this.state.boost['move'];
             if (boostType !== null && BOOSTS['move'][boostType]['fatigue'] !== undefined) {
-                incrementer = BOOSTS['move'][boostType]['fatigue'];
+                moveBoost = BOOSTS['move'][boostType]['fatigue'];
             }
 
-            let movePercent = (move / this.countParts());
-            let moveIncrementer = (1 / ((move * incrementer) / (this.countParts() - carry)));
-            let subtract = (movePercent * moveIncrementer);
-            let moveQuality = Math.ceil(moveIncrementer - subtract);
-            
-            time = Math.ceil(moveQuality * multiplier);
-            time = time > 1 ? time : 1;
+            let W = this.countParts() - move - (full ? 0 : carry);
+            let M = move * moveBoost;
+            var speed = Math.ceil(terrainFactor * W / M);
+            return Math.max(1, speed);
         }
-        
-        return time;
-    }
-    
-    walkTimeEmpty(move: number, carry: number, multiplier: number) {
-        let time = 0;
-        
-        if (move > 0) {
-            let incrementer = 1;
-            let boostType = this.state.boost['move'];
-            if (boostType !== null && BOOSTS['move'][boostType]['fatigue'] !== undefined) {
-                incrementer = BOOSTS['move'][boostType]['fatigue'];
-            }
-
-            let movePercent = (move / (this.countParts() - carry));
-            let moveIncrementer = (1 / ((move * incrementer) / (this.countParts() - carry)));
-            let subtract = (movePercent * moveIncrementer);
-            let moveQuality = Math.ceil(moveIncrementer - subtract);
-            
-            time = Math.ceil(moveQuality * multiplier);
-            time = time > 1 ? time : 1;
-        }
-        
-        return time;
+        return 0;
     }
 
     formatNumber(num: number, digits: number) {
@@ -782,11 +750,11 @@ export class CreepDesigner extends React.Component{
                         </tr>}
                         {this.state.body.move > 0 && <tr className="move">
                             <td>Move{this.state.body.carry > 0 && ' (empty)'}</td>
-                            <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 1), 'plain')} &nbsp; {this.labelWalkTime(this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 0.5), 'road')} &nbsp; {this.labelWalkTime(this.walkTimeEmpty(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
+                            <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
                         </tr>}
                         {this.state.body.move > 0 && this.state.body.carry > 0 && <tr className="move">
                             <td>Move (full)</td>
-                            <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTimeFull(this.state.body.move, this.state.body.carry, 1), 'plain')} &nbsp; {this.labelWalkTime(this.walkTimeFull(this.state.body.move, this.state.body.carry, 0.5), 'road')} &nbsp; {this.labelWalkTime(this.walkTimeFull(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
+                            <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1, true), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5, true), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5, true), 'swamp')}</td>
                         </tr>}
                         <tr className="dark">
                             <td>Energy cost</td>

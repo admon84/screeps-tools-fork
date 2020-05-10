@@ -10,21 +10,23 @@ Requirements:
 
 ## Building Planner
 
-Based on the original [building planner by Dissi](http://screeps.dissi.me/)
+Plan out your room layouts for Screeps.
+
+Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
 
 New features:
 * Factory structure
-* Containers can be placed on roads
-* Ramparts can be placed over structures
-* Road tiles are connected
-* UI style changes
+* Ramparts can be placed over structures easily
+* Connected roads like in-game
 
 ![View the building planner](https://user-images.githubusercontent.com/10291543/80027140-7fae8900-84a0-11ea-8fc4-7fa9438f63e4.png)
 
 
 ## Creep Designer
 
-Build Creeps and see the stats.
+Design your Creeps and see their stats.
+
+Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
 
 ![View the creep designer](https://user-images.githubusercontent.com/10291543/81489954-f7b6d600-9238-11ea-9d5a-0adcedfc499b.png)
 

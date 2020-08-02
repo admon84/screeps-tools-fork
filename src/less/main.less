@@ -1,61 +1,39 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans');
-@import url('https://fonts.googleapis.com/css?family=Roboto');
-
-html {
-    height:100%;
-}
-
 body {
-    font-family: 'Open Sans', sans-serif;
-    margin:0px;
-    padding:0px;
     background-image:linear-gradient(to bottom, #222 0%, #111 100%) !important;
     background-attachment: fixed;
-    height: 100%;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: 'Roboto', sans-serif;
-    margin-bottom: 0.8em;
-}
-
-h1 {
-    font-size: 2em;
-    margin-top: 0.67em;
-}
-h2 {
-    font-size: 1.5em;
-    margin-top: 0.83em;
-}
-h3 {
-    font-size: 1.17em;
-    margin-top: 1em;
-}
-h4 {
-    font-size: 1em;
-    margin-top: 1.33em;
-}
-h5 {
-    font-size: 0.83em;
-    margin-top: 1.67em;
-}
-h6 {
-    font-size: 0.75em;
-    margin-top: 2.33em;
 }
 
 a {
-    color: #7986cb;
-    text-decoration: none;
-    
-    &:hover {
-        text-decoration: underline;
+    color: #5973FF !important;
+}
+
+button.btn-secondary {
+    background-color: #333;
+    border-color: #333;
+
+    &:not(:disabled):not(.disabled) {
+        &:hover,
+        &:active,
+        &:focus {
+            background-color: #555;
+            border-color: #555;
+            box-shadow: none !important;
+        }
     }
+}
+
+textarea {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    min-height: 80px;
+    max-height: 400px;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0;
 }
 
 .text-center {
@@ -63,47 +41,32 @@ a {
 }
 
 .index {
-    h2 {
-        margin:20px;
-    }
-    
-    p {
-        margin:20px;
-        color:#ccc;
+    .card {
+        margin-top: 40px;
+        .card-title {
+            font-size:1.3em;
+        }
     }
 }
 
 .header {
+    height: 40px;
     background-image: linear-gradient(to bottom, #1f1f1f 0%, #1a1a1a 100%);
     border-bottom: 1px solid #111 !important;
     color: #fff;
-    overflow:auto;
-    
-    img {
-        height:23px;
-        padding-top:12px;
-        float:left;
+    overflow:hidden;
+
+    a {
+        display: inline-block;
+        line-height: 40px;
+        padding: 0 10px;
     }
     
-    a {
-        display: block;
-        color: #7986cb;
-        text-decoration: none;
-        padding: 10px 6px;
-        float: left;
-
-        &:hover {
-            text-decoration: underline;
-        }
-        
-        &.active {
-            color:#ff9800;
-        }
-        
-        &.gh-link {
-            display: none;
-            float: right;
-        }
+    img {
+        display: inline-block;
+        position: relative;
+        height: 40px;
+        padding: 7px 0;
     }
 }
 
@@ -111,25 +74,12 @@ a {
     margin: 0 auto;
 
     .panel {
-        width: 97vw;
-        min-width: 544px;
         margin: 0;
-        float:left;
+        padding:10px;
         background-color:#222;
         color:#ccc;
         box-sizing: border-box;
         padding:10px;
-        
-        .creep-body {
-            position: relative;
-            width: 100%;
-            min-width: 100%;
-            max-width: 100%;
-            height: 45px;
-            min-height: 45px;
-            max-height: 205px;
-            margin-top: 20px;
-        }
 
         hr {
             border: none;
@@ -197,41 +147,20 @@ a {
             margin: 0 auto;
         }
         
-        textarea {
-            width:100%;
-            height:50px;
-        }
-        
         table.body {
             width: 100%;
             border-collapse: collapse;
 
             button {
-                height: 24px;
                 width: 26px;
-                background-color:#404040;
-                color: #eee;
-                border: 1px solid #666;
-                padding: 4px 4px 3px;
-                outline: none;
-                margin: 0 1px;
-                
-                &:hover {
-                    cursor: pointer;
-                    background-color: #3f51b5;
-                }
             }
             
             select,
             input {
-                height: 20px;
                 width: 36px;
-                font-size: 14px;
                 text-align: center;
-                background-color: #fff;
                 color: #010101;
                 border: 1px solid #666;
-                padding-left: 10px;
                 margin: 0 1px;
             }
             
@@ -241,8 +170,7 @@ a {
                 padding-left: 5px;
 
                 &.controller {
-                    width: 52px;
-                    padding-left: 15px;
+                    width: 40px;
                 }
             }
             
@@ -283,10 +211,6 @@ a {
 }
 
 .building-planner {
-    width: 97vw;
-    margin: 0 auto;
-
-    // roads are connected with SVGs in building-planner.getCellContent()
     
     .rampart {
         background-color:#314b31 !important;
@@ -294,23 +218,10 @@ a {
     }
     
     .controls {
-        width: 47vw;
-        margin: 0;
-        float:left;
-        background-color:#222;
         color:#ccc;
-        box-sizing: border-box;
-        padding:10px;
-        
-        .half-col {
-            display: inline-block;
-            width: 50%;
-            margin-bottom: 10px;
-            
-            &:last-child {
-                text-align: end;
-            }
-        }
+        background-color:#222;
+        padding-top: 10px;
+        padding-bottom: 10px;
         
         .brushes {
             cursor: pointer;
@@ -321,8 +232,8 @@ a {
             li {
                 position: relative;
                 background-color: #333;
-                padding:5px;
-                line-height: 25px;
+                padding: 4px 5px;
+                line-height: 24px;
                 
                 span {
                     float: right;
@@ -356,52 +267,51 @@ a {
                 }
             }
         }
-        
-        button {
-            padding: 3px 7px;
+
+        select.rcl {
+            width: 40px;
+            height: 24px;
+            margin-left: 5px;
+            padding-left: 5px;
         }
-        input,
-        select,
-        textarea {
-            border: 1px solid #ccc;
-            padding: 3px;
-        }
-        #room {
-            width: 105px;
-        }
-        #shard, 
-        #load-terrain {
-            width: 113px;
-            cursor:pointer;
-        }
-        textarea {
-            position: relative;
-            width: 95%;
-            min-width: 95%;
-            max-width: 95%;
-            height: 45px;
-            min-height: 45px;
-            max-height: 397px;
+
+        form.load-room {
+            label {
+                margin: 0;
+            }
+            select,
+            input {
+                width: 100%;
+                height: 30px;
+                margin-bottom: 5px;
+            }
+            button {
+                width: 100%;
+            }
         }
     }
     
     .map {
-        margin: 1vw;
-        overflow: hidden;
-        float: left;
-        width: 94vw;
-        height: 94vw;
-        border:1px solid rgba(15, 15, 15, 0.65);
-        
-        .row {
-            width: 100%;
-            height: 2%;
-            overflow: hidden;
+        max-width: 92vmin;
+        margin: 10px auto;
+        border: 1px solid rgba(15, 15, 15, 0.65);
+        background-color: rgba(15, 15, 15, 0.65);
+
+        .flex-row {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            justify-content: space-around;
             
             .cell {
+                flex: 1 0 auto;
+                height: auto;
                 position: relative;
-                width: 2%;
-                height: 100%;
                 float: left;
                 border:1px solid rgba(15, 15, 15, 0.65);
                 cursor: pointer;
@@ -412,6 +322,12 @@ a {
                 background-size:contain;
                 background-color: #222;
                 box-sizing: border-box;
+
+                &:before {
+                    content:'';
+                    float:left;
+                    padding-top:100%;
+                }
 
                 img,
                 svg {
@@ -448,80 +364,13 @@ a {
                         background-color: #383838;
                         border-color: #383838;
                     }
-    
+
                     &.swamp {
                         background-color: #444638;
                         border-color: #444638;
                     }
                 }
             }
-        }
-    }
-}
-
-@media only screen and (min-width: 768px) {
-    .header a {
-        padding-left: 10px;
-        padding-right: 10px;
-
-        &.gh-link {
-            display: block;
-        }
-    }
-}
-
-@media only screen and (min-width: 900px) {
-    .header a {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    .building-planner {
-        .map {
-            width: 70vw;
-            height: 70vw;
-            margin-bottom: 5vw;
-        }
-        .controls {
-            width: 23vw;
-        }
-    }
-}
-
-@media only screen and (min-width: 1120px) {
-    .creep-designer {
-        width: 1105px;
-
-        .panel {
-            width: 50%;
-        }
-    }
-    .building-planner {
-        width: 1100px;
-
-        .map {
-            width: 750px;
-            height: 750px;
-        }
-        .controls {
-            width: 290px;
-            margin-right: 10px;
-        }
-    }
-}
-
-@media only screen and (min-width: 1440px) {
-    .creep-designer {
-        width: 1420px;
-    }
-    .building-planner {
-        width: 1420px;
-
-        .map {
-            width: 750px;
-            height: 750px;
-        }
-        .controls {
-            width: 290px;
         }
     }
 }

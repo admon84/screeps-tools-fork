@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {Container, Row, Col} from 'reactstrap';
 
 export class CreepDesigner extends React.Component{
     state: Readonly <{
@@ -548,262 +549,269 @@ export class CreepDesigner extends React.Component{
     
     render() {
         return (
-            <div className="creep-designer">
-                <div className="panel">
-                    <table className="body">
-                        <thead>
-                            <tr>
-                                <th>Part/Struct</th>
-                                <th>Energy</th>
-                                <th style={{width: '124px'}}>Count</th>
-                                <th>Boost</th>
-                                <th>Sum</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {Object.keys(BODYPARTS).map(part => {
-                                return (
-                                    <tr key={part} className={this.state.body[part] > 0 ? 'active' : ''}>
-                                        <td className="part">{BODYPARTS[part]} </td>
-                                        <td className="price">{BODYPART_COST[part]}</td>
-                                        <td>
-                                            <button tabIndex={-1} onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
-                                            <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : ''} onChange={(e) => this.setBodyPart(e, part)} />
-                                            <button tabIndex={-1} onClick={() => this.addBodyPart(part, 5)}>+5</button>
-                                        </td>
-                                        <td className="text-center">
-                                            {BOOSTS[part] !== undefined && <select className="boost" onChange={(e) => this.handleBoostChange(e, part)}>
-                                                {this.boostOptions(part)}
-                                            </select>}
-                                        </td>
-                                        <td className="sum">{this.partCost(part) ? this.partCost(part) : '0'}</td>
+            <Container className="creep-designer" fluid={true}>
+                <Row>
+                    <Col lg={6}>
+                        <div className="panel">
+                            <table className="body">
+                                <thead>
+                                    <tr>
+                                        <th>Part/Struct</th>
+                                        <th>Energy</th>
+                                        <th style={{width: '124px'}}>Count</th>
+                                        <th>Boost</th>
+                                        <th>Sum</th>
                                     </tr>
-                                );
-                            })}
-                            <tr>
-                                <td><label htmlFor="input-units">Unit Count:</label></td>
-                                <td>
-                                    <input type="number" id="input-units" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
-                                </td>
-                                <td className="text-center"><b>{this.countParts() + (this.state.unitCount > 1 ? ' (' + this.state.unitCount * this.countParts() + ')' : '')}</b></td>
-                                <td className="sum">Cost:</td>
-                                <td className={'sum total' + (this.totalCost() > this.totalEnergyCapacity() && ' alert')}>{this.totalCost()}</td>
-                            </tr>
-                            <tr>
-                                <td colSpan={5}><hr /></td>
-                            </tr>
-                            {Object.keys(CONTROLLER_STRUCTURES).map(type => {
-                                return (
-                                    <tr key={type} className={this.state.structures[type] > 0 ? 'active' : ''}>
-                                        <td className="part">{this.capitalize(type)}</td>
-                                        <td className="price">{this.getEnergyCapacity(type)}</td>
+                                </thead>
+                                <tbody>
+                                    {Object.keys(BODYPARTS).map(part => {
+                                        return (
+                                            <tr key={part} className={this.state.body[part] > 0 ? 'active' : ''}>
+                                                <td className="part">{BODYPART_NAMES[part]}</td>
+                                                <td className="price">{BODYPART_COST[part]}</td>
+                                                <td>
+                                                    <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
+                                                    <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : ''} onChange={(e) => this.setBodyPart(e, part)} />
+                                                    <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.addBodyPart(part, 5)}>+5</button>
+                                                </td>
+                                                <td className="text-center">
+                                                    {BOOSTS[part] !== undefined && <select className="boost" onChange={(e) => this.handleBoostChange(e, part)}>
+                                                        {this.boostOptions(part)}
+                                                    </select>}
+                                                </td>
+                                                <td className="sum">{this.partCost(part) ? this.partCost(part) : '0'}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    <tr>
+                                        <td><label htmlFor="input-units">Unit Count:</label></td>
                                         <td>
-                                            <button tabIndex={-1} onClick={() => this.removeStructure(type, 100)}>&empty;</button>
-                                            <input type="number" className="count" value={this.state.structures[type] ? this.state.structures[type] : ''} onChange={(e) => this.setStructure(e, type)} />
-                                            {type !== 'spawn' && <button tabIndex={-1} onClick={() => this.addStructure(type, 5)}>+5</button>}
+                                            <input type="number" id="input-units" className="unitCount" value={this.state.unitCount} pattern="[0-9]*" onChange={(e) => this.changeUnitCount(e)} />
+                                        </td>
+                                        <td className="text-center"><b>{this.countParts() + (this.state.unitCount > 1 ? ' (' + this.state.unitCount * this.countParts() + ')' : '')}</b></td>
+                                        <td className="sum">Cost:</td>
+                                        <td className={'sum total' + (this.totalCost() > this.totalEnergyCapacity() && ' alert')}>{this.totalCost()}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colSpan={5}><hr /></td>
+                                    </tr>
+                                    {Object.keys(CONTROLLER_STRUCTURES).map(type => {
+                                        return (
+                                            <tr key={type} className={this.state.structures[type] > 0 ? 'active' : ''}>
+                                                <td className="part">{this.capitalize(type)}</td>
+                                                <td className="price">{this.getEnergyCapacity(type)}</td>
+                                                <td>
+                                                    <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.removeStructure(type, 100)}>&empty;</button>
+                                                    <input type="number" className="count" value={this.state.structures[type] ? this.state.structures[type] : ''} onChange={(e) => this.setStructure(e, type)} />
+                                                    {type !== 'spawn' && <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.addStructure(type, 5)}>+5</button>}
+                                                </td>
+                                                <td></td>
+                                                <td className="sum">{this.structureSum(type) ? this.structureSum(type) : '0'}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    <tr>
+                                        <td><label htmlFor="select-rcl">Controller Level:</label></td>
+                                        <td>
+                                            <select id="select-rcl" className="controller" value={this.state.controller} onChange={(e) => this.changeControllerLevel(e)}>
+                                                {[...Array(9).keys()].map(level => {
+                                                    return (
+                                                        <option value={level}>{level}</option>
+                                                    );
+                                                })}
+                                            </select>
                                         </td>
                                         <td></td>
-                                        <td className="sum">{this.structureSum(type) ? this.structureSum(type) : '0'}</td>
+                                        <td className="sum">Remaining:</td>
+                                        <td className={'sum total' + (this.totalEnergyBalance() < 0 && ' alert')}>{this.totalEnergyBalance()}</td>
                                     </tr>
+                                    <tr>
+                                        <td colSpan={5}><hr /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><label htmlFor="input-ticks">Tick Duration:</label></td>
+                                        <td colSpan={4}><input type="number" id="input-ticks" className="tickTime" step="0.1" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <Creep body={this.state.body} />
+                        </div>
+                    </Col>
+                    <Col lg={6}>
+                        {this.countParts() > 0 && <div className="panel">
+                            <table className="stats">
+                                <tbody>
+                                <tr className="light">
+                                    <td>Health</td>
+                                    {this.state.unitCount <= 1 &&
+                                        <td colSpan={4} className="text-center">{this.labelCreepHealth()}</td>
+                                    }
+                                    {this.state.unitCount > 1 &&
+                                        <td colSpan={2} className="text-center">{this.labelCreepHealth()}</td>
+                                    }
+                                    {this.state.unitCount > 1 &&
+                                        <td colSpan={2} className="text-center">{this.labelCreepHealth(true)}</td>
+                                    }
+                                </tr>
+                                {this.state.body.work > 0 && <tr className="work">
+                                    <td>Dismantle</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'dismantle', true, 50))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'dismantle', true, 50, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'dismantle', true, 50, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'dismantle', true, 50, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.work > 0 && <tr className="work">
+                                    <td>Harvest energy</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'harvest', true, 2))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'harvest', true, 2, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.work > 0 && <tr className="work">
+                                    <td>Ticks to drain source</td>
+                                    <td colSpan={4} className="text-center">{this.labelCreepLife(Math.ceil(3000 / this.getActionValue('work', 'harvest', false, 2)).toLocaleString(), false)}</td>
+                                </tr>}
+                                {/* this.state.body.work > 0 && <tr className="work">
+                                    <td>Harvest mineral/deposit</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'harvest', true, 1))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'harvest', true, 1, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'harvest', true, 1, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'harvest', true, 1, this.ticksPerDay()))}</td>
+                                </tr> */}
+                                {this.state.body.work > 0 && <tr className="work">
+                                    <td>Upgrade controller</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'upgradeController', true, 1))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'upgradeController', true, 1, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'upgradeController', true, 1, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'upgradeController', true, 1, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.work > 0 && <tr className="work">
+                                    <td>Build</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'build', true, 5))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'build', true, 5, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'build', true, 5, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'build', true, 5, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.attack > 0 && <tr className="attack">
+                                    <td>Attack</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('attack', 'attack', true, 30))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('attack', 'attack', true, 30, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('attack', 'attack', true, 30, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('attack', 'attack', true, 30, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
+                                    <td>Ranged attack</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
+                                    <td>Mass attack 1</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
+                                    <td>Mass attack 2</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
+                                    <td>Mass attack 3</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.heal > 0 && <tr className="heal">
+                                    <td>Heal</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('heal', 'heal', true, 12))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('heal', 'heal', true, 12, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('heal', 'heal', true, 12, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('heal', 'heal', true, 12, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.heal > 0 && <tr className="heal">
+                                    <td>Ranged heal</td>
+                                    <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('heal', 'rangedHeal', true, 4))}</td>
+                                    <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.creepLifespan()))}</td>
+                                    <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerHour()))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerDay()))}</td>
+                                </tr>}
+                                {this.state.body.carry > 0 && <tr className="light">
+                                    <td>Carry capacity</td>
+                                    {this.state.unitCount <= 1 &&
+                                        <td colSpan={4} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50), false)}</td>
+                                    }
+                                    {this.state.unitCount > 1 &&
+                                        <td colSpan={2} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50), false)}</td>
+                                    }
+                                    {this.state.unitCount > 1 &&
+                                        <td colSpan={2} className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('carry', 'capacity', false, (50 * this.state.unitCount)), false)}</td>
+                                    }
+                                </tr>}
+                                {this.state.body.move > 0 && <tr className="move">
+                                    <td>Move{this.state.body.carry > 0 && ' (empty)'}</td>
+                                    <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
+                                </tr>}
+                                {this.state.body.move > 0 && this.state.body.carry > 0 && <tr className="move">
+                                    <td>Move (full)</td>
+                                    <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1, true), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5, true), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5, true), 'swamp')}</td>
+                                </tr>}
+                                <tr className="dark">
+                                    <td>Energy cost</td>
+                                    {this.state.unitCount <= 1 &&
+                                        <td colSpan={2} className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2), false)}</td>
+                                    }
+                                    {this.state.unitCount > 1 &&
+                                        <td className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2), false)}</td>
+                                    }
+                                    {this.state.unitCount > 1 &&
+                                        <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount), 2), false)}</td>
+                                    }
+                                    <td className="text-center">{this.labelPerHour(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount * (this.ticksPerHour() / this.creepLifespan())), 2))}</td>
+                                    <td className="text-center">{this.labelPerDay(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount * (this.ticksPerDay() / this.creepLifespan())), 2))}</td>
+                                </tr>
+                                {Object.keys(BODYPARTS).map(part => {
+                                    if (BOOSTS[part] !== undefined && this.state.boost[part] !== null && this.state.body[part] > 0) {
+                                        return (
+                                            <tr className="dark">
+                                                <td>{this.state.boost[part]}</td>
+                                                {this.state.unitCount <= 1 &&
+                                                    <td colSpan={2} className="text-center">{this.labelCreepLife(this.formatNumber(this.mineralCost(part), 2))}</td>
+                                                }
+                                                {this.state.unitCount > 1 &&
+                                                    <td className="text-center">{this.labelCreepLife(this.formatNumber(this.mineralCost(part), 2))}</td>
+                                                }
+                                                {this.state.unitCount > 1 &&
+                                                    <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.mineralCost(part, this.state.unitCount), 2))}</td>
+                                                }
+                                                <td className="text-center">{this.labelPerHour(this.formatNumber(this.mineralCost(part, this.state.unitCount * (this.ticksPerHour() / this.creepLifespan())), 2))}</td>
+                                                <td className="text-center">{this.labelPerDay(this.formatNumber(this.mineralCost(part, this.state.unitCount * (this.ticksPerDay() / this.creepLifespan())), 2))}</td>
+                                            </tr>
+                                        );
+                                    }
+                                })}
+                                </tbody>
+                            </table>
+                            <br/>
+                            <h5>Creep Actions</h5>
+                            {this.getCreepActions().map(action => {
+                                return (
+                                    <ul className="creep-action">
+                                        <li>{action}</li>
+                                    </ul>
                                 );
                             })}
-                            <tr>
-                                <td><label htmlFor="select-rcl">Controller Level:</label></td>
-                                <td>
-                                    <select id="select-rcl" className="controller" value={this.state.controller} onChange={(e) => this.changeControllerLevel(e)}>
-                                        {[...Array(9).keys()].map(level => {
-                                            return (
-                                                <option value={level}>{level}</option>
-                                            );
-                                        })}
-                                    </select>
-                                </td>
-                                <td></td>
-                                <td className="sum">Remaining:</td>
-                                <td className={'sum total' + (this.totalEnergyBalance() < 0 && ' alert')}>{this.totalEnergyBalance()}</td>
-                            </tr>
-                            <tr>
-                                <td colSpan={5}><hr /></td>
-                            </tr>
-                            <tr>
-                                <td><label htmlFor="input-ticks">Tick Duration:</label></td>
-                                <td colSpan={4}><input type="number" id="input-ticks" className="tickTime" step="0.1" value={this.state.tickTime} onChange={(e) => this.changeTickTime(e)} /> (sec)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <Creep body={this.state.body} />
-                </div>
-                {this.countParts() > 0 && <div className="panel">
-                    <table className="stats">
-                        <tbody>
-                        <tr className="light">
-                            <td>Health</td>
-                            {this.state.unitCount <= 1 &&
-                                <td colSpan={4} className="text-center">{this.labelCreepHealth()}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepHealth()}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepHealth(true)}</td>
-                            }
-                        </tr>
-                        {this.state.body.work > 0 && <tr className="work">
-                            <td>Dismantle</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'dismantle', true, 50))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'dismantle', true, 50, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'dismantle', true, 50, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'dismantle', true, 50, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr className="work">
-                            <td>Harvest energy</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'harvest', true, 2))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'harvest', true, 2, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'harvest', true, 2, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr className="work">
-                            <td>Ticks to drain source</td>
-                            <td colSpan={4} className="text-center">{this.labelCreepLife(Math.ceil(3000 / this.getActionValue('work', 'harvest', false, 2)).toLocaleString(), false)}</td>
-                        </tr>}
-                        {/* this.state.body.work > 0 && <tr className="work">
-                            <td>Harvest mineral/deposit</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'harvest', true, 1))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'harvest', true, 1, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'harvest', true, 1, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'harvest', true, 1, this.ticksPerDay()))}</td>
-                        </tr> */}
-                        {this.state.body.work > 0 && <tr className="work">
-                            <td>Upgrade controller</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'upgradeController', true, 1))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'upgradeController', true, 1, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'upgradeController', true, 1, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'upgradeController', true, 1, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.work > 0 && <tr className="work">
-                            <td>Build</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('work', 'build', true, 5))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('work', 'build', true, 5, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('work', 'build', true, 5, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('work', 'build', true, 5, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.attack > 0 && <tr className="attack">
-                            <td>Attack</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('attack', 'attack', true, 30))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('attack', 'attack', true, 30, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('attack', 'attack', true, 30, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('attack', 'attack', true, 30, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
-                            <td>Ranged attack</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedAttack', true, 10, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
-                            <td>Mass attack 1</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 10, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
-                            <td>Mass attack 2</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 4, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.ranged_attack > 0 && <tr className="ranged_attack">
-                            <td>Mass attack 3</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('ranged_attack', 'rangedMassAttack', true, 1, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.heal > 0 && <tr className="heal">
-                            <td>Heal</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('heal', 'heal', true, 12))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('heal', 'heal', true, 12, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('heal', 'heal', true, 12, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('heal', 'heal', true, 12, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.heal > 0 && <tr className="heal">
-                            <td>Ranged heal</td>
-                            <td className="text-center">{this.labelPerTick(this.getActionValueFormatted('heal', 'rangedHeal', true, 4))}</td>
-                            <td className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.creepLifespan()))}</td>
-                            <td className="text-center">{this.labelPerHour(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerHour()))}</td>
-                            <td className="text-center">{this.labelPerDay(this.getActionValueFormatted('heal', 'rangedHeal', true, 4, this.ticksPerDay()))}</td>
-                        </tr>}
-                        {this.state.body.carry > 0 && <tr className="light">
-                            <td>Carry capacity</td>
-                            {this.state.unitCount <= 1 &&
-                                <td colSpan={4} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50), false)}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepLife(this.getActionValueFormatted('carry', 'capacity', false, 50), false)}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td colSpan={2} className="text-center">{this.labelUnitsLife(this.getActionValueFormatted('carry', 'capacity', false, (50 * this.state.unitCount)), false)}</td>
-                            }
-                        </tr>}
-                        {this.state.body.move > 0 && <tr className="move">
-                            <td>Move{this.state.body.carry > 0 && ' (empty)'}</td>
-                            <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
-                        </tr>}
-                        {this.state.body.move > 0 && this.state.body.carry > 0 && <tr className="move">
-                            <td>Move (full)</td>
-                            <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1, true), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5, true), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5, true), 'swamp')}</td>
-                        </tr>}
-                        <tr className="dark">
-                            <td>Energy cost</td>
-                            {this.state.unitCount <= 1 &&
-                                <td colSpan={2} className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2), false)}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td className="text-center">{this.labelCreepLife(this.formatNumber(this.totalCostWithBoosting(), 2), false)}</td>
-                            }
-                            {this.state.unitCount > 1 &&
-                                <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount), 2), false)}</td>
-                            }
-                            <td className="text-center">{this.labelPerHour(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount * (this.ticksPerHour() / this.creepLifespan())), 2))}</td>
-                            <td className="text-center">{this.labelPerDay(this.formatNumber(this.totalCostWithBoosting(this.state.unitCount * (this.ticksPerDay() / this.creepLifespan())), 2))}</td>
-                        </tr>
-                        {Object.keys(BODYPARTS).map(part => {
-                            if (BOOSTS[part] !== undefined && this.state.boost[part] !== null && this.state.body[part] > 0) {
-                                return (
-                                    <tr className="dark">
-                                        <td>{this.state.boost[part]}</td>
-                                        {this.state.unitCount <= 1 &&
-                                            <td colSpan={2} className="text-center">{this.labelCreepLife(this.formatNumber(this.mineralCost(part), 2))}</td>
-                                        }
-                                        {this.state.unitCount > 1 &&
-                                            <td className="text-center">{this.labelCreepLife(this.formatNumber(this.mineralCost(part), 2))}</td>
-                                        }
-                                        {this.state.unitCount > 1 &&
-                                            <td className="text-center">{this.labelUnitsLife(this.formatNumber(this.mineralCost(part, this.state.unitCount), 2))}</td>
-                                        }
-                                        <td className="text-center">{this.labelPerHour(this.formatNumber(this.mineralCost(part, this.state.unitCount * (this.ticksPerHour() / this.creepLifespan())), 2))}</td>
-                                        <td className="text-center">{this.labelPerDay(this.formatNumber(this.mineralCost(part, this.state.unitCount * (this.ticksPerDay() / this.creepLifespan())), 2))}</td>
-                                    </tr>
-                                );
-                            }
-                        })}
-                        </tbody>
-                    </table>
-                    <h4>Creep Actions</h4>
-                    {this.getCreepActions().map(action => {
-                        return (
-                            <ul className="creep-action">
-                                <li>{action}</li>
-                            </ul>
-                        );
-                    })}
-                    <textarea className="creep-body" value={this.body()} onChange={(e) => this.import(e)}></textarea>
-                    <a href={this.shareLink()}>Shareable Link</a>
-                </div>}
-            </div>
+                            <textarea className="creep-body" value={this.body()} onChange={(e) => this.import(e)}></textarea>
+                            <a href={this.shareLink()}>Shareable Link</a>
+                        </div>}
+                    </Col>
+                </Row>
+            </Container>
         );
     }
 }
@@ -945,6 +953,17 @@ const BODYPARTS: {[part: string]: string} = {
     ranged_attack: "RANGED_ATTACK",
     heal: "HEAL",
     claim: "CLAIM"
+};
+
+const BODYPART_NAMES: {[part: string]: string} = {
+    tough: "Tough",
+    move: "Move",
+    work: "Work",
+    carry: "Carry",
+    attack: "Attack",
+    ranged_attack: "Ranged Attack",
+    heal: "Heal",
+    claim: "Claim"
 };
 
 const BOOSTS: {[part: string]: {[resource: string]: {[method: string]: number}}} = {

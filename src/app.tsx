@@ -13,9 +13,8 @@ const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/js', express.static('public/js'));
+app.use('/app', express.static('public/app'));
 app.use('/img', express.static('public/img'));
-app.use('/css', express.static('public/css'));
 
 app.get('/api/shards', (req, res) => {
     let url = 'https://screeps.com/api/game/shards/info';

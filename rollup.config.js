@@ -1,5 +1,5 @@
 import commonjs from "rollup-plugin-commonjs";
-import less from "rollup-plugin-less";
+import postcss from "rollup-plugin-postcss";
 import replace from "rollup-plugin-replace";
 import resolve from "rollup-plugin-node-resolve";
 import typescript from "rollup-plugin-typescript3";
@@ -7,7 +7,7 @@ import typescript from "rollup-plugin-typescript3";
 export default {
     input: 'src/mount.tsx',
     output: {
-        file: 'public/js/app.js',
+        file: 'public/app/bundle.js',
         format: 'iife',
         globals: {
             fs: false,
@@ -59,8 +59,6 @@ export default {
                 ]
             }
         }),
-        less({
-            output: 'public/css/style.css'
-        })
+        postcss({extract: 'style.css'})
     ]
 };

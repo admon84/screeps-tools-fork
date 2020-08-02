@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {Form, Text, Select} from 'react-form';
+import {Container, Row, Col, Label} from 'reactstrap';
+import {Form, Select, Text} from 'react-form';
 import * as _ from 'lodash';
 import * as LZString from 'lz-string';
 
@@ -129,8 +130,9 @@ export class BuildingPlanner extends React.Component {
 
     handleControlForm(values: {[field: string]: any}) {
         let component = this;
+        console.log('handleControlForm, values:', values);
 
-        fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
+        return fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
             response.json().then((data: any) => {
                 let terrain = data.terrain[0].terrain;
                 let terrainMap: TerrainMap = {};
@@ -157,12 +159,22 @@ export class BuildingPlanner extends React.Component {
             }
 
             if (structures[this.state.brush].length < CONTROLLER_STRUCTURES[this.state.brush][this.state.rcl]) {
-                structures[this.state.brush].push({
-                    x: x,
-                    y: y
-                });
+                
+                let foundAtPos = false;
 
-                added = true;
+                if (structures[this.state.brush].length > 0) {
+                    foundAtPos = _.filter(structures[this.state.brush], (pos) => {
+                        return pos.x === x && pos.y === y;
+                    }).length > 0;
+                }
+
+                if (!foundAtPos) {
+                    structures[this.state.brush].push({
+                        x: x,
+                        y: y
+                    });
+                    added = true;
+                }
             }
         }
 
@@ -335,87 +347,97 @@ export class BuildingPlanner extends React.Component {
 
     render() {
         return (
-            <div className="building-planner">
-                <div className="map">
-                    {[...Array(50)].map((x: number, j) => {
-                        return <div className="row" key={j}>
-                            {[...Array(50)].map((y: number, i) => {
-                                return <MapCell
-                                    x={i}
-                                    y={j}
-                                    terrain={this.state.terrain[j][i]}
-                                    parent={this}
-                                    structure={this.getStructure(i, j)}
-                                    road={this.getRoadProps(i, j)}
-                                    rampart={this.isRampart(i,j)}
-                                    key={'mc-'+ i + '-' + j}
-                                />
+            <Container className="building-planner" fluid={true}>
+                <Row>
+                    <Col md={8} lg={9}>
+                        <div className="map">
+                            {[...Array(50)].map((xkey, x: number) => {
+                                return <div className="flex-row">
+                                    {[...Array(50)].map((ykey, y: number) => {
+                                        return <MapCell
+                                            x={x}
+                                            y={y}
+                                            terrain={this.state.terrain[y][x]}
+                                            parent={this}
+                                            structure={this.getStructure(x, y)}
+                                            road={this.getRoadProps(x, y)}
+                                            rampart={this.isRampart(x, y)}
+                                            key={'mc-'+ x + '-' + y}
+                                        />
+                                    })}
+                                </div>
                             })}
                         </div>
-                    })}
-                </div>
-                <div className="controls structures">
-                    <h4>Building Tools:</h4>
-                    <div>
-                        <div className="half-col">
-                            x: {this.state.x}, y: {this.state.y}
+                    </Col>
+                    <Col className="controls" md={4} lg={3}>
+                        <div className="structures">
+                            <Row>
+                                <Col xs={6}>
+                                    <p>X: {this.state.x} Y: {this.state.y}</p>
+                                </Col>
+                                <Col xs={6}>
+                                    <select className="rcl float-right" value={this.state.rcl} onChange={(e) => this.setRCL(e)}>
+                                        <option value={1}>1</option>
+                                        <option value={2}>2</option>
+                                        <option value={3}>3</option>
+                                        <option value={4}>4</option>
+                                        <option value={5}>5</option>
+                                        <option value={6}>6</option>
+                                        <option value={7}>7</option>
+                                        <option value={8}>8</option>
+                                    </select>
+                                    <p className="float-right">RCL</p>
+                                </Col>
+                            </Row>
+                            <ul className="brushes">
+                                {Object.keys(STRUCTURES).map((key) => {
+                                    let classes = '';
+                                    if (this.state.brush === key) {
+                                        classes += 'active ';
+                                    }
+                                    if (CONTROLLER_STRUCTURES[key][this.state.rcl] === 0) {
+                                        classes += 'disabled';
+                                    }
+                                    return <li onClick={() => this.setState({brush: key})} className={classes} key={key}>
+                                        <img src={'/img/screeps/' + key + '.png'} /> {STRUCTURES[key]} <span>{this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}</span>
+                                    </li>
+                                })}
+                            </ul>
                         </div>
-                        <div className="half-col">
-                            RCL: <select value={this.state.rcl} onChange={(e) => this.setRCL(e)}>
-                                <option value={1}>1</option>
-                                <option value={2}>2</option>
-                                <option value={3}>3</option>
-                                <option value={4}>4</option>
-                                <option value={5}>5</option>
-                                <option value={6}>6</option>
-                                <option value={7}>7</option>
-                                <option value={8}>8</option>
-                            </select>
+                        <div className="room">
+                            <hr/>
+                            <Form onSubmit={(values, e, formApi) => this.handleControlForm(values)}>
+                                {formApi => (
+                                    <form className="load-room" onSubmit={formApi.submitForm}>
+                                        <Row>
+                                            <Col xs={6}>
+                                                <Label for="room">Import Room</Label>
+                                                <Text field="room" id="room" placeholder="E18S6" />
+                                            </Col>
+                                            <Col xs={6}>
+                                                <Label for="shard">Shard</Label>
+                                                <Select field="shard" id="shard" options={this.state.shards} />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <button type="submit" className="btn btn-secondary btn-sm">Load Terrain</button>
+                                            </Col>
+                                        </Row>
+                                    </form>
+                                )}
+                            </Form>
+                            <hr/>
+                            <Row>
+                                <Col>
+                                    <textarea value={this.json()} id="json-data" onChange={(e) => this.import(e)}></textarea>
+                                    <a href={this.shareableLink()} id="share-link">Shareable Link</a>
+                                </Col>
+                            </Row>
                         </div>
-                    </div>
-                    <ul className="brushes">
-                        {Object.keys(STRUCTURES).map((key) => {
-                            let classes = '';
-                            if (this.state.brush === key) {
-                                classes += 'active ';
-                            }
-                            if (CONTROLLER_STRUCTURES[key][this.state.rcl] === 0) {
-                                classes += 'disabled';
-                            }
-                            return <li onClick={() => this.setState({brush: key})} className={classes} key={key}>
-                                <img src={'/img/screeps/' + key + '.png'} /> {STRUCTURES[key]} <span>{this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}</span>
-                            </li>
-                        })}
-                    </ul>
-                </div>
-                <div className="controls room">
-                    <Form onSubmit={(values, e, formApi) => this.handleControlForm(values)}>
-                        {formApi => (
-                            <form onSubmit={formApi.submitForm}>
-                                <h4>Import Room:</h4>
-                                <table>
-                                    <tr>
-                                        <td><label>Shard:</label></td>
-                                        <td><Select field='shard' id='shard' options={this.state.shards} /></td>
-                                    </tr>
-                                    <tr>
-                                        <td><label>Room:</label></td>
-                                        <td><Text field='room' id='room' /></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><button type='submit' id='load-terrain'>Load Terrain</button></td>
-                                    </tr>
-                                </table>
-                            </form>
-                        )}
-                    </Form>
-                    <br/>
-                    <h4>JSON:</h4>
-                    <textarea value={this.json()} id="json-data" onChange={(e) => this.import(e)}></textarea>
-                    <a href={this.shareableLink()} id="share-link">Shareable Link</a>
-                </div>
-            </div>
+                    </Col>
+                </Row>
+            </Container>
         );
     }
 }

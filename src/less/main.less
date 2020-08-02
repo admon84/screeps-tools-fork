@@ -152,7 +152,11 @@ input[type=number]::-webkit-outer-spin-button {
             border-collapse: collapse;
 
             button {
+                height: 28px;
                 width: 26px;
+                padding: 2px 0 3px;
+                line-height: normal;
+                vertical-align: top;
             }
             
             select,
@@ -310,6 +314,7 @@ input[type=number]::-webkit-outer-spin-button {
             
             .cell {
                 flex: 1 0 auto;
+                width: auto;
                 height: auto;
                 position: relative;
                 float: left;
@@ -322,6 +327,8 @@ input[type=number]::-webkit-outer-spin-button {
                 background-size:contain;
                 background-color: #222;
                 box-sizing: border-box;
+                padding: 0;
+                margin: 0;
 
                 &:before {
                     content:'';

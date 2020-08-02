@@ -26928,10 +26928,10 @@
 	    constructor(props) {
 	        super(props);
 	        let terrain = {};
-	        for (let i = 0; i < 50; i++) {
-	            terrain[i] = {};
-	            for (let j = 0; j < 50; j++) {
-	                terrain[i][j] = 0;
+	        for (let y = 0; y < 50; y++) {
+	            terrain[y] = {};
+	            for (let x = 0; x < 50; x++) {
+	                terrain[y][x] = 0;
 	            }
 	        }
 	        this.state = {
@@ -27159,8 +27159,8 @@
 	        return (react_3(Container, { className: "building-planner", fluid: true },
 	            react_3(Row, null,
 	                react_3(Col, { md: 8, lg: 9 },
-	                    react_3("div", { className: "map" }, [...Array(50)].map((xkey, x) => {
-	                        return react_3("div", { className: "flex-row" }, [...Array(50)].map((ykey, y) => {
+	                    react_3("div", { className: "map" }, [...Array(50)].map((ykey, y) => {
+	                        return react_3("div", { className: "flex-row" }, [...Array(50)].map((xkey, x) => {
 	                            return react_3(MapCell, { x: x, y: y, terrain: this.state.terrain[y][x], parent: this, structure: this.getStructure(x, y), road: this.getRoadProps(x, y), rampart: this.isRampart(x, y), key: 'mc-' + x + '-' + y });
 	                        }));
 	                    }))),

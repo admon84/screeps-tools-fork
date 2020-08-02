@@ -5,8 +5,8 @@ import * as _ from 'lodash';
 import * as LZString from 'lz-string';
 
 interface TerrainMap {
-    [x: number]: {
-        [y: number]: number
+    [y: number]: {
+        [x: number]: number
     }
 };
 
@@ -82,11 +82,10 @@ export class BuildingPlanner extends React.Component {
 
         let terrain: TerrainMap = {};
 
-        for (let i = 0; i < 50; i++) {
-            terrain[i] = {};
-
-            for (let j = 0; j < 50; j++) {
-                terrain[i][j] = 0;
+        for (let y = 0; y < 50; y++) {
+            terrain[y] = {};
+            for (let x = 0; x < 50; x++) {
+                terrain[y][x] = 0;
             }
         }
 
@@ -351,9 +350,9 @@ export class BuildingPlanner extends React.Component {
                 <Row>
                     <Col md={8} lg={9}>
                         <div className="map">
-                            {[...Array(50)].map((xkey, x: number) => {
+                            {[...Array(50)].map((ykey, y: number) => {
                                 return <div className="flex-row">
-                                    {[...Array(50)].map((ykey, y: number) => {
+                                    {[...Array(50)].map((xkey, x: number) => {
                                         return <MapCell
                                             x={x}
                                             y={y}

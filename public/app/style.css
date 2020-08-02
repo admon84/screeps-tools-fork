@@ -131,7 +131,11 @@ input[type=number]::-webkit-outer-spin-button {
   border-collapse: collapse;
 }
 .creep-designer .panel table.body button {
+  height: 28px;
   width: 26px;
+  padding: 2px 0 3px;
+  line-height: normal;
+  vertical-align: top;
 }
 .creep-designer .panel table.body select,
 .creep-designer .panel table.body input {
@@ -255,6 +259,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .building-planner .map .flex-row .cell {
   flex: 1 0 auto;
+  width: auto;
   height: auto;
   position: relative;
   float: left;
@@ -267,6 +272,8 @@ input[type=number]::-webkit-outer-spin-button {
   background-size: contain;
   background-color: #222;
   box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 .building-planner .map .flex-row .cell:before {
   content: '';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Container, Row, Col, Label} from 'reactstrap';
-import {Form, Select, Text} from 'react-form';
+import {Form, Select, Checkbox, Text} from 'react-form';
 import * as _ from 'lodash';
 import * as LZString from 'lz-string';
 
@@ -69,12 +69,9 @@ export class BuildingPlanner extends React.Component {
         shards: SelectOptions;
         brush: string;
         rcl: number;
-        structures: {
-            [structure: string]: Array<{
-                x: number
-                y: number
-            }>
-        };
+        structures: {[structure: string]: {x: number; y: number;}[]};
+        sources: {x: number; y: number;}[];
+        mineral: {[mineralType: string]: {x: number; y: number;}};
     }>;
 
     constructor(props: any) {
@@ -98,7 +95,9 @@ export class BuildingPlanner extends React.Component {
             shards: [],
             brush: 'spawn',
             rcl: 8,
-            structures: {}
+            structures: {},
+            sources: [],
+            mineral: {}
         };
     }
 
@@ -129,9 +128,9 @@ export class BuildingPlanner extends React.Component {
 
     handleControlForm(values: {[field: string]: any}) {
         let component = this;
-        console.log('handleControlForm, values:', values);
+        console.log('handleControlForm:', values);
 
-        return fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
+        fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
             response.json().then((data: any) => {
                 let terrain = data.terrain[0].terrain;
                 let terrainMap: TerrainMap = {};
@@ -142,8 +141,44 @@ export class BuildingPlanner extends React.Component {
                         terrainMap[y][x] = code;
                     }
                 }
-
                 component.setState({terrain: terrainMap, room: values.room, shard: values.shard});
+            });
+        });
+
+        fetch(`/api/objects/${values.shard}/${values.room}`).then((response) => {
+            response.json().then((data: any) => {
+                let sources: {x: number, y: number}[] = [];;
+                let mineral: {[mineralType: string]: {x: number, y: number}} = {};
+                let structures: {[structure: string]: {x: number, y: number}[]} = {};
+
+                let keepStructures = ['controller'];
+                if (values.structures === true) {
+                    keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
+                }
+                for (let o of data.objects) {
+                    if (o.type == 'source') {
+                        sources.push({
+                            x: o.x,
+                            y: o.y
+                        });
+                    } else if (o.type == 'mineral') {
+                        mineral[o.mineralType] = {
+                            x: o.x,
+                            y: o.y
+                        };
+                    } else {
+                        if (keepStructures.indexOf(o.type) > -1) {
+                            if (!structures[o.type]) {
+                                structures[o.type] = [];
+                            }
+                            structures[o.type].push({
+                                x: o.x,
+                                y: o.y
+                            });
+                        }
+                    }
+                }
+                component.setState({structures: structures, sources: sources, mineral: mineral});
             });
         });
     }
@@ -181,10 +216,15 @@ export class BuildingPlanner extends React.Component {
         return added;
     }
 
-    removeStructure(x: number, y: number, structure: string) {
+    removeStructure(x: number, y: number, structure: string | null) {
         let structures = this.state.structures;
 
-        if (structures[structure]) {
+        if (structure == 'controller') {
+            // keep these structures, only reimport or reload page can remove them
+            return;
+        }
+
+        if (structure && structures[structure]) {
             structures[structure] = _.filter(structures[structure], (pos) => {
                 return !(pos.x === x && pos.y === y);
             })
@@ -202,9 +242,10 @@ export class BuildingPlanner extends React.Component {
             rcl: this.state.rcl,
             buildings: buildings
         };
+        const keepStructures = Object.keys(CONTROLLER_STRUCTURES);
 
         Object.keys(this.state.structures).forEach((structure) => {
-            if (!json.buildings[structure]) {
+            if (keepStructures.indexOf(structure) > -1 && !json.buildings[structure]) {
                 json.buildings[structure] = {
                     pos: this.state.structures[structure]
                 };
@@ -301,8 +342,8 @@ export class BuildingPlanner extends React.Component {
         return roadProps;
     }
 
-    getStructure(x: number, y: number) {
-        let structure = '';
+    getStructure(x: number, y: number): string | null {
+        let structure = null;
         Object.keys(this.state.structures).forEach((structureName) => {
             if (structureName != 'road' && structureName != 'rampart') {
                 this.state.structures[structureName].forEach((pos) => {
@@ -339,6 +380,31 @@ export class BuildingPlanner extends React.Component {
         return rampart;
     }
 
+    hasSource(x: number, y: number) {
+        let source = false;
+        if (this.state.sources) {
+            this.state.sources.forEach((pos) => {
+                if (pos.x === x && pos.y === y) {
+                    source = true;
+                }
+            });
+        }
+        return source;
+    }
+
+    getMineral(x: number, y: number): string | null {
+        const minerals = ['X', 'Z', 'L', 'K', 'U', 'O', 'H'];
+        for (let key of minerals) {
+            if (this.state.mineral[key]) {
+                let mineral = this.state.mineral[key];
+                if (mineral.x === x && mineral.y === y) {
+                    return key;
+                }
+            }
+        }
+        return null;
+    }
+
     shareableLink() {
         let string = LZString.compressToEncodedURIComponent(this.json());
         return "/building-planner/?share=" + string;
@@ -361,6 +427,8 @@ export class BuildingPlanner extends React.Component {
                                             structure={this.getStructure(x, y)}
                                             road={this.getRoadProps(x, y)}
                                             rampart={this.isRampart(x, y)}
+                                            source={this.hasSource(x, y)}
+                                            mineral={this.getMineral(x, y)}
                                             key={'mc-'+ x + '-' + y}
                                         />
                                     })}
@@ -398,7 +466,7 @@ export class BuildingPlanner extends React.Component {
                                         classes += 'disabled';
                                     }
                                     return <li onClick={() => this.setState({brush: key})} className={classes} key={key}>
-                                        <img src={'/img/screeps/' + key + '.png'} /> {STRUCTURES[key]} <span>{this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}</span>
+                                        <img src={'/img/structures/' + key + '.png'} /> {STRUCTURES[key]} <span>{this.state.structures[key] ? this.state.structures[key].length : 0}/{CONTROLLER_STRUCTURES[key][this.state.rcl]}</span>
                                     </li>
                                 })}
                             </ul>
@@ -410,7 +478,7 @@ export class BuildingPlanner extends React.Component {
                                     <form className="load-room" onSubmit={formApi.submitForm}>
                                         <Row>
                                             <Col xs={6}>
-                                                <Label for="room">Import Room</Label>
+                                                <Label for="room">Room</Label>
                                                 <Text field="room" id="room" placeholder="E18S6" />
                                             </Col>
                                             <Col xs={6}>
@@ -420,7 +488,15 @@ export class BuildingPlanner extends React.Component {
                                         </Row>
                                         <Row>
                                             <Col>
-                                                <button type="submit" className="btn btn-secondary btn-sm">Load Terrain</button>
+                                            <Label for="structures">
+                                                    <Checkbox field="structures" id="structures" checked />
+                                                    Include Structures
+                                                </Label>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
                                             </Col>
                                         </Row>
                                     </form>
@@ -446,7 +522,7 @@ interface MapCellProps {
     y: number;
     terrain: number;
     parent: BuildingPlanner;
-    structure: string;
+    structure: string | null;
     road: {
         middle: boolean;
         top: boolean;
@@ -459,12 +535,14 @@ interface MapCellProps {
         top_left: boolean;
     };
     rampart: boolean;
+    source: boolean;
+    mineral: string | null;
 };
 
 class MapCell extends React.Component<MapCellProps> {
     state: Readonly<{
         hover: boolean;
-        structure: string;
+        structure: string | null;
         road: {
             middle: boolean;
             top: boolean;
@@ -477,6 +555,8 @@ class MapCell extends React.Component<MapCellProps> {
             top_left: boolean;
         };
         rampart: boolean;
+        source: boolean;
+        mineral: string | null;
     }>;
 
     constructor(props: MapCellProps) {
@@ -496,7 +576,9 @@ class MapCell extends React.Component<MapCellProps> {
                 left: this.props.road.left,
                 top_left: this.props.road.top_left,
             },
-            rampart: this.props.rampart
+            rampart: this.props.rampart,
+            source: this.props.source,
+            mineral: this.props.mineral
         };
     }
 
@@ -504,7 +586,9 @@ class MapCell extends React.Component<MapCellProps> {
         this.setState({
             structure: newProps.structure,
             road: newProps.road,
-            rampart: newProps.rampart
+            rampart: newProps.rampart,
+            source: newProps.source,
+            mineral: newProps.mineral
         });
     }
 
@@ -522,60 +606,39 @@ class MapCell extends React.Component<MapCellProps> {
 
         switch (this.state.structure) {
             case 'spawn':
-                content.push(<img src="/img/screeps/spawn.png" />);
-                break;
-            
             case 'extension':
-                content.push(<img src="/img/screeps/extensions.png" />);
-                break;
-            
             case 'link':
-                content.push(<img src="/img/screeps/link.png" />);
-                break;
-            
             case 'constructedWall':
-                content.push(<img src="/img/screeps/constructedWall.png" />);
-                break;
-            
             case 'tower':
-                content.push(<img src="/img/screeps/tower.png" />);
-                break;
-            
             case 'observer':
-                content.push(<img src="/img/screeps/observer.png" />);
-                break;
-            
             case 'powerSpawn':
-                content.push(<img src="/img/screeps/powerSpawn.png" />);
-                break;
-            
             case 'extractor':
-                content.push(<img src="/img/screeps/extractor.png" />);
-                break;
-            
             case 'terminal':
-                content.push(<img src="/img/screeps/terminal.png" />);
-                break;
-            
             case 'lab':
-                content.push(<img src="/img/screeps/lab.png" />);
-                break;
-            
             case 'container':
-                content.push(<img src="/img/screeps/container.png" />);
-                break;
-            
             case 'nuker':
-                content.push(<img src="/img/screeps/nuker.png" />);
-                break;
-            
             case 'storage':
-                content.push(<img src="/img/screeps/storage.png" />);
-                break;
-            
             case 'factory':
-                content.push(<img src="/img/screeps/factory.png" />);
-                break;
+            case 'controller':
+            case 'source':
+                let path = `/img/structures/${this.state.structure}.png`;
+                content.push(<img src={path} />);
+        }
+
+        if (this.state.source) {
+            content.push(<img src="/img/resources/source.png" />);
+        }
+
+        switch(this.state.mineral) {
+            case 'X':
+            case 'Z':
+            case 'L':
+            case 'K':
+            case 'U':
+            case 'O':
+            case 'H':
+                let path = `/img/resources/${this.state.mineral}.png`;
+                content.push(<img src={path} />);
         }
 
         if (this.state.road.middle) {
@@ -634,7 +697,7 @@ class MapCell extends React.Component<MapCellProps> {
             className += 'hover ';
         }
 
-        if (this.state.structure !== '') {
+        if (this.state.structure) {
             className += this.state.structure + ' ';
         }
 
@@ -644,6 +707,14 @@ class MapCell extends React.Component<MapCellProps> {
 
         if (this.state.rampart) {
             className += 'rampart ';
+        }
+
+        if (this.state.source) {
+            className += 'source ';
+        }
+
+        if (this.state.mineral) {
+            className += this.state.mineral + ' ';
         }
 
         if (this.props.terrain & 1) {

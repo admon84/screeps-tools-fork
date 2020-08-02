@@ -26943,7 +26943,9 @@
 	            shards: [],
 	            brush: 'spawn',
 	            rcl: 8,
-	            structures: {}
+	            structures: {},
+	            sources: [],
+	            mineral: {}
 	        };
 	    }
 	    componentDidMount() {
@@ -26968,8 +26970,8 @@
 	    }
 	    handleControlForm(values) {
 	        let component = this;
-	        console.log('handleControlForm, values:', values);
-	        return fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
+	        console.log('handleControlForm:', values);
+	        fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
 	            response.json().then((data) => {
 	                let terrain = data.terrain[0].terrain;
 	                let terrainMap = {};
@@ -26981,6 +26983,43 @@
 	                    }
 	                }
 	                component.setState({ terrain: terrainMap, room: values.room, shard: values.shard });
+	            });
+	        });
+	        fetch(`/api/objects/${values.shard}/${values.room}`).then((response) => {
+	            response.json().then((data) => {
+	                let sources = [];
+	                let mineral = {};
+	                let structures = {};
+	                let keepStructures = ['controller'];
+	                if (values.structures === true) {
+	                    keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
+	                }
+	                for (let o of data.objects) {
+	                    if (o.type == 'source') {
+	                        sources.push({
+	                            x: o.x,
+	                            y: o.y
+	                        });
+	                    }
+	                    else if (o.type == 'mineral') {
+	                        mineral[o.mineralType] = {
+	                            x: o.x,
+	                            y: o.y
+	                        };
+	                    }
+	                    else {
+	                        if (keepStructures.indexOf(o.type) > -1) {
+	                            if (!structures[o.type]) {
+	                                structures[o.type] = [];
+	                            }
+	                            structures[o.type].push({
+	                                x: o.x,
+	                                y: o.y
+	                            });
+	                        }
+	                    }
+	                }
+	                component.setState({ structures: structures, sources: sources, mineral: mineral });
 	            });
 	        });
 	    }
@@ -27012,7 +27051,10 @@
 	    }
 	    removeStructure(x, y, structure) {
 	        let structures = this.state.structures;
-	        if (structures[structure]) {
+	        if (structure == 'controller') {
+	            return;
+	        }
+	        if (structure && structures[structure]) {
 	            structures[structure] = lodash_1(structures[structure], (pos) => {
 	                return !(pos.x === x && pos.y === y);
 	            });
@@ -27027,8 +27069,9 @@
 	            rcl: this.state.rcl,
 	            buildings: buildings
 	        };
+	        const keepStructures = Object.keys(CONTROLLER_STRUCTURES);
 	        Object.keys(this.state.structures).forEach((structure) => {
-	            if (!json.buildings[structure]) {
+	            if (keepStructures.indexOf(structure) > -1 && !json.buildings[structure]) {
 	                json.buildings[structure] = {
 	                    pos: this.state.structures[structure]
 	                };
@@ -27117,7 +27160,7 @@
 	        return roadProps;
 	    }
 	    getStructure(x, y) {
-	        let structure = '';
+	        let structure = null;
 	        Object.keys(this.state.structures).forEach((structureName) => {
 	            if (structureName != 'road' && structureName != 'rampart') {
 	                this.state.structures[structureName].forEach((pos) => {
@@ -27151,6 +27194,29 @@
 	        }
 	        return rampart;
 	    }
+	    hasSource(x, y) {
+	        let source = false;
+	        if (this.state.sources) {
+	            this.state.sources.forEach((pos) => {
+	                if (pos.x === x && pos.y === y) {
+	                    source = true;
+	                }
+	            });
+	        }
+	        return source;
+	    }
+	    getMineral(x, y) {
+	        const minerals = ['X', 'Z', 'L', 'K', 'U', 'O', 'H'];
+	        for (let key of minerals) {
+	            if (this.state.mineral[key]) {
+	                let mineral = this.state.mineral[key];
+	                if (mineral.x === x && mineral.y === y) {
+	                    return key;
+	                }
+	            }
+	        }
+	        return null;
+	    }
 	    shareableLink() {
 	        let string = lzString_1(this.json());
 	        return "/building-planner/?share=" + string;
@@ -27161,7 +27227,7 @@
 	                react_3(Col, { md: 8, lg: 9 },
 	                    react_3("div", { className: "map" }, [...Array(50)].map((ykey, y) => {
 	                        return react_3("div", { className: "flex-row" }, [...Array(50)].map((xkey, x) => {
-	                            return react_3(MapCell, { x: x, y: y, terrain: this.state.terrain[y][x], parent: this, structure: this.getStructure(x, y), road: this.getRoadProps(x, y), rampart: this.isRampart(x, y), key: 'mc-' + x + '-' + y });
+	                            return react_3(MapCell, { x: x, y: y, terrain: this.state.terrain[y][x], parent: this, structure: this.getStructure(x, y), road: this.getRoadProps(x, y), rampart: this.isRampart(x, y), source: this.hasSource(x, y), mineral: this.getMineral(x, y), key: 'mc-' + x + '-' + y });
 	                        }));
 	                    }))),
 	                react_3(Col, { className: "controls", md: 4, lg: 3 },
@@ -27193,7 +27259,7 @@
 	                                classes += 'disabled';
 	                            }
 	                            return react_3("li", { onClick: () => this.setState({ brush: key }), className: classes, key: key },
-	                                react_3("img", { src: '/img/screeps/' + key + '.png' }),
+	                                react_3("img", { src: '/img/structures/' + key + '.png' }),
 	                                " ",
 	                                STRUCTURES[key],
 	                                " ",
@@ -27207,14 +27273,19 @@
 	                        react_3(es_16, { onSubmit: (values, e, formApi) => this.handleControlForm(values) }, formApi => (react_3("form", { className: "load-room", onSubmit: formApi.submitForm },
 	                            react_3(Row, null,
 	                                react_3(Col, { xs: 6 },
-	                                    react_3(Label, { for: "room" }, "Import Room"),
+	                                    react_3(Label, { for: "room" }, "Room"),
 	                                    react_3(es_9, { field: "room", id: "room", placeholder: "E18S6" })),
 	                                react_3(Col, { xs: 6 },
 	                                    react_3(Label, { for: "shard" }, "Shard"),
 	                                    react_3(es_6, { field: "shard", id: "shard", options: this.state.shards }))),
 	                            react_3(Row, null,
 	                                react_3(Col, null,
-	                                    react_3("button", { type: "submit", className: "btn btn-secondary btn-sm" }, "Load Terrain")))))),
+	                                    react_3(Label, { for: "structures" },
+	                                        react_3(es_5, { field: "structures", id: "structures", checked: true }),
+	                                        "Include Structures"))),
+	                            react_3(Row, null,
+	                                react_3(Col, null,
+	                                    react_3("button", { type: "submit", className: "btn btn-secondary btn-sm" }, "Import Room")))))),
 	                        react_3("hr", null),
 	                        react_3(Row, null,
 	                            react_3(Col, null,
@@ -27239,14 +27310,18 @@
 	                left: this.props.road.left,
 	                top_left: this.props.road.top_left,
 	            },
-	            rampart: this.props.rampart
+	            rampart: this.props.rampart,
+	            source: this.props.source,
+	            mineral: this.props.mineral
 	        };
 	    }
 	    componentWillReceiveProps(newProps) {
 	        this.setState({
 	            structure: newProps.structure,
 	            road: newProps.road,
-	            rampart: newProps.rampart
+	            rampart: newProps.rampart,
+	            source: newProps.source,
+	            mineral: newProps.mineral
 	        });
 	    }
 	    mouseEnter(e) {
@@ -27260,47 +27335,37 @@
 	        let content = [];
 	        switch (this.state.structure) {
 	            case 'spawn':
-	                content.push(react_3("img", { src: "/img/screeps/spawn.png" }));
-	                break;
 	            case 'extension':
-	                content.push(react_3("img", { src: "/img/screeps/extensions.png" }));
-	                break;
 	            case 'link':
-	                content.push(react_3("img", { src: "/img/screeps/link.png" }));
-	                break;
 	            case 'constructedWall':
-	                content.push(react_3("img", { src: "/img/screeps/constructedWall.png" }));
-	                break;
 	            case 'tower':
-	                content.push(react_3("img", { src: "/img/screeps/tower.png" }));
-	                break;
 	            case 'observer':
-	                content.push(react_3("img", { src: "/img/screeps/observer.png" }));
-	                break;
 	            case 'powerSpawn':
-	                content.push(react_3("img", { src: "/img/screeps/powerSpawn.png" }));
-	                break;
 	            case 'extractor':
-	                content.push(react_3("img", { src: "/img/screeps/extractor.png" }));
-	                break;
 	            case 'terminal':
-	                content.push(react_3("img", { src: "/img/screeps/terminal.png" }));
-	                break;
 	            case 'lab':
-	                content.push(react_3("img", { src: "/img/screeps/lab.png" }));
-	                break;
 	            case 'container':
-	                content.push(react_3("img", { src: "/img/screeps/container.png" }));
-	                break;
 	            case 'nuker':
-	                content.push(react_3("img", { src: "/img/screeps/nuker.png" }));
-	                break;
 	            case 'storage':
-	                content.push(react_3("img", { src: "/img/screeps/storage.png" }));
-	                break;
 	            case 'factory':
-	                content.push(react_3("img", { src: "/img/screeps/factory.png" }));
-	                break;
+	            case 'controller':
+	            case 'source':
+	                let path = `/img/structures/${this.state.structure}.png`;
+	                content.push(react_3("img", { src: path }));
+	        }
+	        if (this.state.source) {
+	            content.push(react_3("img", { src: "/img/resources/source.png" }));
+	        }
+	        switch (this.state.mineral) {
+	            case 'X':
+	            case 'Z':
+	            case 'L':
+	            case 'K':
+	            case 'U':
+	            case 'O':
+	            case 'H':
+	                let path = `/img/resources/${this.state.mineral}.png`;
+	                content.push(react_3("img", { src: path }));
 	        }
 	        if (this.state.road.middle) {
 	            content.push(react_3("svg", { height: "2%", width: "100%" },
@@ -27345,7 +27410,7 @@
 	        if (this.state.hover) {
 	            className += 'hover ';
 	        }
-	        if (this.state.structure !== '') {
+	        if (this.state.structure) {
 	            className += this.state.structure + ' ';
 	        }
 	        if (this.state.road.middle) {
@@ -27353,6 +27418,12 @@
 	        }
 	        if (this.state.rampart) {
 	            className += 'rampart ';
+	        }
+	        if (this.state.source) {
+	            className += 'source ';
+	        }
+	        if (this.state.mineral) {
+	            className += this.state.mineral + ' ';
 	        }
 	        if (this.props.terrain & 1) {
 	            return className + 'cell wall';

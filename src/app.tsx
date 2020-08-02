@@ -1,7 +1,6 @@
 import * as express from 'express';
 import * as path from 'path';
 import * as superagent from 'superagent';
-import * as zlib from 'zlib';
 import * as SocketIO from 'socket.io';
 import * as http from 'http';
 import * as bodyParser from 'body-parser';
@@ -38,16 +37,13 @@ app.get('/api/terrain/:shard/:room', (req, res) => {
     });
 });
 
-app.get('/api/memory/:shard', (req, res) => {
-    let url = 'https://screeps.com/api/user/memory?shard=' + req.params.shard;
-    superagent.get(url).set({'X-Token': req.get('X-Token')}).end((err, agentRes) => {
+app.get('/api/objects/:shard/:room', (req, res) => {
+    let url = 'https://screeps.com/api/game/room-objects?room=' + req.params.room +  '&shard=' + req.params.shard;
+    superagent.get(url).end((err, agentRes) => {
         if (agentRes) {
-            let buf = Buffer.from(agentRes.body.data.slice(3), 'base64');
-            zlib.gunzip(buf, (err, ret) => {
-                res.json(JSON.parse(ret.toString()));
-            })
+            res.json(agentRes.body);
         } else {
-            res.json({});
+            res.end();
         }
     });
 });

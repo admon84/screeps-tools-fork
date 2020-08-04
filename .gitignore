@@ -1,7 +1,7 @@
 .rpt2_cache/
 node_modules/
 npm-debug.log
-public/css/style.css
-public/js/app.js
+public/app/bundle.js
+public/app/style.css
 lib/
 logs/

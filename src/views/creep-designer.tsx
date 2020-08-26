@@ -322,6 +322,7 @@ export class CreepDesigner extends React.Component{
     }
 
     formatNumber(num: number, digits: number) {
+        const minimumToFormat = 10E3;
         const units = [
             { value: 1, symbol: '' },
             { value: 1E3, symbol: 'K' },
@@ -332,9 +333,13 @@ export class CreepDesigner extends React.Component{
             { value: 1E18, symbol: 'E' }
         ];
         let i;
-        for (i = units.length - 1; i > 0; i--) {
-            if (num >= units[i].value) {
-                break;
+        if (num < minimumToFormat) {
+            i = 0;
+        } else {
+            for (i = units.length - 1; i > 0; i--) {
+                if (num >= units[i].value) {
+                    break;
+                }
             }
         }
         let rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
@@ -448,23 +453,25 @@ export class CreepDesigner extends React.Component{
         this.setState({unitCount: unitCount});
     }
 
-    getHits(toughOnly: boolean = false, useUnitMultiplier: boolean = false) {
-        let toughHits = (this.state.body.tough * 100);
+    getCreepHP(useUnitMultiplier: boolean = false) {
+        let hp = 100 * this.countParts();
+        if (useUnitMultiplier) {
+            hp *= this.state.unitCount;
+        }
+        return hp;
+    }
+
+    getCreepDR(useUnitMultiplier: boolean = false) {
         const boost = this.state.boost.tough;
-        if (boost !== null) {
-            toughHits *= 100 / (100 * BOOSTS.tough[boost].damage);
+        if (boost === null) {
+            return 0;
         }
 
-        let total = 0;
-		if (toughOnly) {
-			total = toughHits;
-		} else {
-			total = (100 * (this.countParts() - this.state.body.tough)) + toughHits;
-        }
+        let resist = (100 * this.state.body.tough) / BOOSTS.tough[boost].damage;
         if (useUnitMultiplier) {
-            total *= this.state.unitCount;
+            resist *= this.state.unitCount;
         }
-        return total;
+        return resist;
     }
     
     labelPerTick(val: string) {
@@ -529,8 +536,8 @@ export class CreepDesigner extends React.Component{
     labelCreepHealth(useUnitMultiplier: boolean = false) {
         let label: React.ReactFragment[] = [];
 
-        let totalHits = Math.floor(this.getHits(false, useUnitMultiplier));
-        label.push(<span>{totalHits.toLocaleString()}</span>);
+        let creepHP = Math.floor(this.getCreepHP(useUnitMultiplier));
+        label.push(<span>{this.formatNumber(creepHP, 2)}</span>);
 
         let units = 1;
         let append = ' hit points for 1 unit';
@@ -540,11 +547,15 @@ export class CreepDesigner extends React.Component{
         }
 
         if (this.state.body.tough > 0) {
-            let toughHits = Math.floor(this.getHits(true, useUnitMultiplier));
-            label.push(<small>{' (' + this.formatNumber(toughHits, 2) + ' is TOUGH)'}</small>);
+            let creepDR = Math.floor(this.getCreepDR(useUnitMultiplier));
+            if (creepDR > 0) {
+                let labelDR = ' (+' + this.formatNumber(creepDR, 2) + ' resist)';
+                label.push(<small>{labelDR}</small>);
+                append += labelDR;
+            }
         }
         
-        return <span title={totalHits.toLocaleString() + append}>{label}<small> /{units}</small></span>;
+        return <span title={this.formatNumber(creepHP, 2) + append}>{label}<small> /{units}</small></span>;
     }
     
     render() {

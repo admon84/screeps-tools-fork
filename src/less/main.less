@@ -169,12 +169,25 @@ input[type=number]::-webkit-outer-spin-button {
             }
             
             select {
-                width: 80px;
+                width: 84px;
                 height: 24px;
                 padding-left: 5px;
 
                 &.controller {
                     width: 40px;
+                }
+            }
+
+            thead {
+                th {
+                    &:nth-child(3),
+                    &:nth-child(4) {
+                        text-align: center;
+                    }
+
+                    &:last-child {
+                        text-align: right;
+                    }
                 }
             }
             

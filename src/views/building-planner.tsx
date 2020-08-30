@@ -592,15 +592,6 @@ class MapCell extends React.Component<MapCellProps> {
         });
     }
 
-    mouseEnter(e: any) {
-        // update this.state.x and this.state.y
-        this.setState({hover: true});
-        this.props.parent.setState({
-            x: parseInt(e.currentTarget.dataset.x),
-            y: parseInt(e.currentTarget.dataset.y)
-        });
-    }
-
     getCellContent() {
         let content = [];
 
@@ -723,6 +714,23 @@ class MapCell extends React.Component<MapCellProps> {
             return className + 'cell swamp';
         } else {
             return className + 'cell plain';
+        }
+    }
+
+    mouseEnter(e: any) {
+        // update this.state.x and this.state.y
+        this.setState({hover: true});
+        this.props.parent.setState({
+            x: parseInt(e.currentTarget.dataset.x),
+            y: parseInt(e.currentTarget.dataset.y)
+        });
+        // handle click and drag
+        if (e.buttons == 1) {
+            this.onClick();
+            this.setState({hover: false});
+        } else if (e.buttons == 2) {
+            this.onContextMenu(e);
+            this.setState({hover: false});
         }
     }
 

@@ -235,7 +235,7 @@ export class CreepDesigner extends React.Component{
     boostOptions(part: string) {
         let options: React.ReactFragment[] = [];
         if (BOOSTS[part] !== undefined) {
-            options.push(<option value="">&minus;</option>);
+            options.push(<option value="">-</option>);
             for (let resource of Object.keys(BOOSTS[part])) {
                 options.push(<option value={resource}>{resource}</option>);
             }
@@ -581,7 +581,7 @@ export class CreepDesigner extends React.Component{
                                                 <td className="part">{BODYPART_NAMES[part]}</td>
                                                 <td className="price">{BODYPART_COST[part]}</td>
                                                 <td>
-                                                    <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.removeBodyPart(part, 50)}>&empty;</button>
+                                                    <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.removeBodyPart(part, 50)}>{'\u2205'}</button>
                                                     <input type="number" className="count" value={this.state.body[part] ? this.state.body[part] : ''} onChange={(e) => this.setBodyPart(e, part)} />
                                                     <button className="btn btn-secondary btn-sm" tabIndex={-1} onClick={() => this.addBodyPart(part, 5)}>+5</button>
                                                 </td>

@@ -3,7 +3,7 @@ import postcss from "rollup-plugin-postcss";
 import replace from "rollup-plugin-replace";
 import resolve from "rollup-plugin-node-resolve";
 import typescript from "rollup-plugin-typescript3";
-import {terser} from "rollup-plugin-terser";
+// import {terser} from "rollup-plugin-terser";
 
 export default {
     input: 'src/mount.tsx',
@@ -60,7 +60,6 @@ export default {
                 ]
             }
         }),
-        terser(),
         postcss({extract: 'style.css'})
     ]
 };

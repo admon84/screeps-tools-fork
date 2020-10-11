@@ -908,7 +908,7 @@ function bodyPartWedge(startX: number, startY: number, startAngle: number, endAn
 }
 
 /**
- * Game Constants
+ * Screeps Game Constants
  */
 const CREEP_LIFE_TIME: number = 1500;
 const CREEP_CLAIM_LIFE_TIME: number = 600;

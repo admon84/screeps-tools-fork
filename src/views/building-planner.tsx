@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {Container, Row, Col, Label} from 'reactstrap';
-import {Form, Select, Checkbox, Text} from 'react-form';
 import * as _ from 'lodash';
 import * as LZString from 'lz-string';
 
@@ -10,54 +9,143 @@ interface TerrainMap {
     }
 };
 
-type SelectOptions = Array<{
-    value: string
-    label: string
-}>;
-
 interface StructureList{
     [structure: string]: {
         [level: number]: number
     }
 };
 
-const CONTROLLER_STRUCTURES: StructureList = {
-    "spawn": { 0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3 },
-    "extension": { 0: 0, 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 },
-    "link": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 2, 6: 3, 7: 4, 8: 6 },
-    "road": { 0: 2500, 1: 2500, 2: 2500, 3: 2500, 4: 2500, 5: 2500, 6: 2500, 7: 2500, 8: 2500 },
-    "constructedWall": { 1: 0, 2: 2500, 3: 2500, 4: 2500, 5: 2500, 6: 2500, 7: 2500, 8: 2500 },
-    "rampart": { 1: 0, 2: 2500, 3: 2500, 4: 2500, 5: 2500, 6: 2500, 7: 2500, 8: 2500 },
-    "storage": { 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
-    "tower": { 1: 0, 2: 0, 3: 1, 4: 1, 5: 2, 6: 2, 7: 3, 8: 6 },
-    "observer": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
-    "powerSpawn": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
-    "extractor": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1, 7: 1, 8: 1 },
-    "terminal": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1, 7: 1, 8: 1 },
-    "lab": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 3, 7: 6, 8: 10 },
-    "container": { 0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5 },
-    "nuker": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
-    "factory": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 }
-};
+interface ShardRoomFormProps {
+    planner: BuildingPlanner;
+    room: string;
+    shard: string;
+    shards: string[];
+}
 
-const STRUCTURES: {[structure: string]: string} = {
-    spawn: "Spawn",
-    container: "Container",
-    extension: "Extension",
-    tower: "Tower",
-    storage: "Storage",
-    link: "Link",
-    terminal: "Terminal",
-    extractor: "Extractor",
-    lab: "Lab",
-    factory: "Factory",
-    observer: "Observer",
-    powerSpawn: "Power Spawn",
-    nuker: "Nuker",
-    rampart: "Rampart",
-    constructedWall: "Wall",
-    road: "Road",
-};
+class ShardRoomForm extends React.Component<ShardRoomFormProps> {
+    state: Readonly<{
+        room: string;
+        shard: string;
+        showStructures: boolean;
+    }>;
+
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            room: props.room,
+            shard: props.shard,
+            showStructures: true,
+        };
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    setText(e: any) {
+        this.setState({[e.target.name]: e.target.value});
+        this.props.planner.setState({[e.target.name]: e.target.value});
+    }
+
+    setCheckbox(e: any) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        this.setState({[e.target.name]: value});
+        this.props.planner.setState({[e.target.name]: value});
+    }
+    
+    handleSubmit(e: any) {
+        e.preventDefault();
+
+        const component = this.props.planner;
+        const state = this.state;
+
+        fetch(`/api/terrain/${state.shard}/${state.room}`).then((response) => {
+            response.json().then((data: any) => {
+                let terrain = data.terrain[0].terrain;
+                let terrainMap: TerrainMap = {};
+                for (var y = 0; y < 50; y++) {
+                    terrainMap[y] = {};
+                    for (var x = 0; x < 50; x++) {
+                        let code = terrain.charAt(y * 50 + x);
+                        terrainMap[y][x] = code;
+                    }
+                }
+                component.setState({terrain: terrainMap, room: state.room, shard: state.shard});
+            });
+        });
+
+        fetch(`/api/objects/${state.shard}/${state.room}`).then((response) => {
+            response.json().then((data: any) => {
+                let sources: {x: number, y: number}[] = [];;
+                let mineral: {[mineralType: string]: {x: number, y: number}} = {};
+                let structures: {[structure: string]: {x: number, y: number}[]} = {};
+
+                let keepStructures = ['controller'];
+                if (state.showStructures === true) {
+                    keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
+                }
+                for (let o of data.objects) {
+                    if (o.type == 'source') {
+                        sources.push({
+                            x: o.x,
+                            y: o.y
+                        });
+                    } else if (o.type == 'mineral') {
+                        mineral[o.mineralType] = {
+                            x: o.x,
+                            y: o.y
+                        };
+                    } else {
+                        if (keepStructures.indexOf(o.type) > -1) {
+                            if (!structures[o.type]) {
+                                structures[o.type] = [];
+                            }
+                            structures[o.type].push({
+                                x: o.x,
+                                y: o.y
+                            });
+                        }
+                    }
+                }
+                component.setState({structures: structures, sources: sources, mineral: mineral});
+            });
+        });
+    }
+    
+    render() {
+        return (
+            <form className="load-room" onSubmit={this.handleSubmit}>
+                <Row>
+                    <Col xs={6}>
+                        <Label for="roomName">Room</Label>
+                        <input type="text" id="roomName" name="room" value={this.state.room} onChange={(e) => this.setText(e)} />
+                    </Col>
+                    <Col xs={6}>
+                        <Label for="shardName">Shard</Label>
+                        <select id="shardName" name="shard" onChange={(e) => this.setText(e)}>
+                            {this.props.shards.length === 0 &&
+                                <option>Fetching...</option>
+                            }
+                            {this.props.shards.length && this.props.shards.map((shard) => {
+                                return <option key={shard} value={shard}>{shard}</option>
+                            })}
+                        </select>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Label>
+                            <input type="checkbox" name="showStructures" checked={this.state.showStructures} onChange={(e) => this.setCheckbox(e)} />
+                            Include Structures
+                        </Label>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
+                    </Col>
+                </Row>
+            </form>
+        );
+    }
+}
 
 export class BuildingPlanner extends React.Component {
     state: Readonly<{
@@ -66,7 +154,7 @@ export class BuildingPlanner extends React.Component {
         terrain: TerrainMap;
         x: number;
         y: number;
-        shards: SelectOptions;
+        shards: string[];
         brush: string;
         rcl: number;
         structures: {[structure: string]: {x: number; y: number;}[]};
@@ -102,15 +190,14 @@ export class BuildingPlanner extends React.Component {
     }
 
     componentDidMount() {
-        let component = this;
+        const component = this;
 
         fetch('/api/shards').then((response) => {
             response.json().then((data: any) => {
-                let shards: SelectOptions = [];
+                let shards: string[] = [];
                 data.shards.forEach((shard: {name: string}) => {
-                    shards.push({label: shard.name, value: shard.name});
+                    shards.push(shard.name);
                 })
-
                 component.setState({shards: shards});
             });
         });
@@ -124,63 +211,6 @@ export class BuildingPlanner extends React.Component {
                 this.loadJSON(JSON.parse(json));
             }
         }
-    }
-
-    handleControlForm(values: {[field: string]: any}) {
-        let component = this;
-        console.log('handleControlForm:', values);
-
-        fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
-            response.json().then((data: any) => {
-                let terrain = data.terrain[0].terrain;
-                let terrainMap: TerrainMap = {};
-                for (var y = 0; y < 50; y++) {
-                    terrainMap[y] = {};
-                    for (var x = 0; x < 50; x++) {
-                        let code = terrain.charAt(y * 50 + x);
-                        terrainMap[y][x] = code;
-                    }
-                }
-                component.setState({terrain: terrainMap, room: values.room, shard: values.shard});
-            });
-        });
-
-        fetch(`/api/objects/${values.shard}/${values.room}`).then((response) => {
-            response.json().then((data: any) => {
-                let sources: {x: number, y: number}[] = [];;
-                let mineral: {[mineralType: string]: {x: number, y: number}} = {};
-                let structures: {[structure: string]: {x: number, y: number}[]} = {};
-
-                let keepStructures = ['controller'];
-                if (values.structures === true) {
-                    keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
-                }
-                for (let o of data.objects) {
-                    if (o.type == 'source') {
-                        sources.push({
-                            x: o.x,
-                            y: o.y
-                        });
-                    } else if (o.type == 'mineral') {
-                        mineral[o.mineralType] = {
-                            x: o.x,
-                            y: o.y
-                        };
-                    } else {
-                        if (keepStructures.indexOf(o.type) > -1) {
-                            if (!structures[o.type]) {
-                                structures[o.type] = [];
-                            }
-                            structures[o.type].push({
-                                x: o.x,
-                                y: o.y
-                            });
-                        }
-                    }
-                }
-                component.setState({structures: structures, sources: sources, mineral: mineral});
-            });
-        });
     }
 
     addStructure(x: number, y: number) {
@@ -266,7 +296,7 @@ export class BuildingPlanner extends React.Component {
     }
 
     loadJSON(json: any) {
-        let component = this;
+        const component = this;
 
         if (json.shard && json.name) {
             fetch(`/api/terrain/${json.shard}/${json.name}`).then((response) => {
@@ -473,35 +503,12 @@ export class BuildingPlanner extends React.Component {
                         </div>
                         <div className="room">
                             <hr/>
-                            <Form onSubmit={(values, e, formApi) => this.handleControlForm(values)}>
-                                {formApi => (
-                                    <form className="load-room" onSubmit={formApi.submitForm}>
-                                        <Row>
-                                            <Col xs={6}>
-                                                <Label for="room">Room</Label>
-                                                <Text field="room" id="room" placeholder="E18S6" />
-                                            </Col>
-                                            <Col xs={6}>
-                                                <Label for="shard">Shard</Label>
-                                                <Select field="shard" id="shard" options={this.state.shards} />
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                            <Label for="structures">
-                                                    <Checkbox field="structures" id="structures" checked />
-                                                    Include Structures
-                                                </Label>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                                <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
-                                            </Col>
-                                        </Row>
-                                    </form>
-                                )}
-                            </Form>
+                            <ShardRoomForm
+                                planner={this}
+                                room={this.state.room}
+                                shard={this.state.shard}
+                                shards={this.state.shards}
+                            />
                             <hr/>
                             <Row>
                                 <Col>
@@ -780,3 +787,44 @@ class MapCell extends React.Component<MapCellProps> {
         );
     }
 }
+
+/**
+ * Screeps Game Constants
+ */
+const CONTROLLER_STRUCTURES: StructureList = {
+    "spawn": { 0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3 },
+    "extension": { 0: 0, 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 },
+    "link": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 2, 6: 3, 7: 4, 8: 6 },
+    "road": { 0: 2500, 1: 2500, 2: 2500, 3: 2500, 4: 2500, 5: 2500, 6: 2500, 7: 2500, 8: 2500 },
+    "constructedWall": { 1: 0, 2: 2500, 3: 2500, 4: 2500, 5: 2500, 6: 2500, 7: 2500, 8: 2500 },
+    "rampart": { 1: 0, 2: 2500, 3: 2500, 4: 2500, 5: 2500, 6: 2500, 7: 2500, 8: 2500 },
+    "storage": { 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 },
+    "tower": { 1: 0, 2: 0, 3: 1, 4: 1, 5: 2, 6: 2, 7: 3, 8: 6 },
+    "observer": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
+    "powerSpawn": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
+    "extractor": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1, 7: 1, 8: 1 },
+    "terminal": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1, 7: 1, 8: 1 },
+    "lab": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 3, 7: 6, 8: 10 },
+    "container": { 0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5 },
+    "nuker": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
+    "factory": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 }
+};
+
+const STRUCTURES: {[structure: string]: string} = {
+    spawn: "Spawn",
+    container: "Container",
+    extension: "Extension",
+    tower: "Tower",
+    storage: "Storage",
+    link: "Link",
+    terminal: "Terminal",
+    extractor: "Extractor",
+    lab: "Lab",
+    factory: "Factory",
+    observer: "Observer",
+    powerSpawn: "Power Spawn",
+    nuker: "Nuker",
+    rampart: "Rampart",
+    constructedWall: "Wall",
+    road: "Road",
+};

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {Container, Row, Col, Label} from 'reactstrap';
-import {Form, Select, Checkbox, Text} from 'react-form';
 import * as _ from 'lodash';
 import * as LZString from 'lz-string';
 
@@ -69,6 +68,7 @@ export class BuildingPlanner extends React.Component {
         shards: SelectOptions;
         brush: string;
         rcl: number;
+        showStructures: boolean;
         structures: {[structure: string]: {x: number; y: number;}[]};
         sources: {x: number; y: number;}[];
         mineral: {[mineralType: string]: {x: number; y: number;}};
@@ -95,6 +95,7 @@ export class BuildingPlanner extends React.Component {
             shards: [],
             brush: 'spawn',
             rcl: 8,
+            showStructures: true,
             structures: {},
             sources: [],
             mineral: {}
@@ -126,11 +127,15 @@ export class BuildingPlanner extends React.Component {
         }
     }
 
-    handleControlForm(values: {[field: string]: any}) {
+    loadNewRoom(e: any) {
+        e.preventDefault();
+        
         let component = this;
-        console.log('handleControlForm:', values);
+        const shard = e.state.shard;
+        const room = e.state.room;
+        const showStructures = e.state.showStructures;
 
-        fetch(`/api/terrain/${values.shard}/${values.room}`).then((response) => {
+        fetch(`/api/terrain/${shard}/${room}`).then((response) => {
             response.json().then((data: any) => {
                 let terrain = data.terrain[0].terrain;
                 let terrainMap: TerrainMap = {};
@@ -141,18 +146,18 @@ export class BuildingPlanner extends React.Component {
                         terrainMap[y][x] = code;
                     }
                 }
-                component.setState({terrain: terrainMap, room: values.room, shard: values.shard});
+                component.setState({terrain: terrainMap, room: room, shard: shard});
             });
         });
 
-        fetch(`/api/objects/${values.shard}/${values.room}`).then((response) => {
+        fetch(`/api/objects/${shard}/${room}`).then((response) => {
             response.json().then((data: any) => {
                 let sources: {x: number, y: number}[] = [];;
                 let mineral: {[mineralType: string]: {x: number, y: number}} = {};
                 let structures: {[structure: string]: {x: number, y: number}[]} = {};
 
                 let keepStructures = ['controller'];
-                if (values.structures === true) {
+                if (showStructures === true) {
                     keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
                 }
                 for (let o of data.objects) {
@@ -257,6 +262,20 @@ export class BuildingPlanner extends React.Component {
 
     setRCL(e: any) {
         this.setState({rcl: e.target.value});
+    }
+
+    setRoom(e: any) {
+        this.setState({room: e.target.value});
+    }
+
+    setShard(e: any) {
+        this.setState({shard: e.target.value});
+    }
+
+    changeShowStructures(e: any) {
+        const target = e.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setState({showStructures: value});
     }
 
     import(e: any) {
@@ -473,35 +492,36 @@ export class BuildingPlanner extends React.Component {
                         </div>
                         <div className="room">
                             <hr/>
-                            <Form onSubmit={(values, e, formApi) => this.handleControlForm(values)}>
-                                {formApi => (
-                                    <form className="load-room" onSubmit={formApi.submitForm}>
-                                        <Row>
-                                            <Col xs={6}>
-                                                <Label for="room">Room</Label>
-                                                <Text field="room" id="room" placeholder="E18S6" />
-                                            </Col>
-                                            <Col xs={6}>
-                                                <Label for="shard">Shard</Label>
-                                                <Select field="shard" id="shard" options={this.state.shards} />
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                            <Label for="structures">
-                                                    <Checkbox field="structures" id="structures" checked />
-                                                    Include Structures
-                                                </Label>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                                <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
-                                            </Col>
-                                        </Row>
-                                    </form>
-                                )}
-                            </Form>
+                            <form className="load-room" onSubmit={this.loadNewRoom}>
+                                <Row>
+                                    <Col xs={6}>
+                                        <Label for="room">Room</Label>
+                                        <input type="text" id="room" placeholder="roomName" value={this.state.room} onChange={(e) => this.setRoom(e)} />
+                                    </Col>
+                                    <Col xs={6}>
+                                        <Label for="shard">Shard</Label>
+                                        <select id="shard" value={this.state.shard} onChange={(e) => this.setShard(e)}>
+                                            <option>Select shard</option>
+                                            {this.state.shards.map((shard) => {
+                                                <option value={shard.value}>{shard.label}</option>
+                                            })}
+                                        </select>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <Label for="structures">
+                                            <input type="checkbox" id="structures" checked={this.state.showStructures} onChange={(e) => this.changeShowStructures(e)} />
+                                            Include Structures
+                                        </Label>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
+                                    </Col>
+                                </Row>
+                            </form>
                             <hr/>
                             <Row>
                                 <Col>

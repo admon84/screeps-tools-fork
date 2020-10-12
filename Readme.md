@@ -2,7 +2,7 @@
 
 Tools to help players of the Programming MMO Screeps.
 
-> :bulb: This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
+* :bulb: This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 
 ### Hosted Option
 
@@ -12,7 +12,7 @@ The hosted option is available for convenience at [screeps.admon.dev](https://sc
 
 Plan out room layouts with the Building Planner tool.
 
-> :bulb: Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
+* :bulb: Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
 
 Features:
 * All structures including Factory
@@ -29,7 +29,7 @@ Features:
 
 Configure Creeps body parts and evaluate stats with the Creep Designer tool.
 
-> :bulb: Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
+* :bulb: Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
 
 Features:
 * Stats are shown based on body parts added

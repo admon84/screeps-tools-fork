@@ -7,144 +7,6 @@ interface TerrainMap {
     [y: number]: {
         [x: number]: number
     }
-};
-
-interface StructureList{
-    [structure: string]: {
-        [level: number]: number
-    }
-};
-
-interface ShardRoomFormProps {
-    planner: BuildingPlanner;
-    room: string;
-    shard: string;
-    shards: string[];
-}
-
-class ShardRoomForm extends React.Component<ShardRoomFormProps> {
-    state: Readonly<{
-        room: string;
-        shard: string;
-        showStructures: boolean;
-    }>;
-
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            room: props.room,
-            shard: props.shard,
-            showStructures: true,
-        };
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    setText(e: any) {
-        this.setState({[e.target.name]: e.target.value});
-        this.props.planner.setState({[e.target.name]: e.target.value});
-    }
-
-    setCheckbox(e: any) {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        this.setState({[e.target.name]: value});
-        this.props.planner.setState({[e.target.name]: value});
-    }
-    
-    handleSubmit(e: any) {
-        e.preventDefault();
-
-        const component = this.props.planner;
-        const state = this.state;
-
-        fetch(`/api/terrain/${state.shard}/${state.room}`).then((response) => {
-            response.json().then((data: any) => {
-                let terrain = data.terrain[0].terrain;
-                let terrainMap: TerrainMap = {};
-                for (var y = 0; y < 50; y++) {
-                    terrainMap[y] = {};
-                    for (var x = 0; x < 50; x++) {
-                        let code = terrain.charAt(y * 50 + x);
-                        terrainMap[y][x] = code;
-                    }
-                }
-                component.setState({terrain: terrainMap, room: state.room, shard: state.shard});
-            });
-        });
-
-        fetch(`/api/objects/${state.shard}/${state.room}`).then((response) => {
-            response.json().then((data: any) => {
-                let sources: {x: number, y: number}[] = [];;
-                let mineral: {[mineralType: string]: {x: number, y: number}} = {};
-                let structures: {[structure: string]: {x: number, y: number}[]} = {};
-
-                let keepStructures = ['controller'];
-                if (state.showStructures === true) {
-                    keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
-                }
-                for (let o of data.objects) {
-                    if (o.type == 'source') {
-                        sources.push({
-                            x: o.x,
-                            y: o.y
-                        });
-                    } else if (o.type == 'mineral') {
-                        mineral[o.mineralType] = {
-                            x: o.x,
-                            y: o.y
-                        };
-                    } else {
-                        if (keepStructures.indexOf(o.type) > -1) {
-                            if (!structures[o.type]) {
-                                structures[o.type] = [];
-                            }
-                            structures[o.type].push({
-                                x: o.x,
-                                y: o.y
-                            });
-                        }
-                    }
-                }
-                component.setState({structures: structures, sources: sources, mineral: mineral});
-            });
-        });
-    }
-    
-    render() {
-        return (
-            <form className="load-room" onSubmit={this.handleSubmit}>
-                <Row>
-                    <Col xs={6}>
-                        <Label for="roomName">Room</Label>
-                        <input type="text" id="roomName" name="room" value={this.state.room} onChange={(e) => this.setText(e)} />
-                    </Col>
-                    <Col xs={6}>
-                        <Label for="shardName">Shard</Label>
-                        <select id="shardName" name="shard" onChange={(e) => this.setText(e)}>
-                            {this.props.shards.length === 0 &&
-                                <option>Fetching...</option>
-                            }
-                            {this.props.shards.length && this.props.shards.map((shard) => {
-                                return <option key={shard} value={shard}>{shard}</option>
-                            })}
-                        </select>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <Label>
-                            <input type="checkbox" name="showStructures" checked={this.state.showStructures} onChange={(e) => this.setCheckbox(e)} />
-                            Include Structures
-                        </Label>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
-                    </Col>
-                </Row>
-            </form>
-        );
-    }
 }
 
 export class BuildingPlanner extends React.Component {
@@ -503,7 +365,7 @@ export class BuildingPlanner extends React.Component {
                         </div>
                         <div className="room">
                             <hr/>
-                            <ShardRoomForm
+                            <LoadRoomForm
                                 planner={this}
                                 room={this.state.room}
                                 shard={this.state.shard}
@@ -524,6 +386,9 @@ export class BuildingPlanner extends React.Component {
     }
 }
 
+/**
+ * Map Cell
+ */
 interface MapCellProps {
     x: number;
     y: number;
@@ -544,7 +409,7 @@ interface MapCellProps {
     rampart: boolean;
     source: boolean;
     mineral: string | null;
-};
+}
 
 class MapCell extends React.Component<MapCellProps> {
     state: Readonly<{
@@ -789,9 +654,144 @@ class MapCell extends React.Component<MapCellProps> {
 }
 
 /**
+ * Load Room Form
+ */
+interface LoadRoomFormProps {
+    planner: BuildingPlanner;
+    room: string;
+    shard: string;
+    shards: string[];
+}
+
+class LoadRoomForm extends React.Component<LoadRoomFormProps> {
+    state: Readonly<{
+        room: string;
+        shard: string;
+        showStructures: boolean;
+    }>;
+
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            room: props.room,
+            shard: props.shard,
+            showStructures: true,
+        };
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    setText(e: any) {
+        this.setState({[e.target.name]: e.target.value});
+        this.props.planner.setState({[e.target.name]: e.target.value});
+    }
+
+    setCheckbox(e: any) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        this.setState({[e.target.name]: value});
+        this.props.planner.setState({[e.target.name]: value});
+    }
+    
+    handleSubmit(e: any) {
+        e.preventDefault();
+
+        const component = this.props.planner;
+        const state = this.state;
+
+        fetch(`/api/terrain/${state.shard}/${state.room}`).then((response) => {
+            response.json().then((data: any) => {
+                let terrain = data.terrain[0].terrain;
+                let terrainMap: TerrainMap = {};
+                for (var y = 0; y < 50; y++) {
+                    terrainMap[y] = {};
+                    for (var x = 0; x < 50; x++) {
+                        let code = terrain.charAt(y * 50 + x);
+                        terrainMap[y][x] = code;
+                    }
+                }
+                component.setState({terrain: terrainMap, room: state.room, shard: state.shard});
+            });
+        });
+
+        fetch(`/api/objects/${state.shard}/${state.room}`).then((response) => {
+            response.json().then((data: any) => {
+                let sources: {x: number, y: number}[] = [];;
+                let mineral: {[mineralType: string]: {x: number, y: number}} = {};
+                let structures: {[structure: string]: {x: number, y: number}[]} = {};
+
+                let keepStructures = ['controller'];
+                if (state.showStructures === true) {
+                    keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
+                }
+                for (let o of data.objects) {
+                    if (o.type == 'source') {
+                        sources.push({
+                            x: o.x,
+                            y: o.y
+                        });
+                    } else if (o.type == 'mineral') {
+                        mineral[o.mineralType] = {
+                            x: o.x,
+                            y: o.y
+                        };
+                    } else {
+                        if (keepStructures.indexOf(o.type) > -1) {
+                            if (!structures[o.type]) {
+                                structures[o.type] = [];
+                            }
+                            structures[o.type].push({
+                                x: o.x,
+                                y: o.y
+                            });
+                        }
+                    }
+                }
+                component.setState({structures: structures, sources: sources, mineral: mineral});
+            });
+        });
+    }
+    
+    render() {
+        return (
+            <form className="load-room" onSubmit={this.handleSubmit}>
+                <Row>
+                    <Col xs={6}>
+                        <Label for="roomName">Room</Label>
+                        <input type="text" id="roomName" name="room" value={this.state.room} onChange={(e) => this.setText(e)} />
+                    </Col>
+                    <Col xs={6}>
+                        <Label for="shardName">Shard</Label>
+                        <select id="shardName" name="shard" onChange={(e) => this.setText(e)}>
+                            {this.props.shards.length === 0 &&
+                                <option>Fetching...</option>
+                            }
+                            {this.props.shards.length && this.props.shards.map((shard) => {
+                                return <option key={shard} value={shard}>{shard}</option>
+                            })}
+                        </select>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Label>
+                            <input type="checkbox" name="showStructures" checked={this.state.showStructures} onChange={(e) => this.setCheckbox(e)} />
+                            Include Structures
+                        </Label>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
+                    </Col>
+                </Row>
+            </form>
+        );
+    }
+}
+
+/**
  * Screeps Game Constants
  */
-const CONTROLLER_STRUCTURES: StructureList = {
+const CONTROLLER_STRUCTURES: {[structure: string]: {[level: number]: number}} = {
     "spawn": { 0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3 },
     "extension": { 0: 0, 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 },
     "link": { 1: 0, 2: 0, 3: 0, 4: 0, 5: 2, 6: 3, 7: 4, 8: 6 },

@@ -18,7 +18,7 @@ export class CreepDesigner extends React.Component{
             unitCount: 1,
             tickTime: 3,
             body: {
-                move: 1,
+                move: 0,
                 work: 0,
                 attack: 0,
                 ranged_attack: 0,
@@ -902,9 +902,8 @@ function bodyPartWedge(startX: number, startY: number, startAngle: number, endAn
     if (travel < -180) {
         largeArc = 1;
     }
-    
-    var pathString = "M"+ startX + " " + startY + " L" + x1 + " " + y1 + " A" + radius + " " + radius + " 0 " + largeArc + " 1 " + x2 + " " + y2 + " z";
-    return pathString; 
+
+    return `M${startX} ${startY} L${x1} ${y1} A${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} z`;
 }
 
 /**

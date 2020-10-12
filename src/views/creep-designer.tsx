@@ -559,6 +559,7 @@ export class CreepDesigner extends React.Component{
     }
     
     render() {
+        const nbsp = '\u00a0';
         return (
             <Container className="creep-designer" fluid={true}>
                 <Row>
@@ -766,11 +767,11 @@ export class CreepDesigner extends React.Component{
                                 </tr>}
                                 {this.state.body.move > 0 && <tr className="move">
                                     <td>Move{this.state.body.carry > 0 && ' (empty)'}</td>
-                                    <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
+                                    <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1), 'plain')} {nbsp} {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5), 'road')} {nbsp} {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5), 'swamp')}</td>
                                 </tr>}
                                 {this.state.body.move > 0 && this.state.body.carry > 0 && <tr className="move">
                                     <td>Move (full)</td>
-                                    <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1, true), 'plain')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5, true), 'road')} &nbsp; {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5, true), 'swamp')}</td>
+                                    <td colSpan={4} className="text-center">{this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 1, true), 'plain')} {nbsp} {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 0.5, true), 'road')} {nbsp} {this.labelWalkTime(this.walkTime(this.state.body.move, this.state.body.carry, 5, true), 'swamp')}</td>
                                 </tr>}
                                 <tr className="dark">
                                     <td>Energy cost</td>

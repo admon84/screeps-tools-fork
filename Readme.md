@@ -1,43 +1,62 @@
 # Screeps Tools
 
-Personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
+Tools to help players of the Programming MMO Screeps.
 
-You can compile the app and run it locally.  See the scripts below.
-
-Requirements:
-* Node.js v10 or higher
+This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 
 
-## Building Planner
+### Hosted Option
 
-Plan out your room layouts for Screeps.
+The hosted version is publicly available at [screeps.admon.dev](https://screeps.admon.dev)
+
+
+### Building Planner
+
+Plan out room layouts with the Building Planner tool.
 
 Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
 
-New features:
-* Factory structure
+Features:
+* All structures including Factory
+* Import rooms from any MMO shard with an option to include structures
+* Importing rooms always includes the controller, source(s), and mineral when available
+* Road structures are visually connected to adjacent roads like in game
+* Hold left-click and drag to place many structures
+* Hold right-click and drag to remove many structures
 * Ramparts can be placed over structures easily
-* Connected roads like in-game
 
-![View the building planner](https://user-images.githubusercontent.com/10291543/80027140-7fae8900-84a0-11ea-8fc4-7fa9438f63e4.png)
+![View the building planner](https://user-images.githubusercontent.com/10291543/95763564-6a0a6700-0c6c-11eb-9eb8-7325b98a4437.png)
 
 
-## Creep Designer
+### Creep Designer
 
-Design your Creeps and see their stats.
+Configure Creeps body parts and evaluate stats with the Creep Designer tool.
 
 Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
 
-![View the creep designer](https://user-images.githubusercontent.com/10291543/81489954-f7b6d600-9238-11ea-9d5a-0adcedfc499b.png)
+Features:
+* Stats are shown based on body parts added
+* Creep actions are listed based on body parts added
+* Body parts can be boosted using the Boost dropdown
+* Stats calculated "per tick", "per unit count", "per hour" and "per day"
+* Tick duration option affects stats calculated "per hour" and "per day"
+
+![View the creep designer](https://user-images.githubusercontent.com/10291543/95763598-78f11980-0c6c-11eb-9303-362c962876e4.png)
 
 
-## Available Scripts
+## Development
 
-In the project directory, you can run:
+You can compile the react app and run it locally.
 
-#### `npm install`
+### Requirements
 
-Installs node modules listed in package.json
+Node.js v10 or higher
+
+### Scripts
+
+To begin, run `npm install` in your project directory to install node modules required for building and launching the react app.
+
+Once you have installed the node modules, you can run any of these scripts in the project directory:
 
 #### `npm run build`
 

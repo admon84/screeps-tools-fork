@@ -2,12 +2,12 @@
 
 Tools to help players of the Programming MMO Screeps.
 
-This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
+> :bulb: This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 
 
 ### Hosted Option
 
-The hosted version is publicly available at [screeps.admon.dev](https://screeps.admon.dev)
+The hosted option is available for convenience at [screeps.admon.dev](https://screeps.admon.dev)
 
 
 ### Building Planner
@@ -46,11 +46,11 @@ Features:
 
 ## Development
 
-You can compile the react app and run it locally.
+You can compile the react app and run it on your machine.
 
 ### Requirements
 
-Node.js v10 or higher
+[Node.js v10](https://nodejs.org/en/) or higher
 
 ### Scripts
 

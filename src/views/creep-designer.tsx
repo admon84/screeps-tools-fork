@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Container, Row, Col} from 'reactstrap';
+import {Container, Row, Col, Input} from 'reactstrap';
 
 export class CreepDesigner extends React.Component{
     state: Readonly <{
@@ -817,7 +817,7 @@ export class CreepDesigner extends React.Component{
                                     </ul>
                                 );
                             })}
-                            <textarea className="creep-body" value={this.body()} onChange={(e) => this.import(e)}></textarea>
+                            <Input type="textarea" className="creep-body" value={this.body()} onChange={(e) => this.import(e)} />
                             <a href={this.shareLink()}>Shareable Link</a>
                         </div>}
                     </Col>

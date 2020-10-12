@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Container, Row, Col, Label} from 'reactstrap';
+import {Container, Row, Col, Input, Label, FormFeedback} from 'reactstrap';
 import * as _ from 'lodash';
 import * as LZString from 'lz-string';
 
@@ -335,7 +335,7 @@ export class BuildingPlanner extends React.Component {
                                     <p>X: {this.state.x} Y: {this.state.y}</p>
                                 </Col>
                                 <Col xs={6}>
-                                    <select className="rcl float-right" value={this.state.rcl} onChange={(e) => this.setRCL(e)}>
+                                    <Input type="select" className="rcl float-right" value={this.state.rcl} onChange={(e) => this.setRCL(e)}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option>
@@ -344,7 +344,7 @@ export class BuildingPlanner extends React.Component {
                                         <option value={6}>6</option>
                                         <option value={7}>7</option>
                                         <option value={8}>8</option>
-                                    </select>
+                                    </Input>
                                     <p className="float-right">RCL</p>
                                 </Col>
                             </Row>
@@ -374,7 +374,7 @@ export class BuildingPlanner extends React.Component {
                             <hr/>
                             <Row>
                                 <Col>
-                                    <textarea value={this.json()} id="json-data" onChange={(e) => this.import(e)}></textarea>
+                                    <Input type="textarea" value={this.json()} id="json-data" onChange={(e) => this.import(e)} />
                                     <a href={this.shareableLink()} id="share-link">Shareable Link</a>
                                 </Col>
                             </Row>
@@ -656,6 +656,7 @@ class MapCell extends React.Component<MapCellProps> {
 /**
  * Load Room Form
  */
+
 interface LoadRoomFormProps {
     planner: BuildingPlanner;
     room: string;
@@ -663,41 +664,126 @@ interface LoadRoomFormProps {
     shards: string[];
 }
 
+interface FieldValidation {
+    value: string;
+    validateOnChange: boolean;
+    valid: boolean;
+}
+
 class LoadRoomForm extends React.Component<LoadRoomFormProps> {
     state: Readonly<{
-        room: string;
-        shard: string;
+        room: FieldValidation;
+        shard: FieldValidation;
         showStructures: boolean;
+        submitCalled: boolean;
     }>;
 
     constructor(props: any) {
         super(props);
         this.state = {
-            room: props.room,
-            shard: props.shard,
+            room: {
+                value: props.room,
+                validateOnChange: false,
+                valid: true
+            },
+            shard: {
+                value: props.shard,
+                validateOnChange: false,
+                valid: true
+            },
             showStructures: true,
+            submitCalled: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    setText(e: any) {
-        this.setState({[e.target.name]: e.target.value});
-        this.props.planner.setState({[e.target.name]: e.target.value});
-    }
-
-    setCheckbox(e: any) {
+    handleCheckboxChange(e: any) {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         this.setState({[e.target.name]: value});
         this.props.planner.setState({[e.target.name]: value});
+    }
+
+    handleTextBlur(e: any, validationFunc: Function) {
+        const field: 'room' | 'shard' = e.target.name;
+        const value = e.target.value;
+
+        if (this.state[field].validateOnChange === false &&
+            this.state.submitCalled === false) {
+            this.setState({
+                [field]: {
+                    value: value,
+                    validateOnChange: true,
+                    valid: validationFunc(value)
+                }
+            });
+            this.props.planner.setState({[field]: value});
+        }
+    }
+
+    handleTextChange(e: any, validationFunc: Function) {
+        const field: 'room' | 'shard' = e.target.name;
+        const value = e.target.value;
+
+        this.setState({
+            [field]: {
+                value: value,
+                valid: (this.state[field].validateOnChange ? validationFunc(value) : true)
+            }
+        });
+        this.props.planner.setState({[field]: value});  
+    }
+
+    validateRoom(room: string): boolean {
+        if (typeof room !== 'string') return false;
+        if (room.length < 4) return false;
+
+        const regexRoom = new RegExp('^([WE]{1})([0-9]{1,2})([NS]{1})([0-9]{1,2})$');
+        return room.match(regexRoom) !== null;
+    }
+
+    validateShard(shard: string): boolean {
+        if (typeof shard !== 'string') return false;
+        if (shard.length < 1) return false;
+
+        return true;
     }
     
     handleSubmit(e: any) {
         e.preventDefault();
 
         const component = this.props.planner;
-        const state = this.state;
+        const room = this.state.room.value;
+        const shard = this.state.shard.value;
+        const includeStructs = this.state.showStructures;
 
-        fetch(`/api/terrain/${state.shard}/${state.room}`).then((response) => {
+        const validation = [
+            {
+                field: 'room',
+                value: this.state.room.value,
+                validationFunc: this.validateRoom
+            },
+            {
+                field: 'shard',
+                value: this.state.shard.value,
+                validationFunc: this.validateShard
+            }
+        ];
+
+        for (let props of validation) {
+            let valid = props.validationFunc(props.value);
+            this.setState({
+                [props.field]: {
+                    value: props.value,
+                    valid: valid,
+                    validateOnChange: !valid
+                }
+            });
+            if (!valid) {
+                return;
+            }
+        }
+
+        fetch(`/api/terrain/${shard}/${room}`).then((response) => {
             response.json().then((data: any) => {
                 let terrain = data.terrain[0].terrain;
                 let terrainMap: TerrainMap = {};
@@ -708,18 +794,18 @@ class LoadRoomForm extends React.Component<LoadRoomFormProps> {
                         terrainMap[y][x] = code;
                     }
                 }
-                component.setState({terrain: terrainMap, room: state.room, shard: state.shard});
+                component.setState({terrain: terrainMap, room: room, shard: shard});
             });
         });
 
-        fetch(`/api/objects/${state.shard}/${state.room}`).then((response) => {
+        fetch(`/api/objects/${shard}/${room}`).then((response) => {
             response.json().then((data: any) => {
-                let sources: {x: number, y: number}[] = [];;
+                let sources: {x: number, y: number}[] = [];
                 let mineral: {[mineralType: string]: {x: number, y: number}} = {};
                 let structures: {[structure: string]: {x: number, y: number}[]} = {};
 
                 let keepStructures = ['controller'];
-                if (state.showStructures === true) {
+                if (includeStructs) {
                     keepStructures.push(...Object.keys(CONTROLLER_STRUCTURES));
                 }
                 for (let o of data.objects) {
@@ -756,31 +842,35 @@ class LoadRoomForm extends React.Component<LoadRoomFormProps> {
                 <Row>
                     <Col xs={6}>
                         <Label for="roomName">Room</Label>
-                        <input type="text" id="roomName" name="room" value={this.state.room} onChange={(e) => this.setText(e)} />
+                        <Input type="text" id="roomName" name="room" value={this.state.room.value} invalid={!this.state.room.valid} onBlur={(e) => this.handleTextBlur(e, this.validateRoom)} onChange={(e) => this.handleTextChange(e, this.validateRoom)} />
+                        <FormFeedback>Invalid room name</FormFeedback>
                     </Col>
                     <Col xs={6}>
                         <Label for="shardName">Shard</Label>
-                        <select id="shardName" name="shard" onChange={(e) => this.setText(e)}>
+                        <Input type="select" id="shardName" name="shard" invalid={!this.state.shard.valid} onChange={(e) => this.handleTextChange(e, this.validateShard)}>
                             {this.props.shards.length === 0 &&
                                 <option>Fetching...</option>
                             }
                             {this.props.shards.length && this.props.shards.map((shard) => {
                                 return <option key={shard} value={shard}>{shard}</option>
                             })}
-                        </select>
+                        </Input>
+                        <FormFeedback>Invalid shard selection</FormFeedback>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <Label>
-                            <input type="checkbox" name="showStructures" checked={this.state.showStructures} onChange={(e) => this.setCheckbox(e)} />
+                            <Input type="checkbox" name="showStructures" checked={this.state.showStructures} onChange={(e) => this.handleCheckboxChange(e)} />
                             Include Structures
                         </Label>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
-                        <button type="submit" className="btn btn-secondary btn-sm">Import Room</button>
+                        <button type="submit" className="btn btn-secondary btn-sm" onMouseDown={() => this.setState({submitCalled: true})}>
+                            Import Room
+                        </button>
                     </Col>
                 </Row>
             </form>

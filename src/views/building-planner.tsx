@@ -365,7 +365,7 @@ export class BuildingPlanner extends React.Component {
                         </div>
                         <div className="room">
                             <hr/>
-                            <LoadRoomForm
+                            <ImportRoomForm
                                 planner={this}
                                 room={this.state.room}
                                 shard={this.state.shard}
@@ -657,7 +657,7 @@ class MapCell extends React.Component<MapCellProps> {
  * Load Room Form
  */
 
-interface LoadRoomFormProps {
+interface ImportRoomFormProps {
     planner: BuildingPlanner;
     room: string;
     shard: string;
@@ -670,7 +670,7 @@ interface FieldValidation {
     valid: boolean;
 }
 
-class LoadRoomForm extends React.Component<LoadRoomFormProps> {
+class ImportRoomForm extends React.Component<ImportRoomFormProps> {
     state: Readonly<{
         room: FieldValidation;
         shard: FieldValidation;

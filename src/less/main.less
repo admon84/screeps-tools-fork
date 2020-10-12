@@ -22,18 +22,22 @@ button.btn-secondary {
     }
 }
 
-.form-control {
+input.form-control,
+select.form-control {
     border-radius: 2px;
     margin-bottom: 5px;
 }
 
-.invalid-feedback {
-    margin-bottom: 5px;
+input.form-control {
+    padding: 0;
 }
 
-input.form-control,
 select.form-control {
     padding: 0 0 0 5px;
+}
+
+div.invalid-feedback {
+    margin-bottom: 5px;
 }
 
 textarea.form-control {
@@ -167,25 +171,32 @@ input[type=number]::-webkit-outer-spin-button {
             border-collapse: collapse;
 
             button {
+                position: relative;
+                font-size: 11px;
                 height: 28px;
                 width: 26px;
                 padding: 2px 0 3px;
                 line-height: normal;
                 vertical-align: top;
+                z-index: 10;
             }
             
             select,
             input {
+                position: relative;
+                display: inline-block;
+                height: 28px;
                 width: 36px;
                 text-align: center;
                 color: #010101;
                 border: 1px solid #666;
                 margin: 0 1px;
+                z-index: 20;
             }
             
             select {
                 width: 84px;
-                height: 24px;
+                height: 28px;
                 padding-left: 5px;
 
                 &.controller {
@@ -195,7 +206,10 @@ input[type=number]::-webkit-outer-spin-button {
 
             thead {
                 th {
-                    &:nth-child(3),
+                    &:nth-child(3) {
+                        padding-left: 30px;
+                    }
+
                     &:nth-child(4) {
                         text-align: center;
                     }
@@ -227,6 +241,9 @@ input[type=number]::-webkit-outer-spin-button {
                                 }
                             }
                         }
+                        &.parts-sum {
+                            padding-left: 43px;
+                        }
                     }
                 }
             }
@@ -237,12 +254,16 @@ input[type=number]::-webkit-outer-spin-button {
         }
     }
     
-    .creep-action {
-        display: block;
-        float: left;
-        width: 30%;
-        padding-left: 3%;
-        margin: 0;
+    .actions-list {
+        display: inline-block;
+
+        .creep-action {
+            display: block;
+            float: left;
+            width: 30%;
+            padding-left: 3%;
+            margin: 0;
+        }
     }
 }
 

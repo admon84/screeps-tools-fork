@@ -847,14 +847,16 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
                     </Col>
                     <Col xs={6}>
                         <Label for="shardName">Shard</Label>
-                        <Input type="select" id="shardName" name="shard" invalid={!this.state.shard.valid} onChange={(e) => this.handleTextChange(e, this.validateShard)}>
-                            {this.props.shards.length === 0 &&
-                                <option>Fetching...</option>
-                            }
-                            {this.props.shards.length && this.props.shards.map((shard) => {
-                                return <option key={shard} value={shard}>{shard}</option>
-                            })}
-                        </Input>
+                        {this.props.shards.length === 0 &&
+                            <div className="loading">Loading</div>
+                        }
+                        {this.props.shards.length > 0 &&
+                            <Input type="select" id="shardName" name="shard" invalid={!this.state.shard.valid} onChange={(e) => this.handleTextChange(e, this.validateShard)}>
+                                {this.props.shards.length && this.props.shards.map((shard) => {
+                                    return <option key={shard} value={shard}>{shard}</option>
+                                })}
+                            </Input>
+                        }
                         <FormFeedback>Invalid shard selection</FormFeedback>
                     </Col>
                 </Row>

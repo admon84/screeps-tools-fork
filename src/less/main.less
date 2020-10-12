@@ -341,6 +341,9 @@ input[type=number]::-webkit-outer-spin-button {
             select.form-control {
                 height: 30px;
             }
+            input.form-control {
+                padding-left: 5px;
+            }
             input[type=checkbox] {
                 position: relative;
                 display: block;
@@ -441,3 +444,46 @@ input[type=number]::-webkit-outer-spin-button {
         }
     }
 }
+
+.loading {
+    position: relative;
+    display: block;
+    height: 30px;
+    background: #fff;
+    color: #495057;
+    line-height: 1.5;
+    border-radius: 2px;
+    padding: 3px 0 0 10px;
+    margin: 0;
+
+    &:after {
+        content: ' .';
+        animation: dots 1s steps(5, end) infinite;
+    }
+}
+  
+@keyframes dots {
+    0%, 20% {
+        color: rgba(0,0,0,0);
+        text-shadow:
+            .25em 0 0 rgba(0,0,0,0),
+            .5em 0 0 rgba(0,0,0,0);
+    }
+    40% {
+        color: #495057;
+        text-shadow:
+            .25em 0 0 rgba(0,0,0,0),
+            .5em 0 0 rgba(0,0,0,0);
+    }
+    60% {
+        text-shadow:
+            .25em 0 0 #495057,
+            .5em 0 0 rgba(0,0,0,0);
+    }
+    80%, 100% {
+        text-shadow:
+            .25em 0 0 #495057,
+            .5em 0 0 #495057;
+    }
+}
+  

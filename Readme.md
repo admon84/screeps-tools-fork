@@ -4,17 +4,15 @@ Tools to help players of the Programming MMO Screeps.
 
 > :bulb: This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
 
-
 ### Hosted Option
 
 The hosted option is available for convenience at [screeps.admon.dev](https://screeps.admon.dev)
-
 
 ### Building Planner
 
 Plan out room layouts with the Building Planner tool.
 
-Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
+> :bulb: Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
 
 Features:
 * All structures including Factory
@@ -27,12 +25,11 @@ Features:
 
 ![View the building planner](https://user-images.githubusercontent.com/10291543/95763564-6a0a6700-0c6c-11eb-9eb8-7325b98a4437.png)
 
-
 ### Creep Designer
 
 Configure Creeps body parts and evaluate stats with the Creep Designer tool.
 
-Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
+> :bulb: Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
 
 Features:
 * Stats are shown based on body parts added
@@ -50,13 +47,15 @@ You can compile the react app and run it on your machine.
 
 ### Requirements
 
-[Node.js v10](https://nodejs.org/en/) or higher
+* [Node.js v10](https://nodejs.org/en/) or higher
+* [git](https://git-scm.com/)
 
-### Scripts
+### Install
 
-To begin, run `npm install` in your project directory to install node modules required for building and launching the react app.
+* Clone this project `git clone https://github.com/admon84/screeps-tools.git`
+* Run `npm install` in the project directory
 
-Once you have installed the node modules, you can run any of these scripts in the project directory:
+Once you have cloned the project and installed node modules, these scripts are available in the project directory:
 
 #### `npm run build`
 

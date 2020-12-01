@@ -1,13 +1,10 @@
-import * as express from 'express';
-import * as path from 'path';
-import * as superagent from 'superagent';
-import * as SocketIO from 'socket.io';
-import * as http from 'http';
 import * as bodyParser from 'body-parser';
-import {ScreepsAPI} from 'screeps-api';
+import * as express from 'express';
+import * as http from 'http';
+import * as path from 'path';
+import * as superAgent from 'superagent';
 
-let app = express();
-
+const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -15,9 +12,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/app', express.static('public/app'));
 app.use('/img', express.static('public/img'));
 
-app.get('/api/shards', (req, res) => {
-    let url = 'https://screeps.com/api/game/shards/info';
-    superagent.get(url).end((err, agentRes) => {
+app.get('/api/shards/:world', (req, res) => {
+    const path = (req.params.world == 'season' ? '/season' : '');
+    const url = `https://screeps.com${path}/api/game/shards/info`;
+    superAgent.get(url).end((err, agentRes) => {
         if (agentRes) {
             res.json(agentRes.body);
         } else {
@@ -26,9 +24,10 @@ app.get('/api/shards', (req, res) => {
     });
 });
 
-app.get('/api/terrain/:shard/:room', (req, res) => {
-    let url = 'https://screeps.com/api/game/room-terrain?room=' + req.params.room +  '&encoded=1&shard=' + req.params.shard;
-    superagent.get(url).end((err, agentRes) => {
+app.get('/api/terrain/:world/:shard/:room', (req, res) => {
+    const path = (req.params.world == 'season' ? '/season' : '');
+    const url = `https://screeps.com${path}/api/game/room-terrain?room=${req.params.room}&encoded=1&shard=${req.params.shard}`;
+    superAgent.get(url).end((err, agentRes) => {
         if (agentRes) {
             res.json(agentRes.body);
         } else {
@@ -37,9 +36,10 @@ app.get('/api/terrain/:shard/:room', (req, res) => {
     });
 });
 
-app.get('/api/objects/:shard/:room', (req, res) => {
-    let url = 'https://screeps.com/api/game/room-objects?room=' + req.params.room +  '&shard=' + req.params.shard;
-    superagent.get(url).end((err, agentRes) => {
+app.get('/api/objects/:world/:shard/:room', (req, res) => {
+    const path = (req.params.world == 'season' ? '/season' : '');
+    const url = `https://screeps.com${path}/api/game/room-objects?room=${req.params.room}&shard=${req.params.shard}`;
+    superAgent.get(url).end((err, agentRes) => {
         if (agentRes) {
             res.json(agentRes.body);
         } else {
@@ -52,46 +52,5 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-let server = http.createServer(app);
-
-let io = SocketIO(server);
-
-io.on('connection', (socket) => {
-    socket.emit('welcome', {ok: true});
-    
-    socket.on('connect-console', (data) => {
-        let api = new ScreepsAPI({
-            token: data.token,
-            protocol: 'https',
-            hostname: 'screeps.com',
-            port: 443,
-            path: '/'
-        });
-        
-        api.socket.connect().then(() => {
-            api.socket.subscribe('console');
-            api.socket.on('console', (event) => {
-                socket.emit('message', event)
-            });
-            
-            socket.on('disconnect', () => {
-                api.socket.disconnect()
-            });
-        }).catch((e: Error) => {
-            socket.emit('message', {
-                channel: 'console',
-                id: 'err',
-                data: {
-                    messages: {
-                        log: [e.message]
-                    },
-                    shard: 'shard0'
-                },
-                type: 'user'
-            });
-        });
-        
-    });
-});
-
+const server = http.createServer(app);
 server.listen(port);

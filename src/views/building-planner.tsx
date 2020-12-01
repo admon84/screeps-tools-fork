@@ -9,14 +9,20 @@ interface TerrainMap {
     }
 }
 
+const screepsWorlds: {[key: string]: string} = {
+    mmo: 'Persistent (MMO)',
+    season: 'Season',
+};
+
 export class BuildingPlanner extends React.Component {
     state: Readonly<{
         room: string;
+        world: string;
         shard: string;
         terrain: TerrainMap;
         x: number;
         y: number;
-        shards: string[];
+        worlds: {[worldName: string]: {shards: string[]}};
         brush: string;
         rcl: number;
         structures: {[structure: string]: {x: number; y: number;}[]};
@@ -38,11 +44,16 @@ export class BuildingPlanner extends React.Component {
 
         this.state = {
             room: '',
+            world: 'mmo',
             shard: 'shard0',
             terrain: terrain,
             x: 0,
             y: 0,
-            shards: [],
+            worlds: {
+                mmo: {
+                    shards: []
+                }
+            },
             brush: 'spawn',
             rcl: 8,
             structures: {},
@@ -54,15 +65,27 @@ export class BuildingPlanner extends React.Component {
     componentDidMount() {
         const component = this;
 
-        fetch('/api/shards').then((response) => {
-            response.json().then((data: any) => {
-                let shards: string[] = [];
-                data.shards.forEach((shard: {name: string}) => {
-                    shards.push(shard.name);
-                })
-                component.setState({shards: shards});
+        for (const world in screepsWorlds) {
+            fetch(`/api/shards/${world}`).then((response) => {
+                response.json().then((data: any) => {
+                    if (!data || Object.keys(data).length === 0) {
+                        return;
+                    }
+                    const shards: string[] = [];
+                    data.shards.forEach((shard: {name: string}) => {
+                        shards.push(shard.name);
+                    });
+                    component.setState({
+                        worlds: {
+                            ...this.state.worlds,
+                            [world]: {
+                                shards: shards
+                            }
+                        }
+                    });
+                });
             });
-        });
+        }
 
         let params = location.href.split('?')[1];
         let searchParams = new URLSearchParams(params);
@@ -130,6 +153,7 @@ export class BuildingPlanner extends React.Component {
 
         let json = {
             name: this.state.room,
+            world: this.state.world,
             shard: this.state.shard,
             rcl: this.state.rcl,
             buildings: buildings
@@ -161,7 +185,11 @@ export class BuildingPlanner extends React.Component {
         const component = this;
 
         if (json.shard && json.name) {
-            fetch(`/api/terrain/${json.shard}/${json.name}`).then((response) => {
+            let world = 'mmo';
+            if (json.world && json.world === 'season') {
+                world = 'season';
+            }
+            fetch(`/api/terrain/${world}/${json.shard}/${json.name}`).then((response) => {
                 response.json().then((data: any) => {
                     let terrain = data.terrain[0].terrain;
                     let terrainMap: TerrainMap = {};
@@ -189,7 +217,7 @@ export class BuildingPlanner extends React.Component {
             structures[structure] = json.buildings[structure].pos;
         });
 
-        component.setState({room: json.name, shard: json.shard, rcl: json.rcl, structures: structures});   
+        component.setState({room: json.name, world: json.world, shard: json.shard, rcl: json.rcl, structures: structures});   
     }
 
     getRoadProps(x: number, y: number) {
@@ -369,7 +397,8 @@ export class BuildingPlanner extends React.Component {
                                 planner={this}
                                 room={this.state.room}
                                 shard={this.state.shard}
-                                shards={this.state.shards}
+                                world={this.state.world}
+                                worlds={this.state.worlds}
                             />
                             <hr/>
                             <Row>
@@ -660,8 +689,9 @@ class MapCell extends React.Component<MapCellProps> {
 interface ImportRoomFormProps {
     planner: BuildingPlanner;
     room: string;
+    world: string;
     shard: string;
-    shards: string[];
+    worlds: {[worldName: string]: {shards: string[]}};
 }
 
 interface FieldValidation {
@@ -673,6 +703,7 @@ interface FieldValidation {
 class ImportRoomForm extends React.Component<ImportRoomFormProps> {
     state: Readonly<{
         room: FieldValidation;
+        world: FieldValidation;
         shard: FieldValidation;
         showStructures: boolean;
         submitCalled: boolean;
@@ -683,6 +714,11 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
         this.state = {
             room: {
                 value: props.room,
+                validateOnChange: false,
+                valid: true
+            },
+            world: {
+                value: props.world,
                 validateOnChange: false,
                 valid: true
             },
@@ -704,7 +740,7 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
     }
 
     handleTextBlur(e: any, validationFunc: Function) {
-        const field: 'room' | 'shard' = e.target.name;
+        const field: 'room' | 'world' | 'shard' = e.target.name;
         const value = e.target.value;
 
         if (this.state[field].validateOnChange === false &&
@@ -721,7 +757,7 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
     }
 
     handleTextChange(e: any, validationFunc: Function) {
-        const field: 'room' | 'shard' = e.target.name;
+        const field: 'room' | 'world' | 'shard' = e.target.name;
         const value = e.target.value;
 
         this.setState({
@@ -730,7 +766,19 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
                 valid: (this.state[field].validateOnChange ? validationFunc(value) : true)
             }
         });
-        this.props.planner.setState({[field]: value});  
+        this.props.planner.setState({[field]: value});
+
+        if (field === 'world') {
+            // Changing world select option will select the first shard drop-down option
+            const firstOption = this.props.worlds[value].shards[0];
+            this.setState({
+                shard: {
+                    value: firstOption,
+                    valid: this.validateShard(value)
+                }
+            });
+            this.props.planner.setState({shard: firstOption});
+        }
     }
 
     validateRoom(room: string): boolean {
@@ -739,6 +787,13 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
 
         const regexRoom = new RegExp('^([WE]{1})([0-9]{1,2})([NS]{1})([0-9]{1,2})$');
         return room.match(regexRoom) !== null;
+    }
+
+    validateWorld(world: string): boolean {
+        if (typeof world !== 'string') return false;
+        if (world.length < 1) return false;
+
+        return true;
     }
 
     validateShard(shard: string): boolean {
@@ -753,6 +808,7 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
 
         const component = this.props.planner;
         const room = this.state.room.value;
+        const world = this.state.world.value;
         const shard = this.state.shard.value;
         const includeStructs = this.state.showStructures;
 
@@ -761,6 +817,11 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
                 field: 'room',
                 value: this.state.room.value,
                 validationFunc: this.validateRoom
+            },
+            {
+                field: 'world',
+                value: this.state.world.value,
+                validationFunc: this.validateWorld
             },
             {
                 field: 'shard',
@@ -783,7 +844,7 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
             }
         }
 
-        fetch(`/api/terrain/${shard}/${room}`).then((response) => {
+        fetch(`/api/terrain/${world}/${shard}/${room}`).then((response) => {
             response.json().then((data: any) => {
                 let terrain = data.terrain[0].terrain;
                 let terrainMap: TerrainMap = {};
@@ -794,11 +855,11 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
                         terrainMap[y][x] = code;
                     }
                 }
-                component.setState({terrain: terrainMap, room: room, shard: shard});
+                component.setState({terrain: terrainMap, room: room, world: world, shard: shard});
             });
         });
 
-        fetch(`/api/objects/${shard}/${room}`).then((response) => {
+        fetch(`/api/objects/${world}/${shard}/${room}`).then((response) => {
             response.json().then((data: any) => {
                 let sources: {x: number, y: number}[] = [];
                 let mineral: {[mineralType: string]: {x: number, y: number}} = {};
@@ -841,18 +902,27 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
             <form className="load-room" onSubmit={this.handleSubmit}>
                 <Row>
                     <Col xs={6}>
-                        <Label for="roomName">Room</Label>
-                        <Input type="text" id="roomName" name="room" value={this.state.room.value} invalid={!this.state.room.valid} onBlur={(e) => this.handleTextBlur(e, this.validateRoom)} onChange={(e) => this.handleTextChange(e, this.validateRoom)} />
-                        <FormFeedback>Invalid room name</FormFeedback>
+                        <Label for="worldName">World</Label>
+                        {Object.keys(this.props.worlds).length === 0 &&
+                            <div className="loading">Loading</div>
+                        }
+                        {Object.keys(this.props.worlds).length > 0 &&
+                            <Input type="select" id="worldName" name="world" invalid={!this.state.world.valid} onChange={(e) => this.handleTextChange(e, this.validateWorld)}>
+                                {Object.keys(this.props.worlds).map((world: string) => {
+                                    return <option key={world} value={world}>{screepsWorlds[world]}</option>
+                                })}
+                            </Input>
+                        }
+                        <FormFeedback>Invalid world selection</FormFeedback>
                     </Col>
                     <Col xs={6}>
                         <Label for="shardName">Shard</Label>
-                        {this.props.shards.length === 0 &&
+                        {!this.state.world.valid &&
                             <div className="loading">Loading</div>
                         }
-                        {this.props.shards.length > 0 &&
+                        {this.state.world.valid &&
                             <Input type="select" id="shardName" name="shard" invalid={!this.state.shard.valid} onChange={(e) => this.handleTextChange(e, this.validateShard)}>
-                                {this.props.shards.length && this.props.shards.map((shard) => {
+                                {this.props.worlds[this.state.world.value] && this.props.worlds[this.state.world.value].shards.map((shard) => {
                                     return <option key={shard} value={shard}>{shard}</option>
                                 })}
                             </Input>
@@ -861,8 +931,13 @@ class ImportRoomForm extends React.Component<ImportRoomFormProps> {
                     </Col>
                 </Row>
                 <Row>
-                    <Col>
-                        <Label>
+                    <Col xs={6}>
+                        <Label for="roomName">Room</Label>
+                        <Input type="text" id="roomName" name="room" value={this.state.room.value} invalid={!this.state.room.valid} onBlur={(e) => this.handleTextBlur(e, this.validateRoom)} onChange={(e) => this.handleTextChange(e, this.validateRoom)} />
+                        <FormFeedback>Invalid room name</FormFeedback>
+                    </Col>
+                    <Col xs={6}>
+                        <Label className="show-structures">
                             <Input type="checkbox" name="showStructures" checked={this.state.showStructures} onChange={(e) => this.handleCheckboxChange(e)} />
                             Include Structures
                         </Label>

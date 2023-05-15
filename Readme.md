@@ -1,70 +1,51 @@
 # Screeps Tools
 
+> ## Deprecated: moved to new repo in 2021: [admon84/screeps-tools](https://github.com/admon84/screeps-tools)
+
 Tools to help players of the Programming MMO Screeps.
 
-* :bulb: This is a personalized fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
-
-### Hosted Option
-
-The hosted option is available for convenience at [screeps.admon.dev](https://screeps.admon.dev)
+_This is a fork of [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools) with UI changes and a few extra features_
 
 ### Building Planner
 
-Plan out room layouts with the Building Planner tool.
+Plan your base layouts for Screeps with the Building Planner tool.
 
-* :bulb: Remake of the original [building planner by Dissi](http://screeps.dissi.me/)
+Set the RCL and place structures on the map to create a base layout plan.
 
 Features:
-* All structures including Factory
-* Import rooms from any MMO shard with an option to include structures
-* Importing rooms always includes the controller, source(s), and mineral when available
-* Road structures are visually connected to adjacent roads like in game
-* Hold left-click and drag to place many structures
-* Hold right-click and drag to remove many structures
-* Ramparts can be placed over structures easily
+* Structure placement following in-game logic (ramparts over structures, containers on roads)
+* Terrain and existing structures can be imported from live MMO and seasonal rooms
+* Roads are visually connected together using SVGs
+* Hold left-click and drag to mass-place structures
+* Hold right-click and drag to mass-erase structures
 
-![View the building planner](https://user-images.githubusercontent.com/10291543/95763564-6a0a6700-0c6c-11eb-9eb8-7325b98a4437.png)
+![building planner](https://user-images.githubusercontent.com/10291543/95763564-6a0a6700-0c6c-11eb-9eb8-7325b98a4437.png)
 
 ### Creep Designer
 
 Configure Creeps body parts and evaluate stats with the Creep Designer tool.
 
-* :bulb: Remake of the [screeps body calculator by o4kapuk](https://codepen.io/o4kapuk/full/ZKeorE)
+_This is similar to the [o4kapuk's creep calculator](https://codepen.io/o4kapuk/full/ZKeorE)_
 
 Features:
-* Stats are shown based on body parts added
-* Creep actions are listed based on body parts added
-* Body parts can be boosted using the Boost dropdown
-* Stats calculated "per tick", "per unit count", "per hour" and "per day"
-* Tick duration option affects stats calculated "per hour" and "per day"
+* Generates a stats table based on creep body parts you add
+* Lists out the available creep actions
+* Includes support for boosted parts
+* Estimates creep impact to help you cr
+* Easy to check creep movement to prevent fatigue scenarios
 
-![View the creep designer](https://user-images.githubusercontent.com/10291543/95763598-78f11980-0c6c-11eb-9303-362c962876e4.png)
+![creep designer](https://user-images.githubusercontent.com/10291543/95763598-78f11980-0c6c-11eb-9303-362c962876e4.png)
 
+## Getting started
 
-## Development
-
-You can compile the react app and run it on your machine.
+Screeps Tools is easy to install and run on your local machine.
 
 ### Requirements
 
-* [Node.js v10](https://nodejs.org/en/) or higher
-* [git](https://git-scm.com/)
+* Node.js 10+
 
-### Install
+### Install and run
 
-* Clone this project `git clone https://github.com/admon84/screeps-tools.git`
-* Run `npm install` in the project directory
-
-Once you have cloned the project and installed node modules, these scripts are available in the project directory:
-
-#### `npm run build`
-
-Build lib/app.js (including any changes you make)
-
-#### `npm run start`
-
-Starts the web server.  View it at [http://localhost:3000](http://localhost:3000)
-
-#### `npm run launch`
-
-Builds the app and then starts the web server
+* Clone or download this repo
+* Install dependencies with `npm install`
+* Start the app with `npm start`

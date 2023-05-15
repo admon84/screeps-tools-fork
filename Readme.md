@@ -25,14 +25,13 @@ Features:
 
 Configure Creeps body parts and evaluate stats with the Creep Designer tool.
 
-_This is similar to the [o4kapuk's creep calculator](https://codepen.io/o4kapuk/full/ZKeorE)_
+_This is similar to [o4kapuk's creep calculator](https://codepen.io/o4kapuk/full/ZKeorE)_
 
 Features:
 * Generates a stats table based on creep body parts you add
+* Estimates creep abilities and effectiveness over time
 * Lists out the available creep actions
 * Includes support for boosted parts
-* Estimates creep impact to help you cr
-* Easy to check creep movement to prevent fatigue scenarios
 
 ![creep designer](https://user-images.githubusercontent.com/10291543/95763598-78f11980-0c6c-11eb-9303-362c962876e4.png)
 
@@ -49,3 +48,7 @@ Screeps Tools is easy to install and run on your local machine.
 * Clone or download this repo
 * Install dependencies with `npm install`
 * Start the app with `npm start`
+
+## Credits
+
+- [Aracath/screeps-tools](https://github.com/Arcath/screeps-tools)
